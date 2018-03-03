@@ -1,5 +1,5 @@
 {
-  "name": "simplcommerce",
+  "name": "KK-Cosmetics",
   "version": "1.0.0",
   "description": "A simple, cross platform, modularized ecommerce system built on .NET Core",
   "private": true,
@@ -46,7 +46,7 @@
     "angularjs",
     "entity-framework-core"
   ],
-  "author": "Thien Nguyen Le Quynh",
+  "author": "Khanh Vu",
   "contributors": [
     "SimplCommerce contributors"
   ],

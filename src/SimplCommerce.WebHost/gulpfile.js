@@ -73,15 +73,20 @@ function loadModules() {
     return modules;
 }
 
-gulp.task('clean-module', function () {
-    return gulp.src([paths.host.modules + '*', paths.host.wwwrootModules + '*'], { read: false })
+gulp.task('clean-modules', function () {
+    return gulp.src([paths.host.modules + '*', paths.host.wwwrootModules + '*'], {
+            read: false
+        })
         .pipe(clean());
 });
 
 gulp.task('copy-static', function () {
     modules.forEach(function (module) {
         gulp.src([paths.dev.modules + module.fullName + '/Views/**/*.*',
-        paths.dev.modules + module.fullName + '/module.json'], { base: module.fullName })
+                paths.dev.modules + module.fullName + '/module.json'
+            ], {
+                base: module.fullName
+            })
             .pipe(gulp.dest(paths.host.modules + module.fullName));
         gulp.src(paths.dev.modules + module.fullName + '/wwwroot/**/*.*')
             .pipe(gulp.dest(paths.host.wwwrootModules + module.name));
@@ -91,7 +96,7 @@ gulp.task('copy-static', function () {
         .pipe(gulp.dest(paths.host.modules + 'SimplCommerce.Module.SampleData/SampleContent'));
 });
 
-gulp.task('copy-modules', ['clean-module'], function () {
+gulp.task('copy-modules', ['clean-modules'], function () {
     gulp.start(['copy-static']);
 
     modules.forEach(function (module) {
@@ -118,12 +123,14 @@ gulp.task("copy-lib", ["clean:lib"], function () {
 
     for (var desDir in bower)
         gulp.src(paths.host.bower + bower[desDir])
-            .pipe(ignore.exclude(ignoreComponents))
-            .pipe(gulp.dest(paths.host.lib + desDir));
+        .pipe(ignore.exclude(ignoreComponents))
+        .pipe(gulp.dest(paths.host.lib + desDir));
 });
 
 gulp.task("min:js", function () {
-    return gulp.src([paths.host.js, "!" + paths.host.minJs], { base: "." })
+    return gulp.src([paths.host.js, "!" + paths.host.minJs], {
+            base: "."
+        })
         .pipe(concat(paths.host.concatJsDest))
         // .pipe(uglify())
         .pipe(gulp.dest("."));
@@ -137,3 +144,9 @@ gulp.task("min:css", function () {
 });
 
 gulp.task("min", ["min:js", "min:css"]);
+
+// gulp.task('watch', function () {
+//     gulp.watch([paths.dev.modules + '**/*.js', paths.dev.modules + '**/*.css', paths.dev.modules + '**/*.cshtml', paths.dev.modules + '**/*.json'], ['copy-static']);
+// });
+
+gulp.task('default', ['copy-modules']);

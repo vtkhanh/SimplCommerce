@@ -9,11 +9,11 @@ namespace SimplCommerce.WebHost
     {
         public static void Main(string[] args)
         {
-            BuildWebHost2(args).Run();
+            BuildHost(args).Run();
         }
 
-        // Changed to BuildWebHost2 to make EF don't pickup during design time
-        private static IWebHost BuildWebHost2(string[] args) =>
+        // Changed to BuildHost to make EF don't pickup during design time
+        private static IWebHost BuildHost(string[] args) =>
             Microsoft.AspNetCore.WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration(SetupConfiguration)

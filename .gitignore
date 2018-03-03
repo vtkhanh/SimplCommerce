@@ -18,6 +18,7 @@ packages/*
 node_modules/
 bower_components/
 .vs/
+.idea/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
@@ -160,3 +161,4 @@ $RECYCLE.BIN/
 .DS_Store
 
 src/Modules/**/launchSettings.json
+*-lock.json
