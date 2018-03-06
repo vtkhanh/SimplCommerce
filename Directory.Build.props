@@ -1,0 +1,5 @@
+<Project>
+    <PropertyGroup>
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    </PropertyGroup>
+</Project>
