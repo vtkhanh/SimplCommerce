@@ -24,6 +24,12 @@ namespace SimplCommerce.WebHost
                             .AddJsonFile($"appsettings.{environmentName}.json", true);
 
             builder.AddEnvironmentVariables();
+
+            if (environmentName.ToLower().Equals("development"))
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
             var _configuration = builder.Build();
 
             //setup DI

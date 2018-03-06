@@ -160,5 +160,5 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 
-src/Modules/**/launchSettings.json
-*-lock.json
+# Others
+package-lock.json
