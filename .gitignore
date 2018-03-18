@@ -19,6 +19,7 @@ node_modules/
 bower_components/
 .vs/
 .idea/
+.vscode/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
@@ -162,3 +163,8 @@ $RECYCLE.BIN/
 
 # Others
 package-lock.json
+appsettings.Production.json
+
+# Minified files
+src/Modules/**/*.min.js
+src/Modules/**/*.min.css

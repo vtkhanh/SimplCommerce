@@ -24,10 +24,10 @@ var paths = {
     }
 };
 
-paths.host.js = paths.host.wwwroot + "js/**/*.js";
-paths.host.minJs = paths.host.wwwroot + "js/**/*.min.js";
-paths.host.css = paths.host.wwwroot + "css/**/*.css";
-paths.host.minCss = paths.host.wwwroot + "css/**/*.min.css";
+paths.host.js = paths.host.wwwroot + "modules/**/*.js";
+paths.host.minJs = paths.host.wwwroot + "modules/**/*.min.js";
+paths.host.css = paths.host.wwwroot + "modules/**/*.css";
+paths.host.minCss = paths.host.wwwroot + "modules/**/*.min.css";
 paths.host.concatJsDest = paths.host.wwwroot + "js/site.min.js";
 paths.host.concatCssDest = paths.host.wwwroot + "css/site.min.css";
 paths.host.lib = paths.host.wwwroot + "lib/";
@@ -128,6 +128,8 @@ gulp.task("copy-lib", ["clean:lib"], function () {
 });
 
 gulp.task("min:js", function () {
+    // console.log(paths.host.js);
+    // console.log('!' + paths.host.js);
     return gulp.src([paths.host.js, "!" + paths.host.minJs], {
             base: "."
         })

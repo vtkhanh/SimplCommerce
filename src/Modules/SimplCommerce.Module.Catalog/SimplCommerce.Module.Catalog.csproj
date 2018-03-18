@@ -13,4 +13,8 @@
     <ProjectReference Include="..\SimplCommerce.Module.Tax\SimplCommerce.Module.Tax.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" />
+  </ItemGroup>
+
 </Project>

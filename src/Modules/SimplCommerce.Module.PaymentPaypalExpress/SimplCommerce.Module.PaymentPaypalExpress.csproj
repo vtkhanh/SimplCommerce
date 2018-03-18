@@ -14,4 +14,7 @@
     <ProjectReference Include="..\SimplCommerce.Module.Payments\SimplCommerce.Module.Payments.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" />
+  </ItemGroup>
 </Project>

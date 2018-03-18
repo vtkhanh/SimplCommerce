@@ -13,7 +13,8 @@
     "gulp-copy-lib": "gulp copy-lib",
     "gulp-min:js": "gulp min:js",
     "gulp-min:css": "gulp min:css",
-    "gulp-min": "gulp min"
+    "gulp-min": "gulp min",
+    "gulp-default": "gulp"
   },
   "dependencies": {},
   "devDependencies": {
