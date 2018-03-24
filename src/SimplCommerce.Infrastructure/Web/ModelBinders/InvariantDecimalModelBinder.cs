@@ -3,16 +3,17 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Microsoft.Extensions.Logging;
 
 namespace SimplCommerce.Infrastructure.Web.ModelBinders
 {
     public class InvariantDecimalModelBinder : IModelBinder
     {
-        private readonly SimpleTypeModelBinder _baseBinder;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public InvariantDecimalModelBinder(Type modelType)
+        public InvariantDecimalModelBinder(ILoggerFactory loggerFactory)
         {
-            _baseBinder = new SimpleTypeModelBinder(modelType);
+            _loggerFactory = loggerFactory;
         }
 
         public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -39,7 +40,8 @@ namespace SimplCommerce.Infrastructure.Web.ModelBinders
             }
 
             // If we haven't handled it, then we'll let the base SimpleTypeModelBinder handle it
-            return _baseBinder.BindModelAsync(bindingContext);
+            var baseBinder = new SimpleTypeModelBinder(bindingContext.ModelType, _loggerFactory);
+            return baseBinder.BindModelAsync(bindingContext);
         }
     }
 }
