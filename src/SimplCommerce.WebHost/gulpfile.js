@@ -33,14 +33,15 @@ paths.host.concatCssDest = paths.host.wwwroot + "css/site.min.css";
 paths.host.lib = paths.host.wwwroot + "lib/";
 
 var bower = {
-    // "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
+    "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
     "font-awesome": "components-font-awesome/**/*.{css,ttf,svg,woff,woff2,eot,otf}",
-    // "jquery": "jquery/dist/jquery*.{js,map}",
+    "jquery": "jquery/dist/jquery*.{js,map}",
     "jquery-validation": "jquery-validation/dist/*.js",
     "jquery-validation-unobtrusive": "jquery-validation-unobtrusive/*.js",
     "nouislider": "nouislider/distribute/*.{js,css}",
     "wnumb": "wnumb/wNumb.js",
     "angular": "angular/angular.js",
+    "angular-i18n": "angular-i18n/angular-locale_*.js",
     "angular-animate": "angular-animate/angular*.js",
     "angular-aria": "angular-aria/angular*.js",
     "angular-material": "angular-material/angular-material*.{js,css}",
@@ -55,7 +56,8 @@ var bower = {
     "toastr": "toastr/toastr*.{js,css}",
     "bootbox": "bootbox/bootbox*.{js,css}",
     "angular-ui-tree": "angular-ui-tree/dist/*.*",
-    "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*"
+    "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*",
+    "bootstrap-ui-datetime-picker": "bootstrap-ui-datetime-picker/dist/*.{js,tpls.js}"
 };
 
 var modules = loadModules();
