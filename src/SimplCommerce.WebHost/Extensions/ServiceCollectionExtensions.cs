@@ -26,6 +26,7 @@ using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Infrastructure.Web.ModelBinders;
 using SimplCommerce.Infrastructure.Web;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SimplCommerce.WebHost.Extensions
 {
@@ -103,7 +104,8 @@ namespace SimplCommerce.WebHost.Extensions
                     }
                 })
                 .AddViewLocalization()
-                .AddDataAnnotationsLocalization();
+                .AddDataAnnotationsLocalization()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             foreach (var module in modules)
             {
@@ -131,17 +133,16 @@ namespace SimplCommerce.WebHost.Extensions
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(o => o.LoginPath = new PathString("/login"))
-
                 .AddFacebook(x =>
-            {
-                x.AppId = "1716532045292977";
-                x.AppSecret = "dfece01ae919b7b8af23f962a1f87f95";
-
-                x.Events = new OAuthEvents
                 {
-                    OnRemoteFailure = ctx => HandleRemoteLoginFailure(ctx)
-                };
-            })
+                    x.AppId = "1716532045292977";
+                    x.AppSecret = "dfece01ae919b7b8af23f962a1f87f95";
+
+                    x.Events = new OAuthEvents
+                    {
+                        OnRemoteFailure = ctx => HandleRemoteLoginFailure(ctx)
+                    };
+                })
                 .AddGoogle(x =>
                 {
                     x.ClientId = "583825788849-8g42lum4trd5g3319go0iqt6pn30gqlq.apps.googleusercontent.com";
