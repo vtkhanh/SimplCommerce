@@ -33,9 +33,9 @@ paths.host.concatCssDest = paths.host.wwwroot + "css/site.min.css";
 paths.host.lib = paths.host.wwwroot + "lib/";
 
 var bower = {
-    "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
+    // "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
     "font-awesome": "components-font-awesome/**/*.{css,ttf,svg,woff,woff2,eot,otf}",
-    "jquery": "jquery/dist/jquery*.{js,map}",
+    // "jquery": "jquery/dist/jquery*.{js,map}",
     "jquery-validation": "jquery-validation/dist/*.js",
     "jquery-validation-unobtrusive": "jquery-validation-unobtrusive/*.js",
     "nouislider": "nouislider/distribute/*.{js,css}",
@@ -66,6 +66,7 @@ function loadModules() {
 
     moduleManifestPaths = glob.sync(paths.dev.modules + '*.*/module.json', {});
     moduleManifestPaths.forEach(function (moduleManifestPath) {
+        // console.log(moduleManifestPath);
         var moduleManifest = require(moduleManifestPath);
         modules.push(moduleManifest);
     });
@@ -88,6 +89,7 @@ gulp.task('copy-static', function () {
                 base: module.fullName
             })
             .pipe(gulp.dest(paths.host.modules + module.fullName));
+
         gulp.src(paths.dev.modules + module.fullName + '/wwwroot/**/*.*')
             .pipe(gulp.dest(paths.host.wwwrootModules + module.name));
     });
@@ -121,15 +123,15 @@ gulp.task("clean:lib", function () {
 gulp.task("copy-lib", ["clean:lib"], function () {
     var ignoreComponents = ["**/npm.js"];
 
-    for (var desDir in bower)
+    for (var desDir in bower) {
+        // console.log(paths.host.bower + bower[desDir]);
         gulp.src(paths.host.bower + bower[desDir])
-        .pipe(ignore.exclude(ignoreComponents))
-        .pipe(gulp.dest(paths.host.lib + desDir));
+            .pipe(ignore.exclude(ignoreComponents))
+            .pipe(gulp.dest(paths.host.lib + desDir));
+    }
 });
 
 gulp.task("min:js", function () {
-    // console.log(paths.host.js);
-    // console.log('!' + paths.host.js);
     return gulp.src([paths.host.js, "!" + paths.host.minJs], {
             base: "."
         })
@@ -151,4 +153,4 @@ gulp.task("min", ["min:js", "min:css"]);
 //     gulp.watch([paths.dev.modules + '**/*.js', paths.dev.modules + '**/*.css', paths.dev.modules + '**/*.cshtml', paths.dev.modules + '**/*.json'], ['copy-static']);
 // });
 
-gulp.task('default', ['copy-modules']);
+gulp.task('default', ['copy-lib', 'copy-modules']);
