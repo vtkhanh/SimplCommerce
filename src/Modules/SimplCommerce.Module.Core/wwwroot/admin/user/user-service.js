@@ -19,7 +19,7 @@
         return service;
 
         function getUsers(params) {
-            return $http.post('api/users/grid', params);
+            return $http.post('api/users/list', params);
         }
 
         function getUser(id) {

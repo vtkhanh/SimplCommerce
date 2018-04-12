@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SimplCommerce.Module.Core.Services;
@@ -10,11 +11,13 @@ namespace SimplCommerce.Module.Core.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IHostingEnvironment _env;
         private readonly ILogger _logger;
         private readonly IWidgetInstanceService _widgetInstanceService;
 
-        public HomeController(ILoggerFactory factory, IWidgetInstanceService widgetInstanceService)
+        public HomeController(IHostingEnvironment env, ILoggerFactory factory, IWidgetInstanceService widgetInstanceService)
         {
+            _env = env;
             _logger = factory.CreateLogger("Unhandled Error");
             _widgetInstanceService = widgetInstanceService;
         }
@@ -26,6 +29,8 @@ namespace SimplCommerce.Module.Core.Controllers
 
         public IActionResult Index()
         {
+            if (_env.IsProduction()) return Redirect("/admin");
+
             var model = new HomeViewModel();
 
             model.WidgetInstances = _widgetInstanceService.GetPublished().Select(x => new WidgetInstanceViewModel

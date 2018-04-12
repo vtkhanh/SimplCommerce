@@ -54,7 +54,8 @@ const bower = {
     "bootbox": "bootbox/bootbox*.{js,css}",
     "angular-ui-tree": "angular-ui-tree/dist/*.*",
     "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*",
-    "bootstrap-ui-datetime-picker": "bootstrap-ui-datetime-picker/dist/*.{js,tpls.js}"
+    "bootstrap-ui-datetime-picker": "bootstrap-ui-datetime-picker/dist/*.{js,tpls.js}",
+    "bootstrap-star-rating": "bootstrap-star-rating/**/star-rating.{css,js}"
 };
 
 gulp.task('clean-modules', function () {

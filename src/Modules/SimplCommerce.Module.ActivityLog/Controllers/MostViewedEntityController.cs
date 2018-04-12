@@ -23,7 +23,13 @@ namespace SimplCommerce.Module.ActivityLog.Controllers
         [HttpGet("most-viewed-entities/{entityTypeId}")]
         public async Task<IList<MostViewEntityDto>> GetMostViewedEntities(long entityTypeId)
         {
-            return await _activityTypeRepository.List().Where(x => x.EntityTypeId == entityTypeId).Take(10).ToListAsync();
+            var result = await _activityTypeRepository
+                .List()
+                .Where(x => x.EntityTypeId == entityTypeId)
+                .Take(10)
+                .ToListAsync();
+
+            return result;
         }
     }
 }

@@ -36,8 +36,17 @@
     toastr.options.closeButton = true;
     adminApp
         .config([
-            '$urlRouterProvider', '$httpProvider',
-            function ($urlRouterProvider, $httpProvider) {
+            '$urlRouterProvider', '$httpProvider', '$locationProvider',
+            function ($urlRouterProvider, $httpProvider, $locationProvider) {
+                $locationProvider.hashPrefix('');
+                // Use Html5 mode in order to remove '#'
+                // $locationProvider.html5Mode(true);
+
+                // $locationProvider.html5Mode({
+                //     enabled: true,
+                //     rewriteLinks: false
+                // });
+
                 $urlRouterProvider.otherwise("/dashboard");
 
                 $httpProvider.interceptors.push(function () {

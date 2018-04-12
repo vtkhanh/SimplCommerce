@@ -144,12 +144,14 @@ li.nav-item-group, li.nav-item-group a {
 .footer-content {
     margin-top: 30px;
     background-color: #eee;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }
 
     .footer-content hr {
         border-color: #ddd;
     }
-
 
 /* Carousel */
 .carousel-caption {
