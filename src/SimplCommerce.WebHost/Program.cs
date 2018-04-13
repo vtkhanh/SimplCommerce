@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -24,13 +25,21 @@ namespace SimplCommerce.WebHost
                 .CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration(SetupConfiguration)
-                .ConfigureLogging(SetupLogging);
+                .ConfigureLogging(SetupLogging)
+                .UseSerilog();
 
-        private static void SetupLogging(WebHostBuilderContext context, ILoggingBuilder loggingBuilder) =>
-            loggingBuilder
-                .AddConfiguration(context.Configuration.GetSection("Logging"))
-                .AddConsole()
-                .AddDebug();
+        private static void SetupLogging(WebHostBuilderContext context, ILoggingBuilder loggingBuilder)
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
+        }
 
         private static void SetupConfiguration(WebHostBuilderContext context, IConfigurationBuilder configBuilder) =>
             configBuilder
