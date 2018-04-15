@@ -18,7 +18,7 @@ namespace SimplCommerce.Module.ActivityLog.Data
             var result = Query()
                 .Join(Context.Set<Entity>(), 
                         a => new { a.EntityId, a.EntityTypeId }, 
-                        e => new { e.EntityId, e.EntityTypeId}, 
+                        e => new { e.EntityId, e.EntityTypeId }, 
                         (a, e) => new { 
                             EntityId = a.EntityId,
                             EntityTypeId = a.EntityTypeId,
@@ -26,7 +26,6 @@ namespace SimplCommerce.Module.ActivityLog.Data
                             Slug = e.Slug
                         })
                 .GroupBy(i => new { i.EntityId, i.EntityTypeId, i.Name, i.Slug })
-                .OrderByDescending(g => g.Count())
                 .Select(g => new MostViewEntityDto() {
                     EntityId = g.Key.EntityId,
                     EntityTypeId = g.Key.EntityTypeId,

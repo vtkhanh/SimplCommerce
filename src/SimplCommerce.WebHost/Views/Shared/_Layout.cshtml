@@ -15,7 +15,8 @@
 </head>
 
 <body>
-    <section class="top-bar container-fluid">
+    <div class="container-fluid">
+        <section class="top-bar">
         <div class="row">
             <div class="col-xs-12">
                 <ul class="list-inline list-unstyled pull-right">
@@ -24,39 +25,40 @@
 
             </div>
         </div>
-    </section>
-    <menu class="main-header container-fluid">
-        <div class="row">
-            <div class="col-xs-12 col-md-4 logo">
-                <a asp-controller="Home" asp-action="Index">
-                    <img alt="SimplCommerce" src="~/modules/core/Logo_SimplCommerce.png" />
-                </a>
+        </section>
+
+        <menu class="main-header">
+            <div class="row">
+                <div class="col-xs-12 col-md-4 logo">
+                    <a asp-controller="Home" asp-action="Index">
+                        <img alt="SimplCommerce" src="~/modules/core/Logo_SimplCommerce.png" />
+                    </a>
+                </div>
+                <div class="col-xs-10 col-md-7 search-box">
+                    @await Component.InvokeAsync("SearchForm")
+                </div>
+                <div class="col-xs-2 col-md-1 cart-btn">
+                    @await Component.InvokeAsync("CartBadge")
+                </div>
             </div>
-            <div class="col-xs-10 col-md-7 search-box">
-                @await Component.InvokeAsync("SearchForm")
+        </menu>
+        <section class="navbar navbar-default main-nav">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
             </div>
-            <div class="col-xs-2 col-md-1 cart-btn">
-                @await Component.InvokeAsync("CartBadge")
+            <div class="collapse navbar-collapse navbar-responsive-collapse">
+                @await Component.InvokeAsync("CategoryMenu")
             </div>
-        </div>
-    </menu>
-    <section class="container-fluid navbar navbar-default main-nav">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-        </div>
-        <div class="collapse navbar-collapse navbar-responsive-collapse">
-            @await Component.InvokeAsync("CategoryMenu")
-        </div>
-    </section>
-    <section class="body-content container-fluid">
-        @RenderBody()
-    </section>
-    <footer class="footer-content container-fluid">
+        </section>
+        <section class="body-content">
+            @RenderBody()
+        </section>
+        <footer class="footer-content">
         <!-- <div class="row">
                     <div class="col-md-3">
                         <h4>@Localizer["Customer Service"]</h4>
@@ -74,13 +76,13 @@
                     </div>
                 </div>
                 <hr /> -->
-        <div class="row">
-            <div class="col-xs-12">
-                <p class="pull-left">&copy; @DateTime.Now.Year - KK-Cosmetics</p>
+            <div class="row">
+                <div class="col-xs-12">
+                    <span class="copyright">&copy; @DateTime.Now.Year - KK-Cosmetics</span>
+                </div>
             </div>
-        </div>
-        <!-- <p class="pull-right">Powered by <a href="http://www.SimplCommerce.com"><strong>SimplCommerce</strong></a></p> -->
-        </div>
+        </footer>
+    </div>
         <div id="shopModal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">

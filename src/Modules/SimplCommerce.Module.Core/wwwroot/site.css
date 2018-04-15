@@ -16,6 +16,7 @@ textarea {
 .top-bar {
     background-color: #212121;
     color: #e7e7e7;
+    padding: 0 15px;
 }
 
     .top-bar > div > ul > li > a, .top-bar .top-bar > div > ul > li > a:visited {
@@ -143,10 +144,12 @@ li.nav-item-group, li.nav-item-group a {
 
 .footer-content {
     margin-top: 30px;
+    padding: 0 15px;
     background-color: #eee;
-    position: fixed;
     bottom: 0;
     width: 100%;
+    height: 3rem;
+    line-height: 3rem;
 }
 
     .footer-content hr {
