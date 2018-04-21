@@ -319,7 +319,8 @@
             }
 
             promise.then(function (result) {
-                    $state.go('product');
+                    $state.reload();
+                    toastr.success("Saved successfully!");
                 })
                 .catch(function (response) {
                     var error = response.data;
