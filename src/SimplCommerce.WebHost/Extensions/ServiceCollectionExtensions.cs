@@ -58,10 +58,10 @@ namespace SimplCommerce.WebHost.Extensions
                         // Get loaded assembly
                         assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(file.Name)));
 
-                        if (assembly == null)
-                        {
-                            throw;
-                        }
+                        // if (assembly == null)
+                        // {
+                        //     throw;
+                        // }
                     }
 
                     if (assembly.FullName.Contains(moduleFolder.Name))

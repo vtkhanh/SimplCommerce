@@ -391,9 +391,14 @@
                 </uib-tab>
             </uib-tabset>
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                    <button class="btn btn-primary" ng-disabled="productForm.$invalid" ng-click="vm.save()"><span class="glyphicon glyphicon-ok"></span>{{::vm.translate.get('Save')}}</button>
+                <div class="col-sm-offset-2 col-sm-9">
+                    <button class="btn btn-primary" ng-disabled="productForm.$invalid" ng-click="vm.save()">
+                        <i class="fa fa-check">&nbsp;</i>{{::vm.translate.get('Save')}}
+                    </button>
                     <button ui-sref="product" class="btn btn-default">{{::vm.translate.get('Cancel')}}</button>
+                </div>
+                <div class="col-sm-1">
+                    <my-back-btn></my-back-btn>
                 </div>
             </div>
         </form>

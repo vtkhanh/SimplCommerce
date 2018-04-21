@@ -32,9 +32,9 @@ th.sortable {
     color: white !important;
 }
 
-.date-filter {
+/* .date-filter {
     width: 170px;
-}
+} */
 
 .product-image-edit {
     display: inline-block;
@@ -148,4 +148,13 @@ td>span.glyphicon-remove {
 
 .entity-selector .entity-name {
     width: 200px;
+}
+
+.centered {
+    float: none;
+    margin: 0 auto;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0;
 }

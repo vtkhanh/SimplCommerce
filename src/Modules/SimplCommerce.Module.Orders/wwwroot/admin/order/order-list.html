@@ -20,12 +20,12 @@
         </tr>
         <tr>
             <th>
-                <div class="form-group">
+                <div class="form-group no-margin-bottom">
                     <input type="number" class="form-control" st-search="Id" />
                 </div>
             </th>
             <th>
-                <div class="form-group">
+                <div class="form-group no-margin-bottom">
                     <select class="form-control" st-search="Status">
                         <option value="">All</option>
                         <option ng-repeat="status in vm.orderStatus" value="{{status.id}}">{{status.name}}</option>
@@ -33,7 +33,7 @@
                 </div>
             </th>
             <th>
-                <div class="form-group">
+                <div class="form-group no-margin-bottom">
                     <input class="form-control" st-search="CustomerName" />
                 </div>
             </th>

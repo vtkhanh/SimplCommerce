@@ -33,6 +33,11 @@ textarea {
     background-color: #f9f9f9;
 }
 
+.centered {
+    float: none;
+    margin: 0 auto;
+}
+
 @media (max-width : 992px) {
     .logo {
         text-align: center

@@ -13,6 +13,7 @@
             "wwwroot/admin/common/common.js",
             "wwwroot/admin/common/summernote-service.js",
             "wwwroot/admin/common/st-date-range.js",
+            "wwwroot/admin/common/my-back-btn.js",
             "wwwroot/admin/common/translation-service.js",
             "wwwroot/admin/dashboard/dashboard.module.js",
 

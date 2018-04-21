@@ -42,7 +42,7 @@
         }
 
         function getProducts(params) {
-            return $http.post('api/products/grid', params);
+            return $http.post('api/products/list', params);
         }
 
         function createProduct(product, thumbnailImage, productImages, productDocuments) {

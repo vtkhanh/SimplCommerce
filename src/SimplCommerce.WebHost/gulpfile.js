@@ -16,6 +16,9 @@ const install = require('gulp-install');
 const configurationName = argv.configurationName || 'Debug';
 const targetFramework = 'netcoreapp2.1';
 
+// debugging
+console.log(configurationName);
+
 const mPaths = {
     devModules: "../Modules/",
     hostModules: "./Modules/",
@@ -89,10 +92,6 @@ gulp.task('copy-static', ['clean-modules'], function () {
 
 gulp.task('copy-modules', ['clean-modules', 'copy-static', 'copy-compiled']);
 
-gulp.task('watch', () => {
-    // watch([mPaths.devModules + '**/Views/**/*.*', mPaths.devModules + '**/wwwroot/**/*.*'], )
-});
-
 function loadModules() {
     let moduleManifestPaths;
     const modules = [];
@@ -162,9 +161,10 @@ gulp.task("min:css", function () {
 
 gulp.task("min", ["min:js", "min:css"]);
 
+gulp.task("clean", ["clean-modules", "clean:lib"]);
+
 gulp.task('watch', () => {
     gulp.watch([mPaths.devModules + '**/Views/**/*.*', mPaths.devModules + '**/wwwroot/**/*.*'], ['copy-static']);
 });
 
-gulp.task('default', ['copy-lib', 'copy-modules'], () => {
-});
+gulp.task('default', ['copy-lib', 'copy-modules']);

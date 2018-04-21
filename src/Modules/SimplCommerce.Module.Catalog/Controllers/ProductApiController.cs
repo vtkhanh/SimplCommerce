@@ -176,7 +176,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             return Json(productVm);
         }
 
-        [HttpPost("grid")]
+        [HttpPost("list")]
         public async Task<IActionResult> List([FromBody] SmartTableParam param)
         {
             var query = _productRepository.Query().Where(x => !x.IsDeleted);
@@ -425,7 +425,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             var currentUser = await _workContext.GetCurrentUser();
             if (!User.IsInRole("admin") && product.VendorId != currentUser.VendorId)
             {
-                return BadRequest(new { error = "You don't have permission to manage this product" });
+                return BadRequest(new { error = "You don't have permission to manage this product!" });
             }
 
             product.IsPublished = !product.IsPublished;
