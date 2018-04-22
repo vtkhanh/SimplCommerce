@@ -16,13 +16,14 @@
 
 <body>
     <div class="container-fluid">
-        <section class="top-bar">
+        <section>
         <div class="row">
             <div class="col-xs-12">
-                <ul class="list-inline list-unstyled pull-right">
-                    @await Html.PartialAsync("_SelectLanguagePartial") @await Html.PartialAsync("_LoginPartial")
-                </ul>
-
+                <div class="navbar navbar-inverse">
+                    <ul class="list-inline list-unstyled pull-right">
+                        @await Html.PartialAsync("_SelectLanguagePartial") @await Html.PartialAsync("_LoginPartial")
+                    </ul>
+                </div>
             </div>
         </div>
         </section>

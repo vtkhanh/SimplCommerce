@@ -319,7 +319,7 @@
             }
 
             promise.then(function (result) {
-                    $state.reload();
+                    // $state.reload();
                     toastr.success("Saved successfully!");
                 })
                 .catch(function (response) {

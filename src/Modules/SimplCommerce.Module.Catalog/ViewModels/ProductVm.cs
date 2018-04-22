@@ -17,6 +17,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public long Id { get; set; }
 
+        public decimal Cost { get; set; }
+
         public decimal Price { get; set; }
 
         public decimal? OldPrice { get; set; }

@@ -10,6 +10,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public string NormalizedName { get; set; }
 
+        public decimal Cost { get; set; }
+
         public decimal Price { get; set; }
 
         public decimal? OldPrice { get; set; }

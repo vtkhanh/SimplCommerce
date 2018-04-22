@@ -64,7 +64,7 @@ namespace SimplCommerce.WebHost.Extensions
                         // }
                     }
 
-                    if (assembly.FullName.Contains(moduleFolder.Name))
+                    if (assembly.FullName.Contains(moduleFolder.Name) && modules.All(i => i.Name != moduleFolder.Name))
                     {
                         modules.Add(new ModuleInfo
                         {

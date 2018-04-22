@@ -80,6 +80,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 ShortDescription = product.ShortDescription,
                 Description = product.Description,
                 Specification = product.Specification,
+                Cost = product.Cost,
                 OldPrice = product.OldPrice,
                 Price = product.Price,
                 SpecialPrice = product.SpecialPrice,
@@ -131,6 +132,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 {
                     Id = variation.Id,
                     Name = variation.Name,
+                    Cost = variation.Cost,
                     Price = variation.Price,
                     OldPrice = variation.OldPrice,
                     NormalizedName = variation.NormalizedName,
@@ -371,6 +373,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             product.ShortDescription = model.Product.ShortDescription;
             product.Description = model.Product.Description;
             product.Specification = model.Product.Specification;
+            product.Cost = model.Product.Cost;
             product.Price = model.Product.Price;
             product.OldPrice = model.Product.OldPrice;
             product.SpecialPrice = model.Product.SpecialPrice;

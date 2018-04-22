@@ -13,6 +13,8 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public string Specification { get; set; }
 
+        public decimal Cost { get; set; }
+
         public decimal Price { get; set; }
 
         public decimal? OldPrice { get; set; }
@@ -125,6 +127,7 @@ namespace SimplCommerce.Module.Catalog.Models
             product.Specification = Specification;
             product.IsPublished = true;
             product.PublishedOn = DateTimeOffset.Now;
+            product.Cost = Cost;
             product.Price = Price;
             product.OldPrice = OldPrice;
             product.IsAllowToOrder = IsAllowToOrder;
