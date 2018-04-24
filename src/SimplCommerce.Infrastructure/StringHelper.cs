@@ -6,6 +6,8 @@ namespace SimplCommerce.Infrastructure
 {
     public static class StringHelper
     {
+        public static bool IsNullOrEmpty(this string source) => string.IsNullOrEmpty(source);
+
         public static string ToUrlFriendly(this string name)
         {
             // Fallback for product variations

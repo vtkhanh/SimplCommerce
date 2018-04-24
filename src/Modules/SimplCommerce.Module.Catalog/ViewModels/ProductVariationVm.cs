@@ -8,6 +8,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public string Name { get; set; }
 
+        public string Sku { get; set; }
+
         public string NormalizedName { get; set; }
 
         public decimal Cost { get; set; }

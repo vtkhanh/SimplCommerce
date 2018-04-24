@@ -18,6 +18,7 @@ using SimplCommerce.Module.Catalog.ViewModels;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -76,6 +77,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             {
                 Id = product.Id,
                 Name = product.Name,
+                Sku = product.Sku,
                 Slug = product.SeoTitle,
                 ShortDescription = product.ShortDescription,
                 Description = product.Description,
@@ -88,7 +90,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 SpecialPriceEnd = product.SpecialPriceEnd,
                 IsFeatured = product.IsFeatured,
                 IsPublished = product.IsPublished,
-                IsCallForPricing =  product.IsCallForPricing,
+                IsCallForPricing = product.IsCallForPricing,
                 IsAllowToOrder = product.IsAllowToOrder,
                 IsOutOfStock = product.StockQuantity == 0,
                 CategoryIds = product.Categories.Select(x => x.CategoryId).ToList(),
@@ -132,6 +134,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 {
                     Id = variation.Id,
                     Name = variation.Name,
+                    Sku = variation.Sku,
                     Cost = variation.Cost,
                     Price = variation.Price,
                     OldPrice = variation.OldPrice,
@@ -152,6 +155,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 {
                     Id = relatedProduct.Id,
                     Name = relatedProduct.Name,
+                    Sku = relatedProduct.Sku,
                     IsPublished = relatedProduct.IsPublished
                 });
             }
@@ -162,6 +166,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 {
                     Id = crossSellProduct.Id,
                     Name = crossSellProduct.Name,
+                    Sku = crossSellProduct.Sku,
                     IsPublished = crossSellProduct.IsPublished
                 });
             }
@@ -183,52 +188,28 @@ namespace SimplCommerce.Module.Catalog.Controllers
         {
             var query = _productRepository.Query().Where(x => !x.IsDeleted);
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin"))
-            {
-                query = query.Where(x => x.VendorId == currentUser.VendorId);
-            }
+            query = query.WhereIf(!User.IsInRole(RoleName.Admin), x => x.VendorId == currentUser.VendorId);
 
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
-                if (search.Name != null)
-                {
-                    string name = search.Name;
-                    query = query.Where(x => x.Name.Contains(name));
-                }
+                var name = (string)search.Name;
+                var sku = (string)search.Sku;
+                var hasOptions = (bool?) search.HasOptions;
+                var isVisibleIndividually = (bool?) search.IsVisibleIndividually;
+                var isPublished = (bool?) search.IsPublished;
+                var before = (DateTimeOffset?) search.CreatedOn?.before;
+                var after = (DateTimeOffset?) search.CreatedOn?.after;
 
-                if (search.HasOptions != null)
-                {
-                    bool hasOptions = search.HasOptions;
-                    query = query.Where(x => x.HasOptions == hasOptions);
-                }
-
-                if (search.IsVisibleIndividually != null)
-                {
-                    bool isVisibleIndividually = search.IsVisibleIndividually;
-                    query = query.Where(x => x.IsVisibleIndividually == isVisibleIndividually);
-                }
-
-                if (search.IsPublished != null)
-                {
-                    bool isPublished = search.IsPublished;
-                    query = query.Where(x => x.IsPublished == isPublished);
-                }
-
-                if (search.CreatedOn != null)
-                {
-                    if (search.CreatedOn.before != null)
-                    {
-                        DateTimeOffset before = search.CreatedOn.before;
-                        query = query.Where(x => x.CreatedOn <= before);
-                    }
-
-                    if (search.CreatedOn.after != null)
-                    {
-                        DateTimeOffset after = search.CreatedOn.after;
-                        query = query.Where(x => x.CreatedOn >= after);
-                    }
-                }
+                query = query
+                    .WhereIf(!name.IsNullOrEmpty(), x => x.Name.Contains(name))
+                    .WhereIf(!sku.IsNullOrEmpty(), x => x.Sku.Contains(sku))
+                    .WhereIf(hasOptions.HasValue, x => x.HasOptions == hasOptions)
+                    .WhereIf(isVisibleIndividually.HasValue, x => x.IsVisibleIndividually == isVisibleIndividually)
+                    .WhereIf(isPublished.HasValue, x => x.IsPublished == isPublished)
+                    .WhereIf(before.HasValue, x => x.CreatedOn <= before)
+                    .WhereIf(after.HasValue, x => x.CreatedOn >= after)
+                    ;
             }
 
             var gridData = query.ToSmartTableResult(
@@ -237,6 +218,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 {
                     Id = x.Id,
                     Name = x.Name,
+                    Sku = x.Sku,
                     HasOptions = x.HasOptions,
                     IsVisibleIndividually = x.IsVisibleIndividually,
                     IsFeatured = x.IsFeatured,
@@ -357,7 +339,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 .Include(x => x.Categories)
                 .FirstOrDefault(x => x.Id == id);
 
-            if(product == null)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -369,6 +351,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
 
             product.Name = model.Product.Name;
+            product.Sku = model.Product.Sku;
             product.SeoTitle = model.Product.Slug;
             product.ShortDescription = model.Product.ShortDescription;
             product.Description = model.Product.Description;
@@ -731,7 +714,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 }
                 else
                 {
-                    product.ThumbnailImage = new Media {FileName = fileName};
+                    product.ThumbnailImage = new Media { FileName = fileName };
                 }
             }
 
@@ -754,7 +737,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 var productMedia = new ProductMedia
                 {
                     Product = product,
-                    Media = new Media {FileName = fileName, MediaType = MediaType.Image}
+                    Media = new Media { FileName = fileName, MediaType = MediaType.Image }
                 };
                 product.AddMedia(productMedia);
             }

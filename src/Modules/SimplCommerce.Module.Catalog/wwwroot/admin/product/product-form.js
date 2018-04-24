@@ -304,6 +304,7 @@
             // ng-upload will post null as text
             vm.product.taxClassId = vm.product.taxClassId === null ? '' : vm.product.taxClassId;
             vm.product.brandId = vm.product.brandId === null ? '' : vm.product.brandId;
+            vm.product.sku = vm.product.sku === null ? '' : vm.product.sku;
             vm.product.oldPrice = vm.product.oldPrice === null ? '' : vm.product.oldPrice;
             vm.product.specialPrice = vm.product.specialPrice === null ? '' : vm.product.specialPrice;
             vm.product.specialPriceStart = vm.product.specialPriceStart === null ? '' : vm.product.specialPriceStart;
@@ -338,6 +339,7 @@
         function getProduct() {
             productService.getProduct($stateParams.id).then(function (result) {
                 var i, index, optionIds, attributeIds;
+
                 vm.product = result.data;
                 optionIds = vm.options.map(function (item) { return item.id; });
                 for (i = 0; i < vm.product.options.length; i = i + 1) {

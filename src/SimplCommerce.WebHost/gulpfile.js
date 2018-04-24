@@ -48,6 +48,7 @@ const bower = {
     "angular-messages": "angular-messages/angular-messages.js",
     "angular-ui-router": "angular-ui-router/release/*.js",
     "angular-smart-table": "angular-smart-table/dist/*.js",
+    "angular-loading-bar": "angular-loading-bar/build/loading-bar.{js,css}",
     "ng-file-upload": "ng-file-upload/ng-file-upload.js",
     "summernote": "summernote/dist/**/*.{js,map,css,ttf,svg,woff,eot}",
     "angular-summernote": "angular-summernote/dist/*.js",

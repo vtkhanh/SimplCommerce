@@ -2,9 +2,11 @@
 (function () {
     var adminApp = angular.module('simplAdmin', [
         'ui.router',
+        'ngAnimate',
         'ngMaterial',
         'ngMessages',
         'smart-table',
+        'angular-loading-bar',
         'ngFileUpload',
         'ui.bootstrap',
         'ui.bootstrap.datetimepicker',
@@ -36,11 +38,16 @@
     toastr.options.closeButton = true;
     adminApp
         .config([
-            '$urlRouterProvider', '$httpProvider', '$locationProvider',
-            function ($urlRouterProvider, $httpProvider, $locationProvider) {
+            '$urlRouterProvider', '$httpProvider', '$locationProvider', 'cfpLoadingBarProvider',
+            function ($urlRouterProvider, $httpProvider, $locationProvider, cfpLoadingBarProvider) {
+                // Remove prefix '!' (Default)
                 $locationProvider.hashPrefix('');
 
+                // Default route
                 $urlRouterProvider.otherwise("/dashboard");
+
+                // Turn of Spinner of Loading bar
+                cfpLoadingBarProvider.includeSpinner = false;
 
                 $httpProvider.interceptors.push(function () {
                     return {
