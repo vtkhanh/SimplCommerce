@@ -197,7 +197,8 @@
                     return item.value;
                 }).join('-'),
                 optionCombinations: optionCombinations,
-                price: vm.addingVariation.price || vm.product.price
+                price: vm.addingVariation.price || vm.product.price,
+                oldPrice: vm.addingVariation.oldPrice || vm.product.price,
             };
 
             if (!vm.product.variations.find(function (item) { return item.name === variation.name; })) {
@@ -208,7 +209,7 @@
             }
         };
 
-        // TODO look for a more concise way
+        // TODO: look for a more concise way
         vm.applyTemplate = function applyTemplate() {
             var template, i, index, workingAttr,
                 nonTemplateAttrs = [];
@@ -298,6 +299,14 @@
             return !optionValueAdded;
         };
 
+        vm.updateStock = () => {
+            if (vm.product.isOutOfStock) {
+                vm.product.stock = 0;
+            }
+        }
+
+        vm.updateOutOfStock = () => vm.product.isOutOfStock = vm.product.stock <= 0;
+
         vm.save = function save() {
             var promise;
 
@@ -305,6 +314,7 @@
             vm.product.taxClassId = vm.product.taxClassId === null ? '' : vm.product.taxClassId;
             vm.product.brandId = vm.product.brandId === null ? '' : vm.product.brandId;
             vm.product.sku = vm.product.sku === null ? '' : vm.product.sku;
+            vm.product.slug = vm.product.slug === null ? '' : vm.product.slug;
             vm.product.oldPrice = vm.product.oldPrice === null ? '' : vm.product.oldPrice;
             vm.product.specialPrice = vm.product.specialPrice === null ? '' : vm.product.specialPrice;
             vm.product.specialPriceStart = vm.product.specialPriceStart === null ? '' : vm.product.specialPriceStart;
@@ -327,7 +337,7 @@
                     var error = response.data;
                     vm.validationErrors = [];
                     if (error && angular.isObject(error)) {
-                        for (var key in error) {
+                        for (let key in error) {
                             vm.validationErrors.push(error[key][0]);
                         }
                     } else {

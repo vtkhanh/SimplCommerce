@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Tax.Models;
 
@@ -154,6 +155,21 @@ namespace SimplCommerce.Module.Catalog.Models
             }
 
             return product;
+        }
+
+        public IEnumerable<Product> GetLinkedProducts(ProductLinkType type) =>
+            ProductLinks
+                .Where(x => x.LinkType == type)
+                .Select(x => x.LinkedProduct)
+                .Where(x => !x.IsDeleted)
+                .OrderBy(x => x.Id);
+
+        public IEnumerable<ProductMedia> GetMediasWithUrl(MediaType type, Func<Media, string> getUrlFunc) {
+            var result = Medias.Where(x => x.Media.MediaType == MediaType.Image);
+            foreach (var item in result) {
+                item.MediaUrl = getUrlFunc(item.Media);
+            }
+            return result;
         }
     }
 }

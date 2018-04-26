@@ -1,4 +1,5 @@
-﻿using SimplCommerce.Infrastructure.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
 
 namespace SimplCommerce.Module.Catalog.Models
@@ -14,5 +15,8 @@ namespace SimplCommerce.Module.Catalog.Models
         public virtual Media Media { get; set; }
 
         public int DisplayOrder { get; set; }
+
+        [NotMapped]
+        public string MediaUrl { get; set; }
     }
 }

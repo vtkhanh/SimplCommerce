@@ -1,6 +1,6 @@
 namespace SimplCommerce.Module.Core.Extensions.Constants
 {
-    public class RoleName
+    public static class RoleName
     {
         public const string SuperAdmin = "superadmin";
 

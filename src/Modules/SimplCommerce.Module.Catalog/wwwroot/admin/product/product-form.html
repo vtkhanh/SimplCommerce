@@ -5,23 +5,24 @@
     </div>
     <div class="panel-body">
         <form name="productForm" class="form-horizontal">
-            <div class="col-sm-offset-2 bg-danger" ng-show="vm.validationErrors">
+            <div class="alert alert-danger alert-dismissible" ng-show="vm.validationErrors">
+                <button type="button" class="close btn btn-link" my-data-hide="vm.validationErrors" aria-label="close">&times;</button>
                 <ul>
                     <li ng-repeat="error in vm.validationErrors">{{error}}</li>
                 </ul>
             </div>
             <uib-tabset>
                 <uib-tab index="0" heading="{{::vm.translate.get('General Information')}}">
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Product Name')}}</label>
                         <div class="col-sm-10">
                             <input name="name" ng-model="vm.product.name" ng-change="vm.updateSlug()" required class="form-control" />
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Slug')}}</label>
                         <div class="col-sm-10">
-                            <input name="slug" ng-model="vm.product.slug" class="form-control" />
+                            <input name="slug" ng-model="vm.product.slug" required class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -32,14 +33,8 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Brand')}}</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-3">
                             <select class="form-control" ng-model="vm.product.brandId" ng-options="brand.id as brand.name for brand in vm.brands"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">{{::vm.translate.get('Short Description')}}</label>
-                        <div class="col-sm-10">
-                            <summernote on-image-upload="vm.shortDescUpload(files)" editor="vm.shortDescEditor" ng-model="vm.product.shortDescription"></summernote>
                         </div>
                     </div>
                     <div class="form-group">
@@ -48,52 +43,62 @@
                             <summernote on-image-upload="vm.descUpload(files)" editor="vm.descEditor" ng-model="vm.product.description"></summernote>
                         </div>
                     </div>
+                    <!--  Temporarily disable short-description and specification
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{::vm.translate.get('Short Description')}}</label>
+                        <div class="col-sm-10">
+                            <summernote on-image-upload="vm.shortDescUpload(files)" editor="vm.shortDescEditor" ng-model="vm.product.shortDescription"></summernote>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Specification')}}</label>
                         <div class="col-sm-10">
                             <summernote on-image-upload="vm.specUpload(files)" editor="vm.specEditor" ng-model="vm.product.specification"></summernote>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">{{::vm.translate.get('Cost')}}</label>
-                        <div class="col-sm-10">
-                            <div class="input-number">
-                                <input id="productCost" type="text" decimal maxlength="10" name="cost" ng-model="vm.product.cost" required class="form-control" />
-                                <label for="productCost" class="form-control">{{vm.product.cost | number}}</label>
+                    </div> -->
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label">{{::vm.translate.get('Stock')}}</label>
+                        <div class="col-sm-3">
+                            <input id="productStock" type="text" maxlength="10" name="stock" ng-model="vm.product.stock" required class="form-control" ng-change="vm.updateOutOfStock()"/>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="checkbox">
+                                <label>
+                                    <md-checkbox ng-model="vm.product.isOutOfStock" ng-change="vm.updateStock()">
+                                        {{::vm.translate.get('Out Of Stock')}}
+                                    </md-checkbox>
+                                </label>
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label">{{::vm.translate.get('Cost')}}</label>
+                        <div class="col-sm-3">
+                            <input id="productCost" type="text" decimal maxlength="10" name="cost" ng-model="vm.product.cost" required class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Price')}}</label>
-                        <div class="col-sm-10">
-                            <div class="input-number">
-                                <input id="productPrice" type="text" decimal maxlength="10" name="price" ng-model="vm.product.price" required class="form-control" />
-                                <label for="productPrice" class="form-control">{{vm.product.price | number}}</label>
-                            </div>
+                        <div class="col-sm-3">
+                            <input id="productPrice" type="text" decimal maxlength="10" name="price" ng-model="vm.product.price" required class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Old Price')}}</label>
-                        <div class="col-sm-10">
-                            <div class="input-number">
-                                <input id="productOldPrice" type="text" decimal maxlength="10" name="oldPrice" ng-model="vm.product.oldPrice" class="form-control" />
-                                <label class="form-control" for="productOldPrice">{{vm.product.oldPrice | number}}</label>
-                            </div>
+                        <div class="col-sm-3">
+                            <input id="productOldPrice" type="text" decimal maxlength="10" name="oldPrice" ng-model="vm.product.oldPrice" class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Special Price')}}</label>
-                        <div class="col-sm-10">
-                            <div class="input-number">
-                                <input id="productSpecialPrice" type="text" decimal maxlength="10" name="specialPrice" ng-model="vm.product.specialPrice" class="form-control" />
-                                <label class="form-control" for="productSpecialPrice">{{vm.product.specialPrice | number}}</label>
-                            </div>
+                        <div class="col-sm-3">
+                            <input id="productSpecialPrice" type="text" decimal maxlength="10" name="specialPrice" ng-model="vm.product.specialPrice" class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Special Price Start')}}</label>
-                        <div class="col-sm-10">
-                            <p class="input-group simpl-datetime-picker">
+                        <div class="col-sm-3">
+                            <p class="input-group">
                                 <input type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="vm.product.specialPriceStart" is-open="vm.datePickerSpecialPriceStart.open" datepicker-options="vm.datePickerSpecialPriceStart.datepickerOptions" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="vm.openCalendar($event, 'datePickerSpecialPriceStart')"><i class="fa fa-calendar"></i></button>
@@ -103,8 +108,8 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Special Price End')}}</label>
-                        <div class="col-sm-10">
-                            <p class="input-group simpl-datetime-picker">
+                        <div class="col-sm-3">
+                            <p class="input-group">
                                 <input type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="vm.product.specialPriceEnd" is-open="vm.datePickerSpecialPriceEnd.open" datepicker-options="vm.datePickerSpecialPriceEnd.datepickerOptions" />
                                 <span class="input-group-btn">
                                     <button type="button" class="btn btn-default" ng-click="vm.openCalendar($event, 'datePickerSpecialPriceEnd')"><i class="fa fa-calendar"></i></button>
@@ -114,7 +119,7 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Tax Class')}}</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-3">
                             <select class="form-control" ng-model="vm.product.taxClassId" ng-options="taxClass.id as taxClass.name for taxClass in vm.taxClasses"></select>
                         </div>
                     </div>
@@ -192,15 +197,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <div class="checkbox">
-                                <label>
-                                    <input type="checkbox" ng-model="vm.product.isOutOfStock">{{::vm.translate.get('Out Of Stock')}}
-                                </label>
-                            </div>
-                        </div>
-                    </div>
                 </uib-tab>
                 <uib-tab index="1" heading="{{::vm.translate.get('Product Variations')}}">
                     <div class="form-group">
@@ -264,16 +260,18 @@
                                 <tr ng-repeat="variation in vm.product.variations">
                                     <td>{{variation.name}}</td>
                                     <td>
-                                        <div class="input-number">
+                                        <input id="{{variation.normalizedName}}Price" type="text" decimal maxlength="10" required class="form-control" ng-model="variation.price" />
+                                        <!-- <div class="input-number">
                                             <input id="{{variation.normalizedName}}Price" type="text" decimal maxlength="10" required class="form-control" ng-model="variation.price" />
                                             <label for="{{variation.normalizedName}}Price" class="form-control">{{variation.price | number}}</label>
-                                        </div>
+                                        </div> -->
                                     </td>
                                     <td>
-                                        <div class="input-number">
+                                        <input id="{{variation.normalizedName}}OldPrice" type="text" decimal  maxlength="10" class="form-control" ng-model="variation.oldPrice" />
+                                        <!-- <div class="input-number">
                                             <input id="{{variation.normalizedName}}OldPrice" type="text" decimal  maxlength="10" class="form-control" ng-model="variation.oldPrice" />
                                             <label for="{{variation.normalizedName}}OldPrice" class="form-control">{{variation.oldPrice | number}}</label>
-                                        </div>
+                                        </div> -->
                                     </td>
                                     <td></td>
                                     <td>
@@ -298,19 +296,25 @@
                                                         </div>
                                                     </td>
                                                     <td class="col-sm-2">
-                                                        <div class="input-number">
+                                                        <input id="addingVariationPrice" type="text" decimal maxlength="10" class="form-control" ng-model="vm.addingVariation.price" />
+                                                        <!-- <div class="input-number">
                                                             <input id="addingVariationPrice" type="text" decimal maxlength="10" class="form-control" ng-model="vm.addingVariation.price" />
                                                             <label for="addingVariationPrice" class="form-control">{{vm.addingVariation.price | number}}</label>
-                                                        </div>
+                                                        </div> -->
                                                     </td>
                                                     <td class="col-sm-2">
-                                                        <div class="input-number">
+                                                        <input id="addingVariationOldPrice" type="text" decimal maxlength="10" class="form-control" ng-model="vm.addingVariation.oldPrice" />
+                                                        <!-- <div class="input-number">
                                                             <input id="addingVariationOldPrice" type="text" decimal maxlength="10" class="form-control" ng-model="vm.addingVariation.oldPrice" />
                                                             <label for="addingVariationOldPrice" class="form-control">{{vm.addingVariation.oldPrice | number}}</label>
-                                                        </div>
+                                                        </div> -->
                                                     </td>
                                                     <td class="col-sm-2"></td>
-                                                    <td class="col-sm-2"><button type="button" class="btn btn-primary" ng-disabled="!vm.isAddVariationFormValid()" ng-click="vm.addVariation()"><span class="glyphicon glyphicon-plus"></span></button></td>
+                                                    <td class="col-sm-2">
+                                                        <button type="button" class="btn btn-primary" ng-disabled="!vm.isAddVariationFormValid()" ng-click="vm.addVariation()">
+                                                            <span class="fa fa-plus"></span>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             </table>
                                         </ng-form>

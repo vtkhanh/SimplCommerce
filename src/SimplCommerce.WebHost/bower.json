@@ -23,7 +23,8 @@
     "matchHeight": "0.7.2",
     "angular-bootstrap-colorpicker": "3.0.31",
     "bootstrap-ui-datetime-picker": "2.6.1",
-    "angular-i18n": "1.6.9"
+    "angular-i18n": "1.6.9",
+    "moment": "^2.22.1"
   },
   "resolutions": {
     "angular": "1.6.3"

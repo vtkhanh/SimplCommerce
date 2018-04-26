@@ -33,13 +33,13 @@ const paths = {
 };
 
 const bower = {
-    "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
     "font-awesome": "components-font-awesome/**/*.{css,ttf,svg,woff,woff2,eot,otf}",
+    "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
+    "bootstrap-ui-datetime-picker": "bootstrap-ui-datetime-picker/dist/*.{js,tpls.js}",
+    "bootstrap-star-rating": "bootstrap-star-rating/**/star-rating.{css,js}",
     "jquery": "jquery/dist/jquery*.{js,map}",
     "jquery-validation": "jquery-validation/dist/*.js",
     "jquery-validation-unobtrusive": "jquery-validation-unobtrusive/*.js",
-    "nouislider": "nouislider/distribute/*.{js,css}",
-    "wnumb": "wnumb/wNumb.js",
     "angular": "angular/angular.js",
     "angular-i18n": "angular-i18n/angular-locale_*.js",
     "angular-animate": "angular-animate/angular*.js",
@@ -49,17 +49,18 @@ const bower = {
     "angular-ui-router": "angular-ui-router/release/*.js",
     "angular-smart-table": "angular-smart-table/dist/*.js",
     "angular-loading-bar": "angular-loading-bar/build/loading-bar.{js,css}",
-    "ng-file-upload": "ng-file-upload/ng-file-upload.js",
-    "summernote": "summernote/dist/**/*.{js,map,css,ttf,svg,woff,eot}",
     "angular-summernote": "angular-summernote/dist/*.js",
     "angular-bootstrap": "angular-bootstrap/ui-bootstrap*",
+    "angular-ui-tree": "angular-ui-tree/dist/*.*",
+    "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*",
+    "ng-file-upload": "ng-file-upload/ng-file-upload.js",
+    "summernote": "summernote/dist/**/*.{js,map,css,ttf,svg,woff,eot}",
     "matchheight": "matchheight/dist/*.js",
     "toastr": "toastr/toastr*.{js,css}",
     "bootbox": "bootbox/bootbox*.{js,css}",
-    "angular-ui-tree": "angular-ui-tree/dist/*.*",
-    "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*",
-    "bootstrap-ui-datetime-picker": "bootstrap-ui-datetime-picker/dist/*.{js,tpls.js}",
-    "bootstrap-star-rating": "bootstrap-star-rating/**/star-rating.{css,js}"
+    "nouislider": "nouislider/distribute/*.{js,css}",
+    "wnumb": "wnumb/wNumb.js",
+    "moment": "moment/moment.js",
 };
 
 gulp.task('clean-modules', function () {
