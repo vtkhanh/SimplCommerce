@@ -11,5 +11,8 @@ namespace SimplCommerce.Infrastructure
         // public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate);
         public static IQueryable<T> WhereIf<T>(this IQueryable<T> source, bool conditional, Expression<Func<T, bool>> predicate) => 
             conditional ? source.Where(predicate) : source;
+
+        public static IQueryable<T> TakeIf<T>(this IQueryable<T> source, bool conditional, int count) => 
+            conditional ? source.Take(count) : source;
     }
 }

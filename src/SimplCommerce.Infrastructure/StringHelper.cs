@@ -8,6 +8,8 @@ namespace SimplCommerce.Infrastructure
     {
         public static bool IsNullOrEmpty(this string source) => string.IsNullOrEmpty(source);
 
+        public static bool HasValue(this string source) => !source.IsNullOrEmpty();
+
         public static string ToUrlFriendly(this string name)
         {
             // Fallback for product variations

@@ -20,6 +20,7 @@ using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -28,6 +29,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
     public class ProductApiController : Controller
     {
         private readonly IMapper _mapper;
+        private readonly ILogger<ProductApiController> _logger;
         private readonly IMediaService _mediaService;
         private readonly IRepository<ProductAttributeValue> _productAttributeValueRepository;
         private readonly IRepository<ProductCategory> _productCategoryRepository;
@@ -39,6 +41,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
         public ProductApiController(
             IMapper mapper,
+            ILogger<ProductApiController> logger,
             IRepository<Product> productRepository,
             IMediaService mediaService,
             IProductService productService,
@@ -49,6 +52,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IWorkContext workContext)
         {
             _mapper = mapper;
+            _logger = logger;
             _productRepository = productRepository;
             _mediaService = mediaService;
             _productService = productService;
@@ -57,6 +61,22 @@ namespace SimplCommerce.Module.Catalog.Controllers
             _productOptionValueRepository = productOptionValueRepository;
             _productAttributeValueRepository = productAttributeValueRepository;
             _workContext = workContext;
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query) 
+        {
+            try
+            {
+                const int maxItems = 100;
+                var products = await _productService.Search(query, maxItems);
+                return Ok(products);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
         }
 
         [HttpGet("{id}")]

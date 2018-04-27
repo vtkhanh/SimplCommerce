@@ -11,6 +11,7 @@ using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -60,53 +61,68 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(model);
         }
 
-        [HttpPost("grid")]
+        [HttpPost]
+        public async Task<ActionResult> Create([FromBody] OrderFormVm orderForm) 
+        {
+            var currentUser = await _workContext.GetCurrentUser();
+            return null;
+        }
+
+        [HttpPost("list")]
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
-            IQueryable<Order> query = _orderRepository
-                .Query();
+            IQueryable<Order> query = _orderRepository.Query();
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin"))
-            {
-                query = query.Where(x => x.VendorId == currentUser.VendorId);
-            }
+            query = query.WhereIf(!User.IsInRole(RoleName.Admin), i => i.VendorId == currentUser.VendorId);
 
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
-                if (search.Id != null)
-                {
-                    long id = search.Id;
-                    query = query.Where(x => x.Id == id);
-                }
+                var id = (long?) search.Id;
+                var status = (OrderStatus?) search.Status;
+                var customerName = (string) search.CustomerName;
+                var before = (DateTimeOffset?)search.CreatedOn?.before;
+                var after = (DateTimeOffset?)search.CreatedOn?.after;
+                query = query
+                    .WhereIf(id.HasValue, i => i.Id == id.Value)
+                    .WhereIf(status.HasValue, i => i.OrderStatus == status.Value)
+                    .WhereIf(customerName.HasValue(), i => i.CreatedBy.FullName.Contains(customerName))
+                    .WhereIf(before.HasValue, x => x.CreatedOn <= before)
+                    .WhereIf(after.HasValue, x => x.CreatedOn >= after)
+                    ;
+                // if (search.Id != null)
+                // {
+                //     long id = search.Id;
+                //     query = query.Where(x => x.Id == id);
+                // }
 
-                if (search.Status != null)
-                {
-                    var status = (OrderStatus) search.Status;
-                    query = query.Where(x => x.OrderStatus == status);
-                }
+                // if (search.Status != null)
+                // {
+                //     var status = (OrderStatus) search.Status;
+                //     query = query.Where(x => x.OrderStatus == status);
+                // }
 
-                if (search.CustomerName != null)
-                {
-                    string customerName = search.CustomerName;
-                    query = query.Where(x => x.CreatedBy.FullName.Contains(customerName));
-                }
+                // if (search.CustomerName != null)
+                // {
+                //     string customerName = search.CustomerName;
+                //     query = query.Where(x => x.CreatedBy.FullName.Contains(customerName));
+                // }
 
-                if (search.CreatedOn != null)
-                {
-                    if (search.CreatedOn.before != null)
-                    {
-                        DateTimeOffset before = search.CreatedOn.before;
-                        query = query.Where(x => x.CreatedOn <= before);
-                    }
+                // if (search.CreatedOn != null)
+                // {
+                //     if (search.CreatedOn.before != null)
+                //     {
+                //         DateTimeOffset before = search.CreatedOn.before;
+                //         query = query.Where(x => x.CreatedOn <= before);
+                //     }
 
-                    if (search.CreatedOn.after != null)
-                    {
-                        DateTimeOffset after = search.CreatedOn.after;
-                        query = query.Where(x => x.CreatedOn >= after);
-                    }
-                }
+                //     if (search.CreatedOn.after != null)
+                //     {
+                //         DateTimeOffset after = search.CreatedOn.after;
+                //         query = query.Where(x => x.CreatedOn >= after);
+                //     }
+                // }
             }
 
             var orders = query.ToSmartTableResult(

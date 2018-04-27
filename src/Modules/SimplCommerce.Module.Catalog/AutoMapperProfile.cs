@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using Newtonsoft.Json;
 using SimplCommerce.Module.Catalog.Models;
+using SimplCommerce.Module.Catalog.Services.Dtos;
 using SimplCommerce.Module.Catalog.ViewModels;
 
 namespace SimplCommerce.Module.Catalog
@@ -43,6 +44,7 @@ namespace SimplCommerce.Module.Catalog
             CreateMap<ProductMedia, ProductMediaVm>()
                 .ForMember(dest => dest.Caption, opt => opt.MapFrom(src => src.Media.Caption))
                 ;
+            CreateMap<Product, ProductDto>();
         }
     }
 }

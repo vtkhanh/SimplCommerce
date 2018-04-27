@@ -46,6 +46,8 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public long? VendorId { get; set; }
 
+        public int HitCount { get; set; }
+
         public Media ThumbnailImage { get; set; }
 
         public IList<ProductMedia> Medias { get; protected set; } = new List<ProductMedia>();
@@ -164,9 +166,11 @@ namespace SimplCommerce.Module.Catalog.Models
                 .Where(x => !x.IsDeleted)
                 .OrderBy(x => x.Id);
 
-        public IEnumerable<ProductMedia> GetMediasWithUrl(MediaType type, Func<Media, string> getUrlFunc) {
+        public IEnumerable<ProductMedia> GetMediasWithUrl(MediaType type, Func<Media, string> getUrlFunc)
+        {
             var result = Medias.Where(x => x.Media.MediaType == MediaType.Image);
-            foreach (var item in result) {
+            foreach (var item in result)
+            {
                 item.MediaUrl = getUrlFunc(item.Media);
             }
             return result;

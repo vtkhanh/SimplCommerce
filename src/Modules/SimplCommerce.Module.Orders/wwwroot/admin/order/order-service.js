@@ -10,13 +10,18 @@
             getOrders: getOrders,
             getOrdersForGrid: getOrdersForGrid,
             getOrder: getOrder,
+            createOrder: createOrder,
             getOrderStatus: getOrderStatus,
             changeOrderStatus: changeOrderStatus
         };
         return service;
 
+        function createOrder(params) {
+            return $http.post('api/orders', params);
+        }
+
         function getOrdersForGrid(params) {
-            return $http.post('api/orders/grid', params);
+            return $http.post('api/orders/list', params);
         }
 
         function getOrders(status, numRecords) {

@@ -7,16 +7,18 @@ using Microsoft.AspNetCore.Identity;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
+using AutoMapper;
 
 namespace SimplCommerce.Module.Core
 {
     public class ModuleInitializer : IModuleInitializer
     {
-        public void ConfigureServices(IServiceCollection serviceCollection)
+        public void ConfigureServices(IServiceCollection services)
         {
-            serviceCollection.AddScoped<SignInManager<User>, SimplSignInManager<User>>();
-            serviceCollection.AddScoped<IWorkContext, WorkContext>();
-            serviceCollection.AddScoped<ISmsSender, SmsSender>();
+            services.AddScoped<SignInManager<User>, SimplSignInManager<User>>();
+            services.AddScoped<IWorkContext, WorkContext>();
+            services.AddScoped<ISmsSender, SmsSender>();
+            services.AddAutoMapper();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

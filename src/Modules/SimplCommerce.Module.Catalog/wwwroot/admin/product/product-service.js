@@ -17,9 +17,14 @@
             getProduct: getProduct,
             changeStatus: changeStatus,
             deleteProduct: deleteProduct,
-            getTaxClasses: getTaxClasses
+            getTaxClasses: getTaxClasses,
+            searchProducts: searchProducts
         };
         return service;
+
+        function searchProducts(query) {
+            return $http.get(`api/products/search?query=${query}`);
+        }
 
         function getProduct(id) {
             return $http.get('api/products/' + id);
