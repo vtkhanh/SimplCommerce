@@ -18,12 +18,15 @@ namespace SimplCommerce.Module.Catalog.Services
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _productRepo;
         private readonly IEntityService _entityService;
+        private readonly IMediaService _mediaService;
 
-        public ProductService(IMapper mapper, IRepository<Product> productRepository, IEntityService entityService)
+        public ProductService(IMapper mapper, IRepository<Product> productRepository, 
+            IEntityService entityService, IMediaService mediaService)
         {
             _mapper = mapper;
             _productRepo = productRepository;
             _entityService = entityService;
+            _mediaService = mediaService;
         }
 
         public void Create(Product product)
@@ -76,6 +79,7 @@ namespace SimplCommerce.Module.Catalog.Services
         public async Task<IEnumerable<ProductDto>> Search(string query, int? maxItems = null)
         {
             var products = await _productRepo.Query()
+                .Include(i => i.ThumbnailImage)
                 .Where(i => !i.IsDeleted)
                 .WhereIf(query.HasValue(), i => i.Name.Contains(query) || i.Sku.Contains(query))
                 .OrderByDescending(i => i.HitCount) // Get the most frequently searched ones
@@ -91,7 +95,11 @@ namespace SimplCommerce.Module.Catalog.Services
                 await _productRepo.SaveChangesAsync();
             }
 
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+            var result = products.Select(item => 
+                _mapper.Map<Product, ProductDto>(item,
+                    opt => opt.AfterMap((src, dest) =>  dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(src.ThumbnailImage))));
+
+            return result;
         }
     }
 }

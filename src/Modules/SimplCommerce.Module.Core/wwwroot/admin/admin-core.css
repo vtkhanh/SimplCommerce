@@ -159,6 +159,10 @@ td>span.glyphicon-remove {
     margin-bottom: 0;
 }
 
+.no-margin-top {
+    margin-top: 0;
+}
+
 .form-group.required .control-label:after {
     content: "*";
     color: red;
@@ -168,4 +172,17 @@ td>span.glyphicon-remove {
 .input-validation-error,
 .ng-dirty.ng-invalid {
     border-color: red;
+}
+
+.order-summary {
+    border-top: 2px dotted #dae2ea 
+}
+
+/* Dont use validation on md elements */
+.hide-validation .md-errors-spacer {
+    display: none;
+}
+
+table.vertical-align-middle tr td {
+    vertical-align: middle;
 }

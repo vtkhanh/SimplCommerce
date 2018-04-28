@@ -439,14 +439,14 @@ li.nav-item-group, li.nav-item-group a {
         text-decoration: none;
     }
 
-#logoutForm {
+/* #logoutForm {
     display: inline-flex;
     line-height: 22px;
 }
 
     #logoutForm button {
         text-decoration: none;
-    }
+    } */
 
 /*Responsive Navbar*/
 @media (max-width: 991px) {

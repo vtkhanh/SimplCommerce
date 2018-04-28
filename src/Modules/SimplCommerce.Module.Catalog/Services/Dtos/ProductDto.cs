@@ -12,6 +12,8 @@ namespace SimplCommerce.Module.Catalog.Services.Dtos
 
         public decimal Price { get; set; }
 
+        public string ThumbnailImageUrl { get; set; }
+
         public string Display => $"{Name}{(Sku.HasValue() ? $" {Sku}" : "")}";
     }
 }

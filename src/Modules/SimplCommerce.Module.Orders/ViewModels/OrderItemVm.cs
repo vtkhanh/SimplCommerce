@@ -10,6 +10,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
     {
         public long Id { get; set; }
 
+        public long ProductId { get; set; }
+
         public string ProductName { get; set; }
 
         public string ProductImage { get; set; }
