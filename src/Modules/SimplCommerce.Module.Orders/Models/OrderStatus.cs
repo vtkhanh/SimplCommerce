@@ -1,13 +1,20 @@
-﻿namespace SimplCommerce.Module.Orders.Models
+﻿using System;
+
+namespace SimplCommerce.Module.Orders.Models
 {
+    [Flags]
     public enum OrderStatus
     {
-        Pending = 10,
+        Pending = 0,
 
-        Processing = 20,
+        Processing = 1,
 
-        Complete = 30,
+        Shipped = 2,
 
-        Cancelled = 40
+        Paid = 4,
+
+        Complete = 6, // Complete = Shipped and Paid
+
+        Cancelled = 8
     }
 }

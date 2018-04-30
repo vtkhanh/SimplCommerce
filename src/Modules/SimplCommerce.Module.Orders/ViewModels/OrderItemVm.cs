@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using SimplCommerce.Infrastructure;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.ShoppingCart.ViewModels;
 
@@ -14,6 +15,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public string ProductName { get; set; }
 
+        public string ProductSku { get; set; }
+
         public string ProductImage { get; set; }
 
         public decimal ProductPrice { get; set; }
@@ -25,6 +28,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public decimal Total => Quantity * ProductPrice;
 
         public string TotalString => Total.ToString("C");
+
+        public string Display => $"{ProductName}{(ProductSku.HasValue() ? $" {ProductSku}" : "")}";
 
         public IEnumerable<ProductVariationOptionVm> VariationOptions { get; set; } =
             new List<ProductVariationOptionVm>();

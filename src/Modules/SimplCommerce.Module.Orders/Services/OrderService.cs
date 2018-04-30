@@ -12,6 +12,7 @@ using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.ShippingPrices.Services;
 using SimplCommerce.Module.Tax.Services;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -26,6 +27,7 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IRepository<UserAddress> _userAddressRepository;
         private readonly IOrderEmailService _orderEmailService;
         private readonly IWorkContext _workContext;
+        private readonly IMediaService _mediaService;
 
         public OrderService(IRepository<Order> orderRepository,
             IRepository<Cart> cartRepository,
@@ -35,7 +37,8 @@ namespace SimplCommerce.Module.Orders.Services
             IShippingPriceService shippingPriceService,
             IRepository<UserAddress> userAddressRepository,
             IOrderEmailService orderEmailService,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            IMediaService mediaService)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
@@ -46,6 +49,36 @@ namespace SimplCommerce.Module.Orders.Services
             _userAddressRepository = userAddressRepository;
             _orderEmailService = orderEmailService;
             _workContext = workContext;
+            _mediaService = mediaService;
+        }
+
+        public async Task<(OrderFormVm, string)> GetOrder(long orderId) 
+        {
+            var order = await _orderRepository.Query()
+                .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
+                .FirstOrDefaultAsync(x => x.Id == orderId);
+
+            if (order == null) return (null, $"Cannot find order with id {orderId}");
+
+            var result = new OrderFormVm
+            {
+                OrderStatus = order.OrderStatus,
+                OrderStatusDisplay = order.OrderStatus.ToString(),
+                CustomerId = order.CustomerId,
+                SubTotal = order.SubTotal,
+                Discount = order.Discount,
+                OrderItems = order.OrderItems.Select(item => new OrderItemVm
+                {
+                    Id = item.Id,
+                    ProductName = item.Product.Name,
+                    ProductSku = item.Product.Sku,
+                    ProductPrice = item.ProductPrice,
+                    ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
+                    Quantity = item.Quantity
+                }).ToList()
+            };
+
+            return (result, null);
         }
 
         public async Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest)

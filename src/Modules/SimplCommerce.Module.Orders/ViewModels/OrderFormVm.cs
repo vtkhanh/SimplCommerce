@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using SimplCommerce.Infrastructure.Filters;
+using SimplCommerce.Module.Orders.Models;
 
 namespace SimplCommerce.Module.Orders.ViewModels
 {
@@ -8,7 +9,11 @@ namespace SimplCommerce.Module.Orders.ViewModels
     {
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Customer is required")]
-        public int CustomerId { get; set;}
+        public long CustomerId { get; set;}
+
+        public OrderStatus OrderStatus { get; set;}
+
+        public string OrderStatusDisplay { get; set; }
 
         [Required]
         [AtLeastItems(1, ErrorMessage = "Must select at least one product")]

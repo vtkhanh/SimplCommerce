@@ -15,6 +15,13 @@ namespace SimplCommerce.Module.Orders.Services
         Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest);
 
         /// <summary>
+        /// Get order detail for editting
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        Task<(OrderFormVm, string)> GetOrder(long orderId);
+
+        /// <summary>
         /// Create order for user from active cart
         /// </summary>
         /// <param name="user"></param>

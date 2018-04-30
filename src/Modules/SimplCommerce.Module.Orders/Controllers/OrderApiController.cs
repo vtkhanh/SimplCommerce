@@ -108,38 +108,6 @@ namespace SimplCommerce.Module.Orders.Controllers
                     .WhereIf(before.HasValue, x => x.CreatedOn <= before)
                     .WhereIf(after.HasValue, x => x.CreatedOn >= after)
                     ;
-                // if (search.Id != null)
-                // {
-                //     long id = search.Id;
-                //     query = query.Where(x => x.Id == id);
-                // }
-
-                // if (search.Status != null)
-                // {
-                //     var status = (OrderStatus) search.Status;
-                //     query = query.Where(x => x.OrderStatus == status);
-                // }
-
-                // if (search.CustomerName != null)
-                // {
-                //     string customerName = search.CustomerName;
-                //     query = query.Where(x => x.CreatedBy.FullName.Contains(customerName));
-                // }
-
-                // if (search.CreatedOn != null)
-                // {
-                //     if (search.CreatedOn.before != null)
-                //     {
-                //         DateTimeOffset before = search.CreatedOn.before;
-                //         query = query.Where(x => x.CreatedOn <= before);
-                //     }
-
-                //     if (search.CreatedOn.after != null)
-                //     {
-                //         DateTimeOffset after = search.CreatedOn.after;
-                //         query = query.Where(x => x.CreatedOn >= after);
-                //     }
-                // }
             }
 
             var orders = query.ToSmartTableResult(
@@ -154,6 +122,23 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(orders);
         }
 
+        [HttpGet("edit/{id}")]
+        public async Task<IActionResult> Edit(long id)
+        {
+            try
+            {
+                var (order, errorMessage) = await _orderService.GetOrder(id);
+
+                return errorMessage.HasValue() 
+                    ? (IActionResult) BadRequest(new { Error = errorMessage }) : Ok(order);
+            }
+            catch (System.Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
         {
@@ -165,6 +150,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.OptionCombinations).ThenInclude(x => x.Option)
                 .Include(x => x.CreatedBy)
+                .Include(x => x.Customer)
                 .FirstOrDefault(x => x.Id == id);
 
             if (order == null)
@@ -173,7 +159,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin") && order.VendorId != currentUser.VendorId)
+            if (!User.IsInRole(RoleName.Admin) && order.VendorId != currentUser.VendorId)
             {
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this order" });
             }
@@ -184,19 +170,20 @@ namespace SimplCommerce.Module.Orders.Controllers
                 CreatedOn = order.CreatedOn,
                 OrderStatus = (int) order.OrderStatus,
                 OrderStatusString = order.OrderStatus.ToString(),
-                CustomerName = order.CreatedBy.FullName,
+                CustomerName = order.Customer.FullName,
                 Subtotal = order.SubTotal,
                 Discount = order.Discount,
                 SubTotalWithDiscount = order.SubTotalWithDiscount,
-                ShippingAddress = new ShippingAddressVm
-                {
-                    AddressLine1 = order.ShippingAddress.AddressLine1,
-                    AddressLine2 = order.ShippingAddress.AddressLine2,
-                    ContactName = order.ShippingAddress.ContactName,
-                    DistrictName = order.ShippingAddress.District?.Name,
-                    StateOrProvinceName = order.ShippingAddress.StateOrProvince.Name,
-                    Phone = order.ShippingAddress.Phone
-                },
+                // TODO: Add shipping address
+                // ShippingAddress = new ShippingAddressVm
+                // {
+                //     AddressLine1 = order.ShippingAddress.AddressLine1,
+                //     AddressLine2 = order.ShippingAddress.AddressLine2,
+                //     ContactName = order.ShippingAddress.ContactName,
+                //     DistrictName = order.ShippingAddress.District?.Name,
+                //     StateOrProvinceName = order.ShippingAddress.StateOrProvince.Name,
+                //     Phone = order.ShippingAddress.Phone
+                // },
                 OrderItems = order.OrderItems.Select(x => new OrderItemVm
                 {
                     Id = x.Id,

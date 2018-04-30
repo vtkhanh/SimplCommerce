@@ -11,12 +11,14 @@
         const vm = this;
         vm.translate = translateService;
 
-        init();
+        await init();
 
         vm.searchCustomers = (query) =>
             userService
                 .searchCustomers(query)
-                .then((result) => result.data)
+                .then((result) => {
+                    vm.customers = result.data;
+                })
                 .catch((response) => toastr.error(response.data.error));
 
         vm.searchProducts = (query) =>
@@ -68,7 +70,7 @@
 
         vm.save = () => {
             const params = {
-                customerId: 0, //vm.customer.id,
+                customerId: vm.customer.id,
                 shippingAmount: vm.shippingAmount,
                 discount: vm.discount,
                 subTotal: vm.orderSubTotal,
@@ -77,31 +79,55 @@
             };
             orderService.createOrder(params)
                 .then((result) => toastr.success("Saved successfully."))
-                .catch((response) => {
-                    const error = response.data;
-                    vm.validationErrors = [];
-                    if (error && angular.isObject(error)) {
-                        for (let key in error) {
-                            vm.validationErrors.push(error[key][0]);
-                        }
-                    } else {
-                        vm.validationErrors.push('Could not add product.');
-                    }
-                });
+                .catch((response) => processError(response.data));
         };
 
-        function init() {
+        async function init() {
             vm.orderId = $stateParams.id;
-            vm.customer = null;
-            vm.selectedProduct = null;
-            vm.orderItems = [];
-            vm.orderSubTotal = 0;
-            vm.shippingAmount = 0;
-            vm.discount = 0;
-            vm.orderTotal = 0;
+
+            if (!orderId) { // Create order
+                vm.customer = null;
+                vm.selectedProduct = null;
+                vm.orderItems = [];
+                vm.orderSubTotal = 0;
+                vm.shippingAmount = 0;
+                vm.discount = 0;
+                vm.orderTotal = 0;
+
+                vm.pageTitle = "Create order";
+            } else {
+                orderService.getOrderForEditing(vm.orderId)
+                    .then((result) => {
+                        const order = result.data;
+                        await vm.searchCustomers();
+
+                        vm.customer = _.find(vm.customers, item => item.id === order.customerId);
+                        vm.selectedProduct = null;
+
+                        vm.orderItems = order.orderItems;
+                        vm.orderSubTotal = order.subTotal;
+                        vm.shippingAmount = order.shippingAmount;
+                        vm.discount = order.discount;
+                        vm.orderTotal = order.orderTotal;
+                    })
+                    .catch((response) => processError(response.data));
+
+                vm.pageTitle = `Edit order {vm.orderId}`;
+            }
         }
 
-        // TODO: move to a global scope
+        function processError(error) {
+            vm.validationErrors = [];
+            if (error && angular.isObject(error)) {
+                for (let key in error) {
+                    vm.validationErrors.push(error[key][0]);
+                }
+            } else {
+                vm.validationErrors.push('Could not add product.');
+            }
+        }
+
+        // TODO: move to global scope
         Number.prototype.toCurrency = function () {
             // TODO: Currently use VND format hard-codedly
             return this.toLocaleString('vi-VN', {

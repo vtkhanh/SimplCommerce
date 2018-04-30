@@ -86,7 +86,7 @@ namespace SimplCommerce.Module.Catalog.Services
                 .TakeIf(maxItems.HasValue, maxItems.HasValue ? maxItems.Value : 0)
                 .ToListAsync();
 
-            if (products.Any()) 
+            if (products.Any() && query.HasValue()) 
             {
                 foreach (var product in products)
                 {

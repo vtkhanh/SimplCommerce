@@ -9,6 +9,7 @@
         var service = {
             getOrders: getOrders,
             getOrdersForGrid: getOrdersForGrid,
+            getOrderForEditing: getOrderForEditing,
             getOrder: getOrder,
             createOrder: createOrder,
             getOrderStatus: getOrderStatus,
@@ -30,6 +31,10 @@
 
         function getOrder(orderId) {
             return $http.get('api/orders/' + orderId);
+        }
+
+        function getOrderForEditing(orderId) {
+            return $http.get('api/orders/edit/' + orderId);
         }
 
         function getOrderStatus() {
