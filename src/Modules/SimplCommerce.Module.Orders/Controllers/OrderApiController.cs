@@ -12,6 +12,9 @@ using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Orders.Services;
+using Microsoft.Extensions.Logging;
+using SimplCommerce.Infrastructure.Filters;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -19,12 +22,17 @@ namespace SimplCommerce.Module.Orders.Controllers
     [Route("api/orders")]
     public class OrderApiController : Controller
     {
+        private readonly ILogger<OrderApiController> _logger;
         private readonly IMediaService _mediaService;
+        private readonly IOrderService _orderService;
         private readonly IRepository<Order> _orderRepository;
         private readonly IWorkContext _workContext;
 
-        public OrderApiController(IRepository<Order> orderRepository, IMediaService mediaService, IWorkContext workContext)
+        public OrderApiController(ILogger<OrderApiController> logger, IOrderService orderService, IRepository<Order> orderRepository, 
+            IMediaService mediaService, IWorkContext workContext)
         {
+            _logger = logger;
+            _orderService = orderService;
             _orderRepository = orderRepository;
             _mediaService = mediaService;
             _workContext = workContext;
@@ -62,10 +70,19 @@ namespace SimplCommerce.Module.Orders.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] OrderFormVm orderForm) 
+        [ValidateModel]
+        public async Task<IActionResult> Create([FromBody] OrderFormVm orderForm) 
         {
-            var currentUser = await _workContext.GetCurrentUser();
-            return null;
+            try
+            {
+                var (ok, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
+                return ok ? (IActionResult) Accepted() : BadRequest(new { Error = errorMessage });
+            }
+            catch (System.Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
         }
 
         [HttpPost("list")]

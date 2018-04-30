@@ -12,9 +12,10 @@ using SimplCommerce.Module.Core.Data;
 namespace SimplCommerce.WebHost.Migrations
 {
     [DbContext(typeof(SimplDbContext))]
-    partial class SimplDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180430062659_AddCustomerIdToOrderAndNotRequireShipping&BillingAddresses")]
+    partial class AddCustomerIdToOrderAndNotRequireShippingBillingAddresses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

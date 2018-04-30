@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace SimplCommerce.Infrastructure.ActionFilters
+namespace SimplCommerce.Infrastructure.Filters
 {
     public class ValidateModelAttribute : ActionFilterAttribute
     {

@@ -67,7 +67,27 @@
         }
 
         vm.save = () => {
-            toastr.success("Saved successfully.");
+            const params = {
+                customerId: 0, //vm.customer.id,
+                shippingAmount: vm.shippingAmount,
+                discount: vm.discount,
+                subTotal: vm.orderSubTotal,
+                orderTotal: vm.orderTotal,
+                orderItems: vm.orderItems
+            };
+            orderService.createOrder(params)
+                .then((result) => toastr.success("Saved successfully."))
+                .catch((response) => {
+                    const error = response.data;
+                    vm.validationErrors = [];
+                    if (error && angular.isObject(error)) {
+                        for (let key in error) {
+                            vm.validationErrors.push(error[key][0]);
+                        }
+                    } else {
+                        vm.validationErrors.push('Could not add product.');
+                    }
+                });
         };
 
         function init() {

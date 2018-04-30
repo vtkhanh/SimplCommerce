@@ -11,6 +11,7 @@ using SimplCommerce.Module.ShoppingCart.Models;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.ShippingPrices.Services;
 using SimplCommerce.Module.Tax.Services;
+using SimplCommerce.Module.Core.Extensions;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -24,6 +25,7 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IShippingPriceService _shippingPriceService;
         private readonly IRepository<UserAddress> _userAddressRepository;
         private readonly IOrderEmailService _orderEmailService;
+        private readonly IWorkContext _workContext;
 
         public OrderService(IRepository<Order> orderRepository,
             IRepository<Cart> cartRepository,
@@ -32,7 +34,8 @@ namespace SimplCommerce.Module.Orders.Services
             ITaxService taxService,
             IShippingPriceService shippingPriceService,
             IRepository<UserAddress> userAddressRepository,
-            IOrderEmailService orderEmailService)
+            IOrderEmailService orderEmailService,
+            IWorkContext workContext)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
@@ -42,6 +45,43 @@ namespace SimplCommerce.Module.Orders.Services
             _shippingPriceService = shippingPriceService;
             _userAddressRepository = userAddressRepository;
             _orderEmailService = orderEmailService;
+            _workContext = workContext;
+        }
+
+        public async Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest)
+        {
+            if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
+            {
+                return (false, "Shopping cart cannot be empty");
+            }
+
+            var user = _workContext.GetCurrentUser();
+            var order = new Order
+            {
+                CreatedById = user.Id,
+                CustomerId = orderRequest.CustomerId,
+                SubTotal = orderRequest.SubTotal,
+                ShippingAmount = orderRequest.ShippingAmount,
+                Discount = orderRequest.Discount,
+                SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount,
+                OrderTotal = orderRequest.OrderTotal
+            };
+
+            foreach (var item in orderRequest.OrderItems)
+            {
+                var orderItem = new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    ProductPrice = item.ProductPrice,
+                    Quantity = item.Quantity
+                };
+                order.AddOrderItem(orderItem);
+            }
+
+            _orderRepository.Add(order);
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, "");
         }
 
         public async Task<Order> CreateOrder(User user, string paymentMethod)
@@ -204,7 +244,7 @@ namespace SimplCommerce.Module.Orders.Services
             }
 
             _orderRepository.SaveChanges();
-           // await _orderEmailService.SendEmailToUser(user, order);
+            // await _orderEmailService.SendEmailToUser(user, order);
             return order;
         }
 

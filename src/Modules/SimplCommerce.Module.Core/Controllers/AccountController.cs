@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using SimplCommerce.Module.Core.ViewModels.Account;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
-using SimplCommerce.Infrastructure.ActionFilters;
 
 namespace SimplCommerce.Module.Core.Controllers
 {

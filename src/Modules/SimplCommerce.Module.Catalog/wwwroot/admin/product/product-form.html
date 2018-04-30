@@ -5,12 +5,7 @@
     </div>
     <div class="panel-body">
         <form name="productForm" class="form-horizontal">
-            <div class="alert alert-danger alert-dismissible" ng-show="vm.validationErrors">
-                <button type="button" class="close btn btn-link" my-data-hide="vm.validationErrors" aria-label="close">&times;</button>
-                <ul>
-                    <li ng-repeat="error in vm.validationErrors">{{error}}</li>
-                </ul>
-            </div>
+            <my-validation errors="vm.validationErrors"></my-validation>
             <uib-tabset>
                 <uib-tab index="0" heading="{{::vm.translate.get('General Information')}}">
                     <div class="form-group required">

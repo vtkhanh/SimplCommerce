@@ -27,17 +27,19 @@ namespace SimplCommerce.Module.Orders.Data
             modelBuilder.Entity<Order>(u =>
             {
                 u.HasOne(x => x.ShippingAddress)
-               .WithMany()
-               .HasForeignKey(x => x.ShippingAddressId)
-               .OnDelete(DeleteBehavior.Restrict);
-            });
+                 .WithMany()
+                 .HasForeignKey(x => x.ShippingAddressId)
+                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Order>(u =>
-            {
-                u.HasOne(x => x.BillingAddress )
-               .WithMany()
-               .HasForeignKey(x => x.BillingAddressId )
-               .OnDelete(DeleteBehavior.Restrict);
+                u.HasOne(x => x.BillingAddress)
+                 .WithMany()
+                 .HasForeignKey(x => x.BillingAddressId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                u.HasOne(i => i.Customer)
+                 .WithMany()
+                 .HasForeignKey(i => i.CustomerId)
+                 .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

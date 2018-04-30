@@ -15,6 +15,7 @@
             "wwwroot/admin/common/st-date-range.js",
             "wwwroot/admin/common/my-back-btn.js",
             "wwwroot/admin/common/my-data-hide.js",
+            "wwwroot/admin/common/my-validation.js",
             "wwwroot/admin/common/translation-service.js",
             "wwwroot/admin/dashboard/dashboard.module.js",
 
