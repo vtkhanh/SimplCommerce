@@ -13,7 +13,7 @@ namespace SimplCommerce.Module.Orders.Models
 
         Paid = 4,
 
-        Complete = 6, // Complete = Shipped and Paid
+        Complete = 6, // Complete = Shipped & Paid
 
         Cancelled = 8
     }

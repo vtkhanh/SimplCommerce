@@ -78,6 +78,7 @@
                 discount: vm.discount,
                 subTotal: vm.orderSubTotal,
                 orderTotal: vm.orderTotal,
+                orderStatus: vm.orderStatus || 0, // Default: Pending
                 orderItems: vm.orderItems
             };
             if (vm.orderId === 0) {
@@ -111,6 +112,7 @@
                 vm.shippingAmount = 0;
                 vm.discount = 0;
                 vm.orderTotal = 0;
+                vm.orderStatus = 0; // Pending
 
                 vm.pageTitle = "Create order";
             } else {
@@ -129,6 +131,8 @@
                         vm.shippingAmount = order.shippingAmount;
                         vm.discount = order.discount;
                         vm.orderTotal = order.orderTotal;
+                        vm.orderStatus = order.orderStatus;
+                        vm.orderStatusList = order.orderStatusList;
                         vm.orderItems = order.orderItems;
                         vm.orderItems.forEach(element => {
                             element.productStock = element.stock;

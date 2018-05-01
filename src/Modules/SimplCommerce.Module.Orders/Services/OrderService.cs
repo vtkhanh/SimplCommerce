@@ -379,6 +379,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.Discount = orderRequest.Discount;
             order.SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount;
             order.OrderTotal = orderRequest.OrderTotal;
+            order.OrderStatus = orderRequest.OrderStatus;
         }
 
         private void AddNewOrderItems(Order order, IEnumerable<OrderItemVm> orderItems)

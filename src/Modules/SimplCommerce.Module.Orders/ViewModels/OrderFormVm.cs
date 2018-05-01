@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SimplCommerce.Infrastructure.Filters;
 using SimplCommerce.Module.Orders.Models;
 
@@ -14,6 +17,15 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public long CustomerId { get; set;}
 
         public OrderStatus OrderStatus { get; set;}
+
+        public IList<SelectListItem> OrderStatusList =>
+            Enum.GetValues(typeof(OrderStatus))
+               .Cast<OrderStatus>()
+               .Select(t => new SelectListItem
+               {
+                   Value = ((int)t).ToString(),
+                   Text = t.ToString()
+               }).ToList();
 
         public string OrderStatusDisplay { get; set; }
 

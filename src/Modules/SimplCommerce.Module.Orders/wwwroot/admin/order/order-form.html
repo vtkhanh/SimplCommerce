@@ -7,8 +7,8 @@
             <my-validation errors="vm.validationErrors"></my-validation>
             <div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">{{::vm.translate.get('Customers')}}</label>
-                    <div class="col-sm-8">
+                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Customers')}}</label> -->
+                    <div class="col-sm-10 col-xs-8">
                         <md-autocomplete 
                             md-no-cache="false"
                             md-selected-item="vm.customer" 
@@ -25,9 +25,10 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">{{::vm.translate.get('Products')}}</label>
-                    <div class="col-sm-8">
+                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Products')}}</label> -->
+                    <div class="col-sm-10 col-xs-8">
                         <md-autocomplete 
+                            style="min-width: 0;"
                             md-no-cache="false"
                             md-autofocus="true"
                             md-selected-item="vm.selectedProduct" 
@@ -42,19 +43,39 @@
                             </md-not-found>
                         </md-autocomplete>
                     </div>
-                    <div class="col-sm-2">
-                        <md-button class="md-raised md-primary" ng-disabled="!vm.selectedProduct" ng-click="vm.addToCart(vm.selectedProduct)">
-                            <i class="fa fa-plus"></i>&nbsp;Add
-                        </md-button>
+                    <div class="col-sm-2 col-xs-4">
+                        <!-- <md-button class="md-raised md-primary" ng-disabled="!vm.selectedProduct" 
+                            ng-click="vm.addToCart(vm.selectedProduct)">
+                            <i class="fa fa-plus">&nbsp;</i>Add
+                        </md-button> -->
+                        <button class="btn btn-primary" ng-disabled="!vm.selectedProduct" ng-click="vm.addToCart(vm.selectedProduct)">
+                            <i class="fa fa-plus">&nbsp;</i>Add
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">{{::vm.translate.get('Selected customer')}}</label>
-                    <div class="col-sm-8" ng-if="vm.customer"><span>{{vm.customer.display}}</span></div>
+                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Order status')}}</label> -->
+                    <div class="col-sm-12">
+                        <md-input-container>
+                            <label>{{::vm.translate.get('Order status')}}</label>
+                            <md-select placeholder="{{::vm.translate.get('Select a status')}}" ng-model="vm.orderStatus"
+                                        style="min-width: 200px;">
+                                <md-option ng-repeat="status in vm.orderStatusList" value="{{status.value}}">{{status.text}}</md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">{{::vm.translate.get('Shopping Cart')}}</label>
-                    <div class="col-sm-10">
+                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Selected customer')}}</label> -->
+                    <div class="col-sm-10" ng-if="vm.customer">
+                        <span><i class="fa fa-user">&nbsp;</i>{{vm.customer.display}}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Shopping Cart')}}</label> -->
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+
                         <table class="table table-striped table-condensed vertical-align-middle">
                             <thead>
                                 <tr>
@@ -135,10 +156,11 @@
                             </tbody>
                         </table>
 
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-9">
+                    <div class="col-sm-12">
                         <button class="btn btn-primary" ng-disabled="orderForm.$invalid" ng-click="vm.save()">
                             <i class="fa fa-check">&nbsp;</i>{{::vm.translate.get('Save')}}
                         </button>
