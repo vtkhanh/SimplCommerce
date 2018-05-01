@@ -12,6 +12,7 @@
             getOrderForEditing: getOrderForEditing,
             getOrder: getOrder,
             createOrder: createOrder,
+            updateOrder: updateOrder,
             getOrderStatus: getOrderStatus,
             changeOrderStatus: changeOrderStatus
         };
@@ -19,6 +20,10 @@
 
         function createOrder(params) {
             return $http.post('api/orders', params);
+        }
+
+        function updateOrder(params) {
+            return $http.put(`api/orders`, params);
         }
 
         function getOrdersForGrid(params) {

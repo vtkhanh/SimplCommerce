@@ -236,26 +236,29 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            product.Name = model.Product.Name;
-            product.Sku = model.Product.Sku;
-            product.StockQuantity = model.Product.IsOutOfStock ? 0 : model.Product.Stock;
-            product.SeoTitle = model.Product.Slug;
-            product.ShortDescription = model.Product.ShortDescription;
-            product.Description = model.Product.Description;
-            product.Specification = model.Product.Specification;
-            product.Cost = model.Product.Cost;
-            product.Price = model.Product.Price;
-            product.OldPrice = model.Product.OldPrice;
-            product.SpecialPrice = model.Product.SpecialPrice;
-            product.SpecialPriceStart = model.Product.SpecialPriceStart;
-            product.SpecialPriceEnd = model.Product.SpecialPriceEnd;
-            product.BrandId = model.Product.BrandId;
-            product.TaxClassId = model.Product.TaxClassId;
-            product.IsFeatured = model.Product.IsFeatured;
-            product.IsPublished = model.Product.IsPublished;
-            product.IsCallForPricing = model.Product.IsCallForPricing;
-            product.IsAllowToOrder = model.Product.IsAllowToOrder;
-            product.UpdatedBy = currentUser;
+            product = _mapper.Map(model.Product, product, 
+                opt => opt.AfterMap((src, dest) => dest.UpdatedBy = currentUser));
+
+            // product.Name = model.Product.Name;
+            // product.Sku = model.Product.Sku;
+            // product.Stock = model.Product.Stock;
+            // product.SeoTitle = model.Product.Slug;
+            // product.ShortDescription = model.Product.ShortDescription;
+            // product.Description = model.Product.Description;
+            // product.Specification = model.Product.Specification;
+            // product.Cost = model.Product.Cost;
+            // product.Price = model.Product.Price;
+            // product.OldPrice = model.Product.OldPrice;
+            // product.SpecialPrice = model.Product.SpecialPrice;
+            // product.SpecialPriceStart = model.Product.SpecialPriceStart;
+            // product.SpecialPriceEnd = model.Product.SpecialPriceEnd;
+            // product.BrandId = model.Product.BrandId;
+            // product.TaxClassId = model.Product.TaxClassId;
+            // product.IsFeatured = model.Product.IsFeatured;
+            // product.IsPublished = model.Product.IsPublished;
+            // product.IsCallForPricing = model.Product.IsCallForPricing;
+            // product.IsAllowToOrder = model.Product.IsAllowToOrder;
+            // product.UpdatedBy = currentUser;
 
             await SaveProductMedias(model, product);
 

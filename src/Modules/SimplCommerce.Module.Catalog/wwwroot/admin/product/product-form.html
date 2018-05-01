@@ -54,7 +54,8 @@
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Stock')}}</label>
                         <div class="col-sm-3">
-                            <input id="productStock" type="text" maxlength="10" name="stock" ng-model="vm.product.stock" required class="form-control" ng-change="vm.updateOutOfStock()"/>
+                            <input id="productStock" type="text" maxlength="10" name="stock" ng-model="vm.product.stock" 
+                                    required class="form-control" ng-change="vm.updateOutOfStock()"/>
                         </div>
                         <div class="col-sm-3">
                             <div class="checkbox">

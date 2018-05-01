@@ -11,13 +11,12 @@
         const vm = this;
         vm.translate = translateService;
 
-        await init();
-
-        vm.searchCustomers = (query) =>
+        vm.searchCustomers = (query = '') =>
             userService
                 .searchCustomers(query)
                 .then((result) => {
-                    vm.customers = result.data;
+                    // vm.customers = result.data;
+                    return result.data;
                 })
                 .catch((response) => toastr.error(response.data.error));
 
@@ -39,10 +38,13 @@
                     productId: product.id,
                     productName: product.name,
                     productPrice: product.price,
+                    productStock: product.stock,
+                    stock: product.stock,
                     display: product.display,
                     productImage: product.thumbnailImageUrl,
                     quantity: 1,
-                    subtotal: product.price
+                    oldQuantity: 0,
+                    subTotal: product.price
                 };
                 vm.orderItems.push(orderItem);
                 vm.updateOrderSubTotal();
@@ -55,7 +57,8 @@
         };
 
         vm.updateSubtotal = (orderItem) => {
-            orderItem.subtotal = orderItem.productPrice * orderItem.quantity;
+            orderItem.subTotal = orderItem.productPrice * orderItem.quantity;
+            orderItem.stock = orderItem.productStock - orderItem.quantity + orderItem.oldQuantity;
             vm.updateOrderSubTotal();
         };
 
@@ -64,7 +67,7 @@
         };
 
         vm.updateOrderSubTotal = () => {
-            vm.orderSubTotal = _.sumBy(vm.orderItems, item => item.subtotal);
+            vm.orderSubTotal = _.sumBy(vm.orderItems, item => item.subTotal);
             vm.updateOrderTotal();
         }
 
@@ -77,15 +80,30 @@
                 orderTotal: vm.orderTotal,
                 orderItems: vm.orderItems
             };
-            orderService.createOrder(params)
-                .then((result) => toastr.success("Saved successfully."))
-                .catch((response) => processError(response.data));
+            if (vm.orderId === 0) {
+                orderService.createOrder(params)
+                    .then((result) => toastr.success("Saved successfully."))
+                    .catch((response) => processError(response.data));
+            } else {
+                params.orderId = vm.orderId;
+                orderService.updateOrder(params)
+                    .then((result) => toastr.success("Saved successfully."))
+                    .catch((response) => processError(response.data));
+            }
         };
 
-        async function init() {
-            vm.orderId = $stateParams.id;
+        // vm.onSearchCustomer = (query) => {
+        //     _.throttle(() => {
+        //         vm.customers = vm.searchCustomers(query);
+        //     }, 300);
+        // }
 
-            if (!orderId) { // Create order
+        function init() {
+            vm.orderId = $stateParams.id || 0;
+
+            if (vm.orderId === 0) { // Create order
+                // vm.customers = vm.searchCustomers();
+
                 vm.customer = null;
                 vm.selectedProduct = null;
                 vm.orderItems = [];
@@ -99,20 +117,27 @@
                 orderService.getOrderForEditing(vm.orderId)
                     .then((result) => {
                         const order = result.data;
-                        await vm.searchCustomers();
 
-                        vm.customer = _.find(vm.customers, item => item.id === order.customerId);
+                        vm.searchCustomers()
+                            .then((data) => {
+                                vm.customer = _.find(data, item => item.id === order.customerId);
+                            });
+
                         vm.selectedProduct = null;
 
-                        vm.orderItems = order.orderItems;
                         vm.orderSubTotal = order.subTotal;
                         vm.shippingAmount = order.shippingAmount;
                         vm.discount = order.discount;
                         vm.orderTotal = order.orderTotal;
+                        vm.orderItems = order.orderItems;
+                        vm.orderItems.forEach(element => {
+                            element.productStock = element.stock;
+                            element.oldQuantity = element.quantity;
+                        });
                     })
                     .catch((response) => processError(response.data));
 
-                vm.pageTitle = `Edit order {vm.orderId}`;
+                vm.pageTitle = `Edit order ${vm.orderId}`;
             }
         }
 
@@ -127,12 +152,14 @@
             }
         }
 
+        init();
+
         // TODO: move to global scope
         Number.prototype.toCurrency = function () {
-            // TODO: Currently use VND format hard-codedly
-            return this.toLocaleString('vi-VN', {
+            // TODO: Currently use US format hard-codedly
+            return this.toLocaleString('en-US', {
                 style: 'currency',
-                currency: 'VND'
+                currency: 'USD'
             });
         }
     }

@@ -7,6 +7,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 {
     public class OrderFormVm
     {
+        public long OrderId { get; set; }
+
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Customer is required")]
         public long CustomerId { get; set;}

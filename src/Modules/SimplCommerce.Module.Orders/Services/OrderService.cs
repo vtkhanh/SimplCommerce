@@ -13,6 +13,8 @@ using SimplCommerce.Module.ShippingPrices.Services;
 using SimplCommerce.Module.Tax.Services;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Services;
+using System.Collections.Generic;
+using SimplCommerce.Module.Catalog.Models;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -20,6 +22,8 @@ namespace SimplCommerce.Module.Orders.Services
     {
         private readonly IRepository<Cart> _cartRepository;
         private readonly IRepository<Order> _orderRepository;
+        private readonly IRepository<OrderItem> _orderItemRepo;
+        private readonly IRepository<Product> _productRepo;
         private readonly ICouponService _couponService;
         private readonly IRepository<CartItem> _cartItemRepository;
         private readonly ITaxService _taxService;
@@ -30,6 +34,8 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IMediaService _mediaService;
 
         public OrderService(IRepository<Order> orderRepository,
+            IRepository<OrderItem> orderItemRepo,
+            IRepository<Product> productRepo,
             IRepository<Cart> cartRepository,
             ICouponService couponService,
             IRepository<CartItem> cartItemRepository,
@@ -41,6 +47,8 @@ namespace SimplCommerce.Module.Orders.Services
             IMediaService mediaService)
         {
             _orderRepository = orderRepository;
+            _orderItemRepo = orderItemRepo;
+            _productRepo = productRepo;
             _cartRepository = cartRepository;
             _couponService = couponService;
             _cartItemRepository = cartItemRepository;
@@ -52,7 +60,7 @@ namespace SimplCommerce.Module.Orders.Services
             _mediaService = mediaService;
         }
 
-        public async Task<(OrderFormVm, string)> GetOrder(long orderId) 
+        public async Task<(OrderFormVm, string)> GetOrder(long orderId)
         {
             var order = await _orderRepository.Query()
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
@@ -66,13 +74,17 @@ namespace SimplCommerce.Module.Orders.Services
                 OrderStatusDisplay = order.OrderStatus.ToString(),
                 CustomerId = order.CustomerId,
                 SubTotal = order.SubTotal,
+                ShippingAmount = order.ShippingAmount,
                 Discount = order.Discount,
+                OrderTotal = order.OrderTotal,
                 OrderItems = order.OrderItems.Select(item => new OrderItemVm
                 {
                     Id = item.Id,
+                    ProductId = item.ProductId,
                     ProductName = item.Product.Name,
                     ProductSku = item.Product.Sku,
                     ProductPrice = item.ProductPrice,
+                    Stock = item.Product.Stock,
                     ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
                     Quantity = item.Quantity
                 }).ToList()
@@ -89,32 +101,39 @@ namespace SimplCommerce.Module.Orders.Services
             }
 
             var user = _workContext.GetCurrentUser();
-            var order = new Order
-            {
-                CreatedById = user.Id,
-                CustomerId = orderRequest.CustomerId,
-                SubTotal = orderRequest.SubTotal,
-                ShippingAmount = orderRequest.ShippingAmount,
-                Discount = orderRequest.Discount,
-                SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount,
-                OrderTotal = orderRequest.OrderTotal
-            };
+            var order = new Order() { CreatedById = user.Id };
 
-            foreach (var item in orderRequest.OrderItems)
-            {
-                var orderItem = new OrderItem
-                {
-                    ProductId = item.ProductId,
-                    ProductPrice = item.ProductPrice,
-                    Quantity = item.Quantity
-                };
-                order.AddOrderItem(orderItem);
-            }
+            UpdateOrderGeneralInfo(order, orderRequest);
+            AddNewOrderItems(order, orderRequest.OrderItems);
 
             _orderRepository.Add(order);
             await _orderRepository.SaveChangesAsync();
 
-            return (true, "");
+            return (true, null);
+        }
+
+        public async Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest)
+        {
+            if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
+            {
+                return (false, "Shopping cart cannot be empty");
+            }
+
+            var user = _workContext.GetCurrentUser();
+            var order = await _orderRepository.Query()
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
+
+            if (order == null) return (false, $"Cannot find order with id {orderRequest.OrderId}");
+
+            order.UpdatedOn = DateTimeOffset.Now;
+            UpdateOrderGeneralInfo(order, orderRequest);
+
+            AddNewOrderItems(order, orderRequest.OrderItems);
+
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
         }
 
         public async Task<Order> CreateOrder(User user, string paymentMethod)
@@ -350,6 +369,46 @@ namespace SimplCommerce.Module.Orders.Services
             }
 
             return shippingMethod;
+        }
+
+        private void UpdateOrderGeneralInfo(Order order, OrderFormVm orderRequest)
+        {
+            order.CustomerId = orderRequest.CustomerId;
+            order.SubTotal = orderRequest.SubTotal;
+            order.ShippingAmount = orderRequest.ShippingAmount;
+            order.Discount = orderRequest.Discount;
+            order.SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount;
+            order.OrderTotal = orderRequest.OrderTotal;
+        }
+
+        private void AddNewOrderItems(Order order, IEnumerable<OrderItemVm> orderItems)
+        {
+            if (order.OrderItems.Any())
+            {
+                foreach (var orderItem in order.OrderItems)
+                {
+                    var product = orderItem.Product;
+                    product.Stock += orderItem.Quantity;
+                }
+
+                order.OrderItems.Clear();
+            }
+
+            foreach (var item in orderItems)
+            {
+                // Update product stock
+                var product = _productRepo.Query().FirstOrDefault(i => i.Id == item.ProductId);
+                if (product == null) continue;
+                product.Stock -= item.Quantity;
+
+                var orderItem = new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    ProductPrice = item.ProductPrice,
+                    Quantity = item.Quantity
+                };
+                order.AddOrderItem(orderItem);
+            }
         }
     }
 }

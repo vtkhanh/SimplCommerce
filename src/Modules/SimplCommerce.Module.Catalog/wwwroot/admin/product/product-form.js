@@ -300,7 +300,7 @@
         };
 
         vm.updateStock = () => {
-            if (vm.product.isOutOfStock) {
+            if (vm.product.isOutOfStock && vm.product.stock > 0) {
                 vm.product.stock = 0;
             }
         }

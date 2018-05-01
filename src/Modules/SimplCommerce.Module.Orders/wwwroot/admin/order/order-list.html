@@ -4,7 +4,9 @@
             <h2>{{::vm.translate.get('Orders')}}</h2>
         </div>
         <div class="col-sm-4 text-right">
-            <a ui-sref="order-create" class="btn btn-primary"><span class="fa fa-plus"></span>{{::vm.translate.get('Create Order')}}</a>
+            <a ui-sref="order-create" class="btn btn-primary">
+                <i class="fa fa-plus">&nbsp;</i>{{::vm.translate.get('Create Order')}}
+            </a>
         </div>
     </div>
 </div>
@@ -50,7 +52,11 @@
             <td>{{order.customerName}}</td>
             <td>{{order.createdOn | date:'medium'}}</td>
             <td>{{order.subTotal | currency }}</td>
-            <td><a ui-sref="order-detail({id: order.id})" title="View" class="btn btn-primary btn-xs"> <span class="glyphicon glyphicon-eye-open"></span></a></td>
+            <td>
+                <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
+                    <span class="fa fa-edit"></span>
+                </a>
+            </td>
         </tr>
     </tbody>
     <tbody ng-show="vm.isLoading">

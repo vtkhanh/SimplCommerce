@@ -16,12 +16,13 @@ namespace SimplCommerce.Module.Catalog
                 ;
             CreateMap<Product, ProductVm>()
                 .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.SeoTitle))
-                .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.StockQuantity))
-                .ForMember(dest => dest.IsOutOfStock, opt => opt.MapFrom(src => src.StockQuantity == 0))
+                .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
+                .ForMember(dest => dest.IsOutOfStock, opt => opt.MapFrom(src => src.Stock <= 0))
                 .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.Categories.Select(x => x.CategoryId).ToList()))
                 .ReverseMap()
                 .ForMember(dest => dest.HasOptions, opt => opt.MapFrom(src => src.Variations.Any() ? true : false))
-                .ForMember(dest => dest.StockQuantity, opt => opt.MapFrom(src => src.IsOutOfStock ? 0 : src.Stock))
+                .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
+                .ForMember(dest => dest.SeoTitle, opt => opt.MapFrom(src => src.Slug))
                 ;
             CreateMap<Product, ProductVariationVm>()
                 .AfterMap((src, dest) => dest.OptionCombinations = dest.OptionCombinations.OrderBy(i => i.SortIndex).ToList())

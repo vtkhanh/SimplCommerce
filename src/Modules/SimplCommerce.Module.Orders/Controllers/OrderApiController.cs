@@ -85,6 +85,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             }
         }
 
+
         [HttpPost("list")]
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
@@ -102,9 +103,10 @@ namespace SimplCommerce.Module.Orders.Controllers
                 var before = (DateTimeOffset?)search.CreatedOn?.before;
                 var after = (DateTimeOffset?)search.CreatedOn?.after;
                 query = query
+                    .Include(i => i.Customer)
                     .WhereIf(id.HasValue, i => i.Id == id.Value)
                     .WhereIf(status.HasValue, i => i.OrderStatus == status.Value)
-                    .WhereIf(customerName.HasValue(), i => i.CreatedBy.FullName.Contains(customerName))
+                    .WhereIf(customerName.HasValue(), i => i.Customer.FullName.Contains(customerName))
                     .WhereIf(before.HasValue, x => x.CreatedOn <= before)
                     .WhereIf(after.HasValue, x => x.CreatedOn >= after)
                     ;
@@ -115,8 +117,10 @@ namespace SimplCommerce.Module.Orders.Controllers
                 order => new
                 {
                     order.Id,
-                    CustomerName = order.CreatedBy.FullName, order.SubTotal,
-                    OrderStatus = order.OrderStatus.ToString(), order.CreatedOn
+                    CustomerName = order.Customer.FullName, 
+                    order.SubTotal,
+                    OrderStatus = order.OrderStatus.ToString(), 
+                    order.CreatedOn
                 });
 
             return Json(orders);
@@ -131,6 +135,22 @@ namespace SimplCommerce.Module.Orders.Controllers
 
                 return errorMessage.HasValue() 
                     ? (IActionResult) BadRequest(new { Error = errorMessage }) : Ok(order);
+            }
+            catch (System.Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
+        }
+
+        [HttpPut]
+        [ValidateModel]
+        public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
+        {
+            try
+            {
+                var (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+                return ok ? (IActionResult) Accepted() : BadRequest(new { Error = errorMessage });
             }
             catch (System.Exception exception)
             {

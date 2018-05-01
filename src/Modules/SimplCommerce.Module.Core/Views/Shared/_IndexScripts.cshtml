@@ -30,7 +30,7 @@
     <script simpl-append-version="true" src="~/lib/angular-loading-bar/loading-bar.js"></script>
     <script simpl-append-version="true" src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
 
-    <environment include="Development">
+    <environment include="Development,Staging,Production">
         <script simpl-append-version="true" src="~/modules/core/admin/common/slugify.js"></script>
         <script simpl-append-version="true" src="~/modules/core/admin/admin-app.js"></script>
         <script simpl-append-version="true" src="~/modules/core/admin/common/common.js"></script>
@@ -182,7 +182,7 @@
         <script simpl-append-version="true" src="~/modules/paymentPaypalExpress/admin/config/config-form.js"></script>
     </environment>
 
-    <environment include="Staging,Production">
+    <!-- <environment include="Staging,Production">
         <script simpl-append-version="true" src="~/modules/core/admin/core.min.js"></script>
         <script simpl-append-version="true" src="~/modules/catalog/admin/catalog.min.js"></script>
         <script simpl-append-version="true" src="~/modules/orders/admin/orders.min.js"></script>
@@ -201,7 +201,7 @@
         <script simpl-append-version="true" src="~/modules/payments/admin/payments.min.js"></script>
         <script simpl-append-version="true" src="~/modules/paymentStripe/admin/paymentStripe.min.js"></script>
         <script simpl-append-version="true" src="~/modules/paymentPaypalExpress/admin/paymentPaypalExpress.min.js"></script>
-    </environment>
+    </environment> -->
 
 
 

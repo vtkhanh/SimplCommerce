@@ -36,7 +36,7 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public bool IsAllowToOrder { get; set; }
 
-        public int? StockQuantity { get; set; }
+        public int Stock { get; set; }
 
         public string Sku { get; set; }
 
@@ -135,7 +135,7 @@ namespace SimplCommerce.Module.Catalog.Models
             product.OldPrice = OldPrice;
             product.IsAllowToOrder = IsAllowToOrder;
             product.IsCallForPricing = IsCallForPricing;
-            product.StockQuantity = StockQuantity;
+            product.Stock = Stock;
             product.BrandId = BrandId;
             product.VendorId = VendorId;
 

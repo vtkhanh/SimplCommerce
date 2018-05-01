@@ -21,13 +21,18 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public decimal ProductPrice { get; set; }
 
+        public int Stock { get; set; }
+
         public string ProductPriceString => ProductPrice.ToString("C");
 
         public int Quantity { get; set; }
 
         public decimal Total => Quantity * ProductPrice;
 
-        public string TotalString => Total.ToString("C");
+        // TODO: Use either Total or Subtotal
+        public decimal SubTotal => Quantity * ProductPrice;
+
+        public string TotalString => SubTotal.ToString("C");
 
         public string Display => $"{ProductName}{(ProductSku.HasValue() ? $" {ProductSku}" : "")}";
 
