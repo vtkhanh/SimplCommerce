@@ -118,8 +118,13 @@ paths.lib = paths.webroot + "lib/";
 
 // Install packages
 gulp.task('install:bower', () => {
-    return gulp.src(['./bower.json'])
-        .pipe(install());
+    return gulp
+      .src(["./bower.json"])
+      .pipe(
+        install({
+          bower: { allowRoot: true } // Or arguments as an object (transformed using Dargs: https://www.npmjs.com/package/dargs)
+        })
+      );
 });
 
 gulp.task("clean:js", function (cb) {
