@@ -2,6 +2,13 @@
 FROM microsoft/dotnet:2.1-sdk AS builder
 
 WORKDIR /app
+
+# Install npm
+RUN apt-get -qq update && apt-get -qqy --no-install-recommends install git unzip
+
+RUN curl -sL https://deb.nodesource.com/setup_6.x |  bash -
+RUN apt-get install -y nodejs
+
 # Copy solution file
 COPY ./*.sln ./
 # Copy Infrastructure and Webhost csproj files to root directory
@@ -18,8 +25,7 @@ RUN dotnet restore
 
 COPY ./src ./src
 COPY ./test ./test
-COPY ./Directory.Build.props ./Directory.Build.props
-COPY ./run-tests.sh ./run-tests.sh
+COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
 
 RUN dotnet build -c Release --no-restore
 
@@ -27,23 +33,14 @@ RUN dotnet build -c Release --no-restore
 RUN chmod 755 ./run-tests.sh
 RUN ./run-tests.sh
 
-# Install npm
-RUN apt-get -qq update && apt-get -qqy --no-install-recommends install \
-	git \
-	unzip
-
-RUN curl -sL https://deb.nodesource.com/setup_6.x |  bash -
-RUN apt-get install -y nodejs
-
-
-RUN cp -f src/SimplCommerce.WebHost/appsettings.docker.json src/SimplCommerce.WebHost/appsettings.json
-RUN cd src/SimplCommerce.WebHost
+WORKDIR /app/src/SimplCommerce.WebHost
+RUN cp -f ./appsettings.docker.json ./appsettings.json
 RUN sed -i 's/Debug/Release/' gulpfile.js \
 	&& npm install \
 	&& npm install --global bower \
 	&& npm install --global gulp-cli \
 	&& gulp
-RUN dotnet ef database update
+RUN	dotnet ef database update
 RUN dotnet publish -c Release -o dist --no-restore 
 
 # App image
