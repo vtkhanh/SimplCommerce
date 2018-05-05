@@ -17,6 +17,7 @@ build/
 packages/*
 node_modules/
 bower_components/
+dist/
 .vs/
 .idea/
 .vscode/
@@ -51,6 +52,7 @@ bower_components/
 *.pidb
 *.log
 *.scc
+*.bak
 
 # Visual C++ cache files
 ipch/
