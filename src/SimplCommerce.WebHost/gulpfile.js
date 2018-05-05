@@ -13,8 +13,8 @@ const argv = require('yargs').argv;
 const install = require('gulp-install');
 
 
-const configurationName = argv.configurationName || 'Release';
-const targetFramework = 'netcoreapp2.1';
+const configurationName = argv.configurationName || 'Debug';
+const targetFramework = 'netcoreapp2.0';
 
 // debugging
 console.log(configurationName);
