@@ -17,7 +17,7 @@ namespace SimplCommerce.WebHost
             CreateWebHostBuilder(args).Build().Run();
 
         // For EF to instantiate DbContext object. "BuildWebHost" is a convention!
-        public static IWebHost BuildWebHost(string[] args) =>
+        private static IWebHost BuildWebHost(string[] args) =>
             CreateWebHostBuilder(args).Build();
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

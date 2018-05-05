@@ -1,13 +1,16 @@
 # Build image
-FROM microsoft/dotnet:2.1-sdk AS builder
+FROM microsoft/dotnet:2.1.300-preview2-sdk AS builder
 
 WORKDIR /app
 
-# Install npm
-RUN apt-get -qq update && apt-get -qqy --no-install-recommends install git unzip
-
-RUN curl -sL https://deb.nodesource.com/setup_6.x |  bash -
-RUN apt-get install -y nodejs
+# Install node
+ENV NODE_VERSION 8.9.4
+ENV NODE_DOWNLOAD_SHA 21fb4690e349f82d708ae766def01d7fec1b085ce1f5ab30d9bda8ee126ca8fc
+RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" --output nodejs.tar.gz \
+	&& echo "$NODE_DOWNLOAD_SHA nodejs.tar.gz" | sha256sum -c - \
+	&& tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1 \
+	&& rm nodejs.tar.gz \
+	&& ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
 # Copy solution file
 COPY ./*.sln ./
@@ -21,7 +24,20 @@ RUN for file in $(ls *.csproj); do mkdir -p src/Modules/${file%.*}/ && mv $file 
 COPY test/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
 
-RUN dotnet restore 
+RUN dotnet restore  --no-cache
+
+
+# Install npm & bower packages
+COPY src/SimplCommerce.WebHost/package.json src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
+RUN cd src/SimplCommerce.WebHost \
+	&& npm install --global gulp-cli \
+	&& npm install bower --save-dev \
+	&& npm install
+RUN cd src/SimplCommerce.WebHost \
+	&& npm run bower install
+
+# Just to check packaged installed
+RUN ls -al src/SimplCommerce.WebHost
 
 COPY ./src ./src
 COPY ./test ./test
@@ -34,13 +50,9 @@ RUN chmod 755 ./run-tests.sh
 RUN ./run-tests.sh
 
 WORKDIR /app/src/SimplCommerce.WebHost
+RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
 RUN cp -f ./appsettings.docker.json ./appsettings.json
-RUN sed -i 's/Debug/Release/' gulpfile.js \
-	&& npm install \
-	&& npm install --global bower \
-	&& npm install --global gulp-cli \
-	&& gulp
-RUN	dotnet ef database update
+# RUN	dotnet ef database update
 RUN dotnet publish -c Release -o dist --no-restore 
 
 # App image

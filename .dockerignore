@@ -9,3 +9,5 @@
 *.xml
 **/bin
 **/obj
+**/node_modules
+**/bower_components

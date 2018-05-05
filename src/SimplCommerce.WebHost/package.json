@@ -14,9 +14,11 @@
     "gulp-min:js": "gulp min:js",
     "gulp-min:css": "gulp min:css",
     "gulp-min": "gulp min",
-    "gulp-default": "gulp"
+    "gulp-default": "gulp",
+    "bower": "bower"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "del": "2.2.0",
     "glob": "7.1.1",
