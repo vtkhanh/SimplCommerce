@@ -4,7 +4,6 @@
 .vscode
 .aws-beanstalk
 .dockerignore
-global.json
 *.yml
 *.txt
 *.xml
