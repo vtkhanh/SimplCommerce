@@ -55,7 +55,7 @@ const bower = {
     "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*",
     "ng-file-upload": "ng-file-upload/ng-file-upload.js",
     "summernote": "summernote/dist/**/*.{js,map,css,ttf,svg,woff,eot}",
-    "matchheight": "matchheight/dist/*.js",
+    "matchHeight": "matchHeight/dist/jquery.matchHeight.js",
     "toastr": "toastr/toastr*.{js,css}",
     "bootbox": "bootbox/bootbox*.{js,css}",
     "nouislider": "nouislider/distribute/*.{js,css}",

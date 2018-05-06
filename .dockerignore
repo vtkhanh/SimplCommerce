@@ -9,5 +9,13 @@
 *.xml
 **/bin
 **/obj
+**/Logs
 **/node_modules
 **/bower_components
+**/launchSettings.json
+**/*.Development.json
+**/*.Staging.json
+**/*-lock.json
+**/*.bak
+**/*.min.js
+**/*.min.css

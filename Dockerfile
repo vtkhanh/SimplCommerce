@@ -24,7 +24,7 @@ RUN for file in $(ls *.csproj); do mkdir -p src/Modules/${file%.*}/ && mv $file 
 COPY test/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
 
-RUN dotnet restore  --no-cache
+RUN dotnet restore
 
 
 # Install npm & bower packages
@@ -47,11 +47,15 @@ RUN dotnet build -c Release --no-restore
 RUN chmod 755 ./run-tests.sh
 RUN ./run-tests.sh
 
-COPY appsettings.docker.json src/SimplCommerce.WebHost/
 WORKDIR /app/src/SimplCommerce.WebHost
+
 RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
+
+COPY appsettings.docker.json ./
 RUN cp -f ./appsettings.docker.json ./appsettings.json
 RUN	dotnet ef database update
+
+# Publish
 RUN dotnet publish -c Release -o dist --no-restore 
 
 # App image
