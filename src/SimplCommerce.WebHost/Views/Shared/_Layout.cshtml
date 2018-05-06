@@ -22,9 +22,13 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="navbar navbar-inverse">
-                    <ul class="list-inline list-unstyled pull-right">
-                        @await Html.PartialAsync("_SelectLanguagePartial") @await Html.PartialAsync("_LoginPartial")
-                    </ul>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            @await Html.PartialAsync("_SelectLanguagePartial") 
+                            @await Html.PartialAsync("_LoginPartial")
+                        </ul>
+
+                    </div>
                 </div>
             </div>
         </div>
