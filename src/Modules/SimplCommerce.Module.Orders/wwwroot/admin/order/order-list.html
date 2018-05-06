@@ -3,63 +3,75 @@
         <div class="col-md-8">
             <h2>{{::vm.translate.get('Orders')}}</h2>
         </div>
-        <div class="col-md-4 text-right">
+        <div class="col-sm-4 text-right">
+            <a ui-sref="order-create" class="btn btn-primary">
+                <i class="fa fa-plus">&nbsp;</i>{{::vm.translate.get('Create Order')}}
+            </a>
         </div>
     </div>
 </div>
 
-<table class="table table-striped" st-pipe="vm.getOrders" st-table="vm.orders">
-    <thead>
-        <tr>
-            <th st-sort="Id" class="sortable">{{::vm.translate.get('OrderId')}}</th>
-            <th>{{::vm.translate.get('Order Status')}}</th>
-            <th>{{::vm.translate.get('Customer')}}</th>
-            <th st-sort="CreatedOn" class="sortable">{{::vm.translate.get('Created On')}}</th>
-            <th st-sort="SubTotal" class="sortable">{{::vm.translate.get('SubTotal')}}</th>
-            <th>Actions</th>
-        </tr>
-        <tr>
-            <th>
-                <div class="form-group">
-                    <input type="number" class="form-control" st-search="Id" />
-                </div>
-            </th>
-            <th>
-                <div class="form-group">
-                    <select class="form-control" st-search="Status">
-                        <option value="">All</option>
-                        <option ng-repeat="status in vm.orderStatus" value="{{status.id}}">{{status.name}}</option>
-                    </select>
-                </div>
-            </th>
-            <th>
-                <div class="form-group">
-                    <input class="form-control" st-search="CustomerName" />
-                </div>
-            </th>
-            <th><st-date-range predicate="CreatedOn" before="query.before" after="query.after"></st-date-range></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody ng-show="!vm.isLoading">
-        <tr ng-repeat="order in vm.orders">
-            <td>{{order.id}}</td>
-            <td>{{order.orderStatus}}</td>
-            <td>{{order.customerName}}</td>
-            <td>{{order.createdOn | date:'medium'}}</td>
-            <td>{{order.subTotal | currency }}</td>
-            <td><a ui-sref="order-detail({id: order.id})" title="View" class="btn btn-primary btn-xs"> <span class="glyphicon glyphicon-eye-open"></span></a></td>
-        </tr>
-    </tbody>
-    <tbody ng-show="vm.isLoading">
-        <tr>
-            <td colspan="6" class="text-center">Loading ... </td>
-        </tr>
-    </tbody>
-    <tfoot>
-        <tr>
-            <td class="text-center" st-pagination="" st-items-by-page="50" st-displayed-pages="10" colspan="6"></td>
-        </tr>
-    </tfoot>
-</table>	
+<div class="table-responsive">
+
+    <table class="table table-striped" st-pipe="vm.getOrders" st-table="vm.orders">
+        <thead>
+            <tr>
+                <th st-sort="Id" class=" sortable ">{{::vm.translate.get('OrderId')}}</th>
+                <th class="">{{::vm.translate.get('Status')}}</th>
+                <th class="">{{::vm.translate.get('Customer')}}</th>
+                <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
+                <th st-sort="SubTotal" class=" sortable">{{::vm.translate.get('SubTotal')}}</th>
+                <th class="">Actions</th>
+            </tr>
+            <tr>
+                <th class="">
+                    <div class="form-group no-margin-bottom">
+                        <input type="number" class="form-control" st-search="Id" />
+                    </div>
+                </th>
+                <th class="">
+                    <div class="form-group no-margin-bottom">
+                        <select class="form-control" st-search="Status">
+                            <option value="">All</option>
+                            <option ng-repeat="status in vm.orderStatus" value="{{status.id}}">{{status.name}}</option>
+                        </select>
+                    </div>
+                </th>
+                <th class="">
+                    <div class="form-group no-margin-bottom">
+                        <input class="form-control" st-search="CustomerName" />
+                    </div>
+                </th>
+                <th class=" text-center hidden-xs">
+                    <st-date-range predicate="CreatedOn" before="query.before" after="query.after"></st-date-range>
+                </th>
+                <th class=""></th>
+                <th class=""></th>
+            </tr>
+        </thead>
+        <tbody ng-show="!vm.isLoading">
+            <tr ng-repeat="order in vm.orders" class="{{(order.orderStatus === 'Complete' ? 'success' : (order.orderStatus === 'Cancelled' ? 'danger' : ''))}}">
+                <td class="">{{order.id}}</td>
+                <td class="">{{order.orderStatus}}</td>
+                <td class="">{{order.customerName}}</td>
+                <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
+                <td class="">{{order.subTotal | currency }}</td>
+                <td class="text-center">
+                    <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
+                        <span class="fa fa-edit"></span>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+        <tbody ng-show="vm.isLoading">
+            <tr>
+                <td colspan="6" class="text-center">Loading ... </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="text-center" st-pagination="" st-items-by-page="50" st-displayed-pages="10" colspan="6"></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

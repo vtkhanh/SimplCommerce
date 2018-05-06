@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Tax.Models;
 
@@ -12,6 +13,8 @@ namespace SimplCommerce.Module.Catalog.Models
         public string Description { get; set; }
 
         public string Specification { get; set; }
+
+        public decimal Cost { get; set; }
 
         public decimal Price { get; set; }
 
@@ -33,7 +36,7 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public bool IsAllowToOrder { get; set; }
 
-        public int? StockQuantity { get; set; }
+        public int Stock { get; set; }
 
         public string Sku { get; set; }
 
@@ -42,6 +45,8 @@ namespace SimplCommerce.Module.Catalog.Models
         public int DisplayOrder { get; set; }
 
         public long? VendorId { get; set; }
+
+        public int HitCount { get; set; }
 
         public Media ThumbnailImage { get; set; }
 
@@ -125,11 +130,12 @@ namespace SimplCommerce.Module.Catalog.Models
             product.Specification = Specification;
             product.IsPublished = true;
             product.PublishedOn = DateTimeOffset.Now;
+            product.Cost = Cost;
             product.Price = Price;
             product.OldPrice = OldPrice;
             product.IsAllowToOrder = IsAllowToOrder;
             product.IsCallForPricing = IsCallForPricing;
-            product.StockQuantity = StockQuantity;
+            product.Stock = Stock;
             product.BrandId = BrandId;
             product.VendorId = VendorId;
 
@@ -151,6 +157,23 @@ namespace SimplCommerce.Module.Catalog.Models
             }
 
             return product;
+        }
+
+        public IEnumerable<Product> GetLinkedProducts(ProductLinkType type) =>
+            ProductLinks
+                .Where(x => x.LinkType == type)
+                .Select(x => x.LinkedProduct)
+                .Where(x => !x.IsDeleted)
+                .OrderBy(x => x.Id);
+
+        public IEnumerable<ProductMedia> GetMediasWithUrl(MediaType type, Func<Media, string> getUrlFunc)
+        {
+            var result = Medias.Where(x => x.Media.MediaType == MediaType.Image);
+            foreach (var item in result)
+            {
+                item.MediaUrl = getUrlFunc(item.Media);
+            }
+            return result;
         }
     }
 }

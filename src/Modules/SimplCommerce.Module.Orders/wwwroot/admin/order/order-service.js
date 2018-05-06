@@ -9,14 +9,25 @@
         var service = {
             getOrders: getOrders,
             getOrdersForGrid: getOrdersForGrid,
+            getOrderForEditing: getOrderForEditing,
             getOrder: getOrder,
+            createOrder: createOrder,
+            updateOrder: updateOrder,
             getOrderStatus: getOrderStatus,
             changeOrderStatus: changeOrderStatus
         };
         return service;
 
+        function createOrder(params) {
+            return $http.post('api/orders', params);
+        }
+
+        function updateOrder(params) {
+            return $http.put(`api/orders`, params);
+        }
+
         function getOrdersForGrid(params) {
-            return $http.post('api/orders/grid', params);
+            return $http.post('api/orders/list', params);
         }
 
         function getOrders(status, numRecords) {
@@ -25,6 +36,10 @@
 
         function getOrder(orderId) {
             return $http.get('api/orders/' + orderId);
+        }
+
+        function getOrderForEditing(orderId) {
+            return $http.get('api/orders/edit/' + orderId);
         }
 
         function getOrderStatus() {

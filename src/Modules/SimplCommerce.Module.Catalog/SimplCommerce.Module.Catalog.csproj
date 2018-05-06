@@ -13,4 +13,9 @@
     <ProjectReference Include="..\SimplCommerce.Module.Tax\SimplCommerce.Module.Tax.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
+    <!-- <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" /> -->
+  </ItemGroup>
+
 </Project>

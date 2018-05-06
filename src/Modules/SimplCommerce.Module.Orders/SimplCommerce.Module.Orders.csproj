@@ -16,4 +16,8 @@
     <ProjectReference Include="..\SimplCommerce.Module.ShoppingCart\SimplCommerce.Module.ShoppingCart.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="3.2.0" />
+    <!-- <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" /> -->
+  </ItemGroup>
 </Project>

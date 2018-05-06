@@ -16,4 +16,7 @@
     <PackageReference Include="Stripe.net" Version="11.10.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" /> -->
+  </ItemGroup>
 </Project>

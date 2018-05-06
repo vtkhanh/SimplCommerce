@@ -12,7 +12,7 @@
                     before: '=',
                     after: '='
                 },
-                templateUrl: 'modules/core/admin/common/st-date-range.html',
+                templateUrl: 'modules/core/admin/common/st-date-range-md.html',
                 link: function (scope, element, attr, table) {
                     var predicateName = attr.predicate;
 

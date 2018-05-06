@@ -17,7 +17,10 @@ build/
 packages/*
 node_modules/
 bower_components/
+dist/
 .vs/
+.idea/
+.vscode/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
@@ -49,6 +52,7 @@ bower_components/
 *.pidb
 *.log
 *.scc
+*.bak
 
 # Visual C++ cache files
 ipch/
@@ -159,4 +163,16 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 
-src/Modules/**/launchSettings.json
+# Others
+package-lock.json
+appsettings.Production.json
+
+# Minified files
+src/Modules/**/*.min.js
+src/Modules/**/*.min.css
+
+# Logs files
+src/**/Logs/
+
+# lib folder. Get installed when deploying with "bower install && gulp copy-lib"
+src/SimplCommerce.WebHost/wwwroot/lib/

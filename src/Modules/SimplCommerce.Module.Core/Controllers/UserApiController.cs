@@ -25,7 +25,7 @@ namespace SimplCommerce.Module.Core.Controllers
             _userManager = userManager;
         }
 
-        [HttpPost("grid")]
+        [HttpPost("list")]
         public IActionResult List([FromBody] SmartTableParam param)
         {
             var query = _userRepository.Query()

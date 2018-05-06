@@ -18,6 +18,9 @@ using SimplCommerce.Module.Catalog.ViewModels;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using AutoMapper;
+using Microsoft.Extensions.Logging;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -25,6 +28,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
     [Route("api/products")]
     public class ProductApiController : Controller
     {
+        private readonly IMapper _mapper;
+        private readonly ILogger<ProductApiController> _logger;
         private readonly IMediaService _mediaService;
         private readonly IRepository<ProductAttributeValue> _productAttributeValueRepository;
         private readonly IRepository<ProductCategory> _productCategoryRepository;
@@ -35,6 +40,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
         private readonly IWorkContext _workContext;
 
         public ProductApiController(
+            IMapper mapper,
+            ILogger<ProductApiController> logger,
             IRepository<Product> productRepository,
             IMediaService mediaService,
             IProductService productService,
@@ -44,6 +51,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IRepository<ProductAttributeValue> productAttributeValueRepository,
             IWorkContext workContext)
         {
+            _mapper = mapper;
+            _logger = logger;
             _productRepository = productRepository;
             _mediaService = mediaService;
             _productService = productService;
@@ -52,6 +61,22 @@ namespace SimplCommerce.Module.Catalog.Controllers
             _productOptionValueRepository = productOptionValueRepository;
             _productAttributeValueRepository = productAttributeValueRepository;
             _workContext = workContext;
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query) 
+        {
+            try
+            {
+                const int maxItems = 100;
+                var products = await _productService.Search(query, maxItems);
+                return Ok(products);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
         }
 
         [HttpGet("{id}")]
@@ -67,183 +92,58 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 .FirstOrDefault(x => x.Id == id);
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin") && product.VendorId != currentUser.VendorId)
+            if (!User.IsInRole(RoleName.Admin) && product.VendorId != currentUser.VendorId)
             {
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            var productVm = new ProductVm
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Slug = product.SeoTitle,
-                ShortDescription = product.ShortDescription,
-                Description = product.Description,
-                Specification = product.Specification,
-                OldPrice = product.OldPrice,
-                Price = product.Price,
-                SpecialPrice = product.SpecialPrice,
-                SpecialPriceStart = product.SpecialPriceStart,
-                SpecialPriceEnd = product.SpecialPriceEnd,
-                IsFeatured = product.IsFeatured,
-                IsPublished = product.IsPublished,
-                IsCallForPricing =  product.IsCallForPricing,
-                IsAllowToOrder = product.IsAllowToOrder,
-                IsOutOfStock = product.StockQuantity == 0,
-                CategoryIds = product.Categories.Select(x => x.CategoryId).ToList(),
-                ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage),
-                BrandId = product.BrandId,
-                TaxClassId = product.TaxClassId
-            };
-
-            foreach (var productMedia in product.Medias.Where(x => x.Media.MediaType == MediaType.Image))
-            {
-                productVm.ProductImages.Add(new ProductMediaVm
-                {
-                    Id = productMedia.Id,
-                    MediaUrl = _mediaService.GetThumbnailUrl(productMedia.Media)
-                });
-            }
-
-            foreach (var productMedia in product.Medias.Where(x => x.Media.MediaType == MediaType.File))
-            {
-                productVm.ProductDocuments.Add(new ProductMediaVm
-                {
-                    Id = productMedia.Id,
-                    Caption = productMedia.Media.Caption,
-                    MediaUrl = _mediaService.GetMediaUrl(productMedia.Media)
-                });
-            }
-
-
-            productVm.Options = product.OptionValues.OrderBy(x => x.SortIndex).Select(x =>
-                new ProductOptionVm
-                {
-                    Id = x.OptionId,
-                    Name = x.Option.Name,
-                    DisplayType = x.DisplayType,
-                    Values = JsonConvert.DeserializeObject<IList<ProductOptionValueVm>>(x.Value)
-                }).ToList();
-
-            foreach (var variation in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Super).Select(x => x.LinkedProduct).Where(x => !x.IsDeleted).OrderBy(x => x.Id))
-            {
-                productVm.Variations.Add(new ProductVariationVm
-                {
-                    Id = variation.Id,
-                    Name = variation.Name,
-                    Price = variation.Price,
-                    OldPrice = variation.OldPrice,
-                    NormalizedName = variation.NormalizedName,
-                    OptionCombinations = variation.OptionCombinations.Select(x => new ProductOptionCombinationVm
-                    {
-                        OptionId = x.OptionId,
-                        OptionName = x.Option.Name,
-                        Value = x.Value,
-                        SortIndex = x.SortIndex
-                    }).OrderBy(x => x.SortIndex).ToList()
-                });
-            }
-
-            foreach (var relatedProduct in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Related).Select(x => x.LinkedProduct).Where(x => !x.IsDeleted).OrderBy(x => x.Id))
-            {
-                productVm.RelatedProducts.Add(new ProductLinkVm
-                {
-                    Id = relatedProduct.Id,
-                    Name = relatedProduct.Name,
-                    IsPublished = relatedProduct.IsPublished
-                });
-            }
-
-            foreach (var crossSellProduct in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.CrossSell).Select(x => x.LinkedProduct).Where(x => !x.IsDeleted).OrderBy(x => x.Id))
-            {
-                productVm.CrossSellProducts.Add(new ProductLinkVm
-                {
-                    Id = crossSellProduct.Id,
-                    Name = crossSellProduct.Name,
-                    IsPublished = crossSellProduct.IsPublished
-                });
-            }
-
-            productVm.Attributes = product.AttributeValues.Select(x => new ProductAttributeVm
-            {
-                AttributeValueId = x.Id,
-                Id = x.AttributeId,
-                Name = x.Attribute.Name,
-                GroupName = x.Attribute.Group.Name,
-                Value = x.Value
-            }).ToList();
+            var productVm = _mapper.Map<Product, ProductVm>(product,
+                opt => opt.AfterMap((src, dest) => {
+                    dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage);
+                }));
+            productVm.ProductImages = _mapper.Map<IList<ProductMediaVm>>(
+                product.GetMediasWithUrl(MediaType.Image, media => _mediaService.GetThumbnailUrl(media)));
+            productVm.ProductDocuments = _mapper.Map<IList<ProductMediaVm>>(
+                product.GetMediasWithUrl(MediaType.File, media => _mediaService.GetMediaUrl(media)));
+            productVm.Options = _mapper.Map<IList<ProductOptionVm>>(product.OptionValues.OrderBy(i => i.SortIndex));
+            productVm.Variations = _mapper.Map<IList<ProductVariationVm>>(product.GetLinkedProducts(ProductLinkType.Super));
+            productVm.RelatedProducts = _mapper.Map<IList<ProductLinkVm>>(product.GetLinkedProducts(ProductLinkType.Related));
+            productVm.CrossSellProducts = _mapper.Map<IList<ProductLinkVm>>(product.GetLinkedProducts(ProductLinkType.CrossSell));
+            productVm.Attributes = _mapper.Map<IList<ProductAttributeVm>>(product.AttributeValues);
 
             return Json(productVm);
         }
 
-        [HttpPost("grid")]
+        [HttpPost("list")]
         public async Task<IActionResult> List([FromBody] SmartTableParam param)
         {
             var query = _productRepository.Query().Where(x => !x.IsDeleted);
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin"))
-            {
-                query = query.Where(x => x.VendorId == currentUser.VendorId);
-            }
+            query = query.WhereIf(!User.IsInRole(RoleName.Admin), x => x.VendorId == currentUser.VendorId);
 
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
-                if (search.Name != null)
-                {
-                    string name = search.Name;
-                    query = query.Where(x => x.Name.Contains(name));
-                }
+                var name = (string)search.Name;
+                var sku = (string)search.Sku;
+                var hasOptions = (bool?)search.HasOptions;
+                var isVisibleIndividually = (bool?)search.IsVisibleIndividually;
+                var isPublished = (bool?)search.IsPublished;
+                var before = (DateTimeOffset?)search.CreatedOn?.before;
+                var after = (DateTimeOffset?)search.CreatedOn?.after;
 
-                if (search.HasOptions != null)
-                {
-                    bool hasOptions = search.HasOptions;
-                    query = query.Where(x => x.HasOptions == hasOptions);
-                }
-
-                if (search.IsVisibleIndividually != null)
-                {
-                    bool isVisibleIndividually = search.IsVisibleIndividually;
-                    query = query.Where(x => x.IsVisibleIndividually == isVisibleIndividually);
-                }
-
-                if (search.IsPublished != null)
-                {
-                    bool isPublished = search.IsPublished;
-                    query = query.Where(x => x.IsPublished == isPublished);
-                }
-
-                if (search.CreatedOn != null)
-                {
-                    if (search.CreatedOn.before != null)
-                    {
-                        DateTimeOffset before = search.CreatedOn.before;
-                        query = query.Where(x => x.CreatedOn <= before);
-                    }
-
-                    if (search.CreatedOn.after != null)
-                    {
-                        DateTimeOffset after = search.CreatedOn.after;
-                        query = query.Where(x => x.CreatedOn >= after);
-                    }
-                }
+                query = query
+                    .WhereIf(!name.IsNullOrEmpty(), x => x.Name.Contains(name))
+                    .WhereIf(!sku.IsNullOrEmpty(), x => x.Sku.Contains(sku))
+                    .WhereIf(hasOptions.HasValue, x => x.HasOptions == hasOptions)
+                    .WhereIf(isVisibleIndividually.HasValue, x => x.IsVisibleIndividually == isVisibleIndividually)
+                    .WhereIf(isPublished.HasValue, x => x.IsPublished == isPublished)
+                    .WhereIf(before.HasValue, x => x.CreatedOn <= before)
+                    .WhereIf(after.HasValue, x => x.CreatedOn >= after)
+                    ;
             }
 
-            var gridData = query.ToSmartTableResult(
-                param,
-                x => new ProductListItem
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    HasOptions = x.HasOptions,
-                    IsVisibleIndividually = x.IsVisibleIndividually,
-                    IsFeatured = x.IsFeatured,
-                    IsAllowToOrder = x.IsAllowToOrder,
-                    IsCallForPricing = x.IsCallForPricing,
-                    StockQuantity = x.StockQuantity,
-                    CreatedOn = x.CreatedOn,
-                    IsPublished = x.IsPublished
-                });
+            var gridData = query.ToSmartTableResult(param, item => _mapper.Map<ProductListItem>(item));
 
             return Json(gridData);
         }
@@ -258,42 +158,13 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             var currentUser = await _workContext.GetCurrentUser();
 
-            var product = new Product
-            {
-                Name = model.Product.Name,
-                SeoTitle = model.Product.Slug,
-                ShortDescription = model.Product.ShortDescription,
-                Description = model.Product.Description,
-                Specification = model.Product.Specification,
-                Price = model.Product.Price,
-                OldPrice = model.Product.OldPrice,
-                SpecialPrice = model.Product.SpecialPrice,
-                SpecialPriceStart = model.Product.SpecialPriceStart,
-                SpecialPriceEnd = model.Product.SpecialPriceEnd,
-                IsPublished = model.Product.IsPublished,
-                IsFeatured = model.Product.IsFeatured,
-                IsCallForPricing = model.Product.IsCallForPricing,
-                IsAllowToOrder = model.Product.IsAllowToOrder,
-                BrandId = model.Product.BrandId,
-                TaxClassId = model.Product.TaxClassId,
-                HasOptions = model.Product.Variations.Any() ? true : false,
-                IsVisibleIndividually = true,
-                CreatedBy = currentUser
-            };
-
-            if (!User.IsInRole("admin"))
-            {
-                product.VendorId = currentUser.VendorId;
-            }
-
-            if (model.Product.IsOutOfStock)
-            {
-                product.StockQuantity = 0;
-            }
-            else
-            {
-                product.StockQuantity = null;
-            }
+            var product = _mapper.Map<ProductVm, Product>(model.Product,
+                opt => opt.AfterMap((src, dest) =>
+                {
+                    dest.CreatedBy = currentUser;
+                    dest.VendorId = User.IsInRole(RoleName.Admin) ? null : currentUser.VendorId;
+                    dest.IsVisibleIndividually = true; // put this config here because it's specific for this case
+                }));
 
             var optionIndex = 0;
             foreach (var option in model.Product.Options)
@@ -316,7 +187,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
                     AttributeId = attribute.Id,
                     Value = attribute.Value
                 };
-
                 product.AddAttributeValue(attributeValue);
             }
 
@@ -355,43 +225,40 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 .Include(x => x.Categories)
                 .FirstOrDefault(x => x.Id == id);
 
-            if(product == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin") && product.VendorId != currentUser.VendorId)
+            if (!User.IsInRole(RoleName.Admin) && product.VendorId != currentUser.VendorId)
             {
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            product.Name = model.Product.Name;
-            product.SeoTitle = model.Product.Slug;
-            product.ShortDescription = model.Product.ShortDescription;
-            product.Description = model.Product.Description;
-            product.Specification = model.Product.Specification;
-            product.Price = model.Product.Price;
-            product.OldPrice = model.Product.OldPrice;
-            product.SpecialPrice = model.Product.SpecialPrice;
-            product.SpecialPriceStart = model.Product.SpecialPriceStart;
-            product.SpecialPriceEnd = model.Product.SpecialPriceEnd;
-            product.BrandId = model.Product.BrandId;
-            product.TaxClassId = model.Product.TaxClassId;
-            product.IsFeatured = model.Product.IsFeatured;
-            product.IsPublished = model.Product.IsPublished;
-            product.IsCallForPricing = model.Product.IsCallForPricing;
-            product.IsAllowToOrder = model.Product.IsAllowToOrder;
-            product.UpdatedBy = currentUser;
+            product = _mapper.Map(model.Product, product, 
+                opt => opt.AfterMap((src, dest) => dest.UpdatedBy = currentUser));
 
-            if (model.Product.IsOutOfStock)
-            {
-                product.StockQuantity = 0;
-            }
-            else
-            {
-                product.StockQuantity = null;
-            }
+            // product.Name = model.Product.Name;
+            // product.Sku = model.Product.Sku;
+            // product.Stock = model.Product.Stock;
+            // product.SeoTitle = model.Product.Slug;
+            // product.ShortDescription = model.Product.ShortDescription;
+            // product.Description = model.Product.Description;
+            // product.Specification = model.Product.Specification;
+            // product.Cost = model.Product.Cost;
+            // product.Price = model.Product.Price;
+            // product.OldPrice = model.Product.OldPrice;
+            // product.SpecialPrice = model.Product.SpecialPrice;
+            // product.SpecialPriceStart = model.Product.SpecialPriceStart;
+            // product.SpecialPriceEnd = model.Product.SpecialPriceEnd;
+            // product.BrandId = model.Product.BrandId;
+            // product.TaxClassId = model.Product.TaxClassId;
+            // product.IsFeatured = model.Product.IsFeatured;
+            // product.IsPublished = model.Product.IsPublished;
+            // product.IsCallForPricing = model.Product.IsCallForPricing;
+            // product.IsAllowToOrder = model.Product.IsAllowToOrder;
+            // product.UpdatedBy = currentUser;
 
             await SaveProductMedias(model, product);
 
@@ -402,10 +269,10 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 product.RemoveMedia(productMedia);
             }
 
-            AddOrDeleteProductOption(model, product);
+            AddOrDeleteProductOption(model.Product, product);
             AddOrDeleteProductAttribute(model, product);
             AddOrDeleteCategories(model, product);
-            AddOrDeleteProductVariation(model, product);
+            AddOrDeleteProductVariation(model.Product, product);
             AddOrDeleteProductLinks(model, product);
 
             _productService.Update(product);
@@ -425,7 +292,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             var currentUser = await _workContext.GetCurrentUser();
             if (!User.IsInRole("admin") && product.VendorId != currentUser.VendorId)
             {
-                return BadRequest(new { error = "You don't have permission to manage this product" });
+                return BadRequest(new { error = "You don't have permission to manage this product!" });
             }
 
             product.IsPublished = !product.IsPublished;
@@ -544,10 +411,10 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
         }
 
-        private void AddOrDeleteProductOption(ProductForm model, Product product)
+        private void AddOrDeleteProductOption(ProductVm productVm, Product product)
         {
             var optionIndex = 0;
-            foreach (var optionVm in model.Product.Options)
+            foreach (var optionVm in productVm.Options)
             {
                 var optionValue = product.OptionValues.FirstOrDefault(x => x.OptionId == optionVm.Id);
                 if (optionValue == null)
@@ -570,18 +437,20 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 optionIndex++;
             }
 
-            var deletedProductOptionValues = product.OptionValues.Where(x => model.Product.Options.All(vm => vm.Id != x.OptionId)).ToList();
-
-            foreach (var productOptionValue in deletedProductOptionValues)
+            var deleteds = 
+                product.OptionValues.Where(x => productVm.Options.All(vm => vm.Id != x.OptionId)).ToList();
+            foreach (var optionValue in deleteds)
             {
-                product.OptionValues.Remove(productOptionValue);
-                _productOptionValueRepository.Remove(productOptionValue);
+                product.OptionValues.Remove(optionValue);
+                _productOptionValueRepository.Remove(optionValue);
             }
+
+            product.HasOptions = product.OptionValues.Any();
         }
 
-        private void AddOrDeleteProductVariation(ProductForm model, Product product)
+        private void AddOrDeleteProductVariation(ProductVm productVm, Product product)
         {
-            foreach (var productVariationVm in model.Product.Variations)
+            foreach (var productVariationVm in productVm.Variations)
             {
                 var productLink = product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Super).FirstOrDefault(x => x.LinkedProduct.Name == productVariationVm.Name);
                 if (productLink == null)
@@ -624,7 +493,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             foreach (var productLink in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Super))
             {
-                if (model.Product.Variations.All(x => x.Name != productLink.LinkedProduct.Name))
+                if (productVm.Variations.All(x => x.Name != productLink.LinkedProduct.Name))
                 {
                     _productLinkRepository.Remove(productLink);
                     productLink.LinkedProduct.IsDeleted = true;
@@ -728,7 +597,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 }
                 else
                 {
-                    product.ThumbnailImage = new Media {FileName = fileName};
+                    product.ThumbnailImage = new Media { FileName = fileName };
                 }
             }
 
@@ -751,7 +620,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 var productMedia = new ProductMedia
                 {
                     Product = product,
-                    Media = new Media {FileName = fileName, MediaType = MediaType.Image}
+                    Media = new Media { FileName = fileName, MediaType = MediaType.Image }
                 };
                 product.AddMedia(productMedia);
             }

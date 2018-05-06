@@ -32,9 +32,9 @@ th.sortable {
     color: white !important;
 }
 
-.date-filter {
+/* .date-filter {
     width: 170px;
-}
+} */
 
 .product-image-edit {
     display: inline-block;
@@ -91,9 +91,9 @@ table > tbody > tr > td.variation-form {
     display: none;
 }
 
-.simpl-datetime-picker {
+/* .simpl-datetime-picker {
     width: 300px;
-}
+} */
 
 td>span.glyphicon-ok {
     color: #5cb85c;
@@ -148,4 +148,41 @@ td>span.glyphicon-remove {
 
 .entity-selector .entity-name {
     width: 200px;
+}
+
+.centered {
+    float: none;
+    margin: 0 auto;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0;
+}
+
+.no-margin-top {
+    margin-top: 0;
+}
+
+.form-group.required .control-label:after {
+    content: "*";
+    color: red;
+}
+
+
+.input-validation-error,
+.ng-dirty.ng-invalid {
+    border-color: red;
+}
+
+.order-summary {
+    border-top: 2px dotted #dae2ea 
+}
+
+/* Dont use validation on md elements */
+.hide-validation .md-errors-spacer {
+    display: none;
+}
+
+table.vertical-align-middle tr td {
+    vertical-align: middle;
 }

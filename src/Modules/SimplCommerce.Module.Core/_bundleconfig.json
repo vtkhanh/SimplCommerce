@@ -1,0 +1,44 @@
+[
+    {
+        "outputFileName": "wwwroot/admin/admin-core.min.css",
+        "inputFiles": [
+            "wwwroot/admin/admin-core.css"
+        ]
+    },
+    {
+        "outputFileName": "wwwroot/admin/core.min.js",
+        "inputFiles": [
+            "wwwroot/admin/common/slugify.js",
+            "wwwroot/admin/admin-app.js",
+            "wwwroot/admin/common/common.js",
+            "wwwroot/admin/common/summernote-service.js",
+            "wwwroot/admin/common/st-date-range.js",
+            "wwwroot/admin/common/my-back-btn.js",
+            "wwwroot/admin/common/my-data-hide.js",
+            "wwwroot/admin/common/my-validation.js",
+            "wwwroot/admin/common/translation-service.js",
+            "wwwroot/admin/dashboard/dashboard.module.js",
+
+            "wwwroot/admin/core.module.js",
+            "wwwroot/admin/user/user-service.js",
+            "wwwroot/admin/user/user-list.js",
+            "wwwroot/admin/user/user-form.js",
+            "wwwroot/admin/widget/widget-service.js",
+            "wwwroot/admin/widget/widget-instance-list.js",
+            "wwwroot/admin/configuration/configuration-service.js",
+            "wwwroot/admin/configuration/configuration.js",
+            "wwwroot/admin/customergroups/customergroup-service.js",
+            "wwwroot/admin/customergroups/customergroup-list.js",
+            "wwwroot/admin/customergroups/customergroup-form.js",
+            "wwwroot/admin/themes/theme-service.js",
+            "wwwroot/admin/themes/theme-list.js",
+            "wwwroot/admin/countries/country-service.js",
+            "wwwroot/admin/countries/country-list.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": false
+        },
+        "sourceMap": false
+    }
+]

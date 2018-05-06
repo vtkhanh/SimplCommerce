@@ -26,6 +26,7 @@ using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Infrastructure.Web.ModelBinders;
 using SimplCommerce.Infrastructure.Web;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SimplCommerce.WebHost.Extensions
 {
@@ -57,13 +58,13 @@ namespace SimplCommerce.WebHost.Extensions
                         // Get loaded assembly
                         assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(file.Name)));
 
-                        if (assembly == null)
-                        {
-                            throw;
-                        }
+                        // if (assembly == null)
+                        // {
+                        //     throw;
+                        // }
                     }
 
-                    if (assembly.FullName.Contains(moduleFolder.Name))
+                    if (assembly.FullName.Contains(moduleFolder.Name) && modules.All(i => i.Name != moduleFolder.Name))
                     {
                         modules.Add(new ModuleInfo
                         {
@@ -131,17 +132,16 @@ namespace SimplCommerce.WebHost.Extensions
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(o => o.LoginPath = new PathString("/login"))
-
                 .AddFacebook(x =>
-            {
-                x.AppId = "1716532045292977";
-                x.AppSecret = "dfece01ae919b7b8af23f962a1f87f95";
-
-                x.Events = new OAuthEvents
                 {
-                    OnRemoteFailure = ctx => HandleRemoteLoginFailure(ctx)
-                };
-            })
+                    x.AppId = "1716532045292977";
+                    x.AppSecret = "dfece01ae919b7b8af23f962a1f87f95";
+
+                    x.Events = new OAuthEvents
+                    {
+                        OnRemoteFailure = ctx => HandleRemoteLoginFailure(ctx)
+                    };
+                })
                 .AddGoogle(x =>
                 {
                     x.ClientId = "583825788849-8g42lum4trd5g3319go0iqt6pn30gqlq.apps.googleusercontent.com";

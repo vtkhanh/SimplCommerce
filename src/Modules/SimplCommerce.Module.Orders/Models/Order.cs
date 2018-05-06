@@ -21,6 +21,10 @@ namespace SimplCommerce.Module.Orders.Models
 
         public User CreatedBy { get; set; }
 
+        public long CustomerId { get; set; }
+
+        public virtual User Customer { get; set; }
+
         public long? VendorId { get; set; }
 
         public string CouponCode { get; set; }
@@ -33,11 +37,11 @@ namespace SimplCommerce.Module.Orders.Models
 
         public decimal SubTotalWithDiscount { get; set; }
 
-        public long ShippingAddressId { get; set; }
+        public long? ShippingAddressId { get; set; }
 
         public OrderAddress ShippingAddress { get; set; }
 
-        public long BillingAddressId { get; set; }
+        public long? BillingAddressId { get; set; }
 
         public OrderAddress BillingAddress { get; set; }
 

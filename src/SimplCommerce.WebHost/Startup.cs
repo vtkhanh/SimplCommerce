@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Web;
 using SimplCommerce.Module.Localization;
@@ -35,8 +36,7 @@ namespace SimplCommerce.WebHost
             services.AddSingleton<IStringLocalizerFactory, EfStringLocalizerFactory>();
             services.AddCloudscribePagination();
 
-            services.Configure<RazorViewEngineOptions>(
-                options => { options.ViewLocationExpanders.Add(new ModuleViewLocationExpander()); });
+            services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new ModuleViewLocationExpander()); });
 
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
@@ -50,7 +50,7 @@ namespace SimplCommerce.WebHost
             return services.Build(_configuration, _hostingEnvironment);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {

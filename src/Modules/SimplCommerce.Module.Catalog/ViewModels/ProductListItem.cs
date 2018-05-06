@@ -8,6 +8,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public string Name { get; set; }
 
+        public string Sku { get; set; }
+
         public bool HasOptions { get; set; }
 
         public bool IsVisibleIndividually { get; set; }
@@ -22,6 +24,6 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public bool IsAllowToOrder { get; set; }
 
-        public int? StockQuantity { get; set; }
+        public int Stock { get; set; }
     }
 }

@@ -11,6 +11,10 @@ using SimplCommerce.Module.ShoppingCart.Models;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.ShippingPrices.Services;
 using SimplCommerce.Module.Tax.Services;
+using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Services;
+using System.Collections.Generic;
+using SimplCommerce.Module.Catalog.Models;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -18,23 +22,33 @@ namespace SimplCommerce.Module.Orders.Services
     {
         private readonly IRepository<Cart> _cartRepository;
         private readonly IRepository<Order> _orderRepository;
+        private readonly IRepository<OrderItem> _orderItemRepo;
+        private readonly IRepository<Product> _productRepo;
         private readonly ICouponService _couponService;
         private readonly IRepository<CartItem> _cartItemRepository;
         private readonly ITaxService _taxService;
         private readonly IShippingPriceService _shippingPriceService;
         private readonly IRepository<UserAddress> _userAddressRepository;
         private readonly IOrderEmailService _orderEmailService;
+        private readonly IWorkContext _workContext;
+        private readonly IMediaService _mediaService;
 
         public OrderService(IRepository<Order> orderRepository,
+            IRepository<OrderItem> orderItemRepo,
+            IRepository<Product> productRepo,
             IRepository<Cart> cartRepository,
             ICouponService couponService,
             IRepository<CartItem> cartItemRepository,
             ITaxService taxService,
             IShippingPriceService shippingPriceService,
             IRepository<UserAddress> userAddressRepository,
-            IOrderEmailService orderEmailService)
+            IOrderEmailService orderEmailService,
+            IWorkContext workContext,
+            IMediaService mediaService)
         {
             _orderRepository = orderRepository;
+            _orderItemRepo = orderItemRepo;
+            _productRepo = productRepo;
             _cartRepository = cartRepository;
             _couponService = couponService;
             _cartItemRepository = cartItemRepository;
@@ -42,6 +56,84 @@ namespace SimplCommerce.Module.Orders.Services
             _shippingPriceService = shippingPriceService;
             _userAddressRepository = userAddressRepository;
             _orderEmailService = orderEmailService;
+            _workContext = workContext;
+            _mediaService = mediaService;
+        }
+
+        public async Task<(OrderFormVm, string)> GetOrder(long orderId)
+        {
+            var order = await _orderRepository.Query()
+                .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
+                .FirstOrDefaultAsync(x => x.Id == orderId);
+
+            if (order == null) return (null, $"Cannot find order with id {orderId}");
+
+            var result = new OrderFormVm
+            {
+                OrderStatus = order.OrderStatus,
+                OrderStatusDisplay = order.OrderStatus.ToString(),
+                CustomerId = order.CustomerId,
+                SubTotal = order.SubTotal,
+                ShippingAmount = order.ShippingAmount,
+                Discount = order.Discount,
+                OrderTotal = order.OrderTotal,
+                OrderItems = order.OrderItems.Select(item => new OrderItemVm
+                {
+                    Id = item.Id,
+                    ProductId = item.ProductId,
+                    ProductName = item.Product.Name,
+                    ProductSku = item.Product.Sku,
+                    ProductPrice = item.ProductPrice,
+                    Stock = item.Product.Stock,
+                    ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
+                    Quantity = item.Quantity
+                }).ToList()
+            };
+
+            return (result, null);
+        }
+
+        public async Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest)
+        {
+            if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
+            {
+                return (false, "Shopping cart cannot be empty");
+            }
+
+            var user = _workContext.GetCurrentUser();
+            var order = new Order() { CreatedById = user.Id };
+
+            UpdateOrderGeneralInfo(order, orderRequest);
+            AddNewOrderItems(order, orderRequest.OrderItems);
+
+            _orderRepository.Add(order);
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
+        }
+
+        public async Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest)
+        {
+            if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
+            {
+                return (false, "Shopping cart cannot be empty");
+            }
+
+            var user = _workContext.GetCurrentUser();
+            var order = await _orderRepository.Query()
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
+
+            if (order == null) return (false, $"Cannot find order with id {orderRequest.OrderId}");
+
+            order.UpdatedOn = DateTimeOffset.Now;
+            UpdateOrderGeneralInfo(order, orderRequest);
+
+            AddNewOrderItems(order, orderRequest.OrderItems);
+
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
         }
 
         public async Task<Order> CreateOrder(User user, string paymentMethod)
@@ -204,7 +296,7 @@ namespace SimplCommerce.Module.Orders.Services
             }
 
             _orderRepository.SaveChanges();
-           // await _orderEmailService.SendEmailToUser(user, order);
+            // await _orderEmailService.SendEmailToUser(user, order);
             return order;
         }
 
@@ -277,6 +369,47 @@ namespace SimplCommerce.Module.Orders.Services
             }
 
             return shippingMethod;
+        }
+
+        private void UpdateOrderGeneralInfo(Order order, OrderFormVm orderRequest)
+        {
+            order.CustomerId = orderRequest.CustomerId;
+            order.SubTotal = orderRequest.SubTotal;
+            order.ShippingAmount = orderRequest.ShippingAmount;
+            order.Discount = orderRequest.Discount;
+            order.SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount;
+            order.OrderTotal = orderRequest.OrderTotal;
+            order.OrderStatus = orderRequest.OrderStatus;
+        }
+
+        private void AddNewOrderItems(Order order, IEnumerable<OrderItemVm> orderItems)
+        {
+            if (order.OrderItems.Any())
+            {
+                foreach (var orderItem in order.OrderItems)
+                {
+                    var product = orderItem.Product;
+                    product.Stock += orderItem.Quantity;
+                }
+
+                order.OrderItems.Clear();
+            }
+
+            foreach (var item in orderItems)
+            {
+                // Update product stock
+                var product = _productRepo.Query().FirstOrDefault(i => i.Id == item.ProductId);
+                if (product == null) continue;
+                product.Stock -= item.Quantity;
+
+                var orderItem = new OrderItem
+                {
+                    ProductId = item.ProductId,
+                    ProductPrice = item.ProductPrice,
+                    Quantity = item.Quantity
+                };
+                order.AddOrderItem(orderItem);
+            }
         }
     }
 }

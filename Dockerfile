@@ -1,42 +1,67 @@
-FROM microsoft/aspnetcore-build:2.0.3-jessie AS build-env
-  
+# Build image
+FROM microsoft/aspnetcore-build:2.0.3-jessie AS builder
+
 WORKDIR /app
-COPY . ./
 
-RUN sed -i 's#<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />#<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />#' src/SimplCommerce.WebHost/SimplCommerce.WebHost.csproj
-RUN sed -i 's/UseSqlServer/UseNpgsql/' src/SimplCommerce.WebHost/Program.cs
-RUN sed -i 's/UseSqlServer/UseNpgsql/' src/SimplCommerce.WebHost/Extensions/ServiceCollectionExtensions.cs
+# Install node
+#ENV NODE_VERSION 8.9.4
+#ENV NODE_DOWNLOAD_SHA 21fb4690e349f82d708ae766def01d7fec1b085ce1f5ab30d9bda8ee126ca8fc
+#RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz" --output nodejs.tar.gz \
+	#&& echo "$NODE_DOWNLOAD_SHA nodejs.tar.gz" | sha256sum -c - \
+	#&& tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1 \
+	#&& rm nodejs.tar.gz \
+	#&& ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-RUN rm src/SimplCommerce.WebHost/Migrations/* && cp -f src/SimplCommerce.WebHost/appsettings.docker.json src/SimplCommerce.WebHost/appsettings.json
-RUN dotnet restore && dotnet build -c Release
+# Copy solution file
+COPY ./*.sln ./
+# Copy Infrastructure and Webhost csproj files to root directory
+COPY src/*/*.csproj ./
+RUN for file in $(ls *.csproj); do mkdir -p src/${file%.*}/ && mv $file src/${file%.*}/; done
+# Copy modules csproj files
+COPY src/Modules/*/*.csproj ./
+RUN for file in $(ls *.csproj); do mkdir -p src/Modules/${file%.*}/ && mv $file src/Modules/${file%.*}/; done
+# Copy test csproj files
+COPY test/*/*.csproj ./
+RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
+
+RUN dotnet restore
+
+
+# Install npm & bower packages
+COPY src/SimplCommerce.WebHost/package.json  src/SimplCommerce.WebHost/
 RUN cd src/SimplCommerce.WebHost \
-    && sed -i 's/Debug/Release/' gulpfile.js \
-	&& npm install \
-	&& gulp copy-modules \
-	&& dotnet ef migrations add initialSchema \
-	&& sed -i '/using SimplCommerce.Module.*.Models;/d' Migrations/SimplDbContextModelSnapshot.cs \
-	&& sed -i '/using SimplCommerce.Module.*.Models;/d' Migrations/*_initialSchema.Designer.cs \
-	&& dotnet ef migrations script -o dbscript.sql \
-	&& dotnet publish -c Release -o out
+	&& npm install --global gulp-cli \
+	&& npm install bower --save-dev \
+	&& npm install
+COPY src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
+RUN cd src/SimplCommerce.WebHost \
+	&& npm run bower install
 
-# remove BOM for psql	
-RUN sed -i -e '1s/^\xEF\xBB\xBF//' /app/src/SimplCommerce.WebHost/dbscript.sql \
-	&& sed -i -e '1s/^\xEF\xBB\xBF//' /app/src/Database/StaticData_PostgreSQL.sql
+COPY ./src ./src
+COPY ./test ./test
+COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
 
+RUN dotnet build -c Release --no-restore
+
+# Run test projects
+RUN chmod 755 ./run-tests.sh
+RUN ./run-tests.sh
+
+WORKDIR /app/src/SimplCommerce.WebHost
+
+RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
+
+COPY appsettings.docker.json ./
+RUN cp -f ./appsettings.docker.json ./appsettings.json
+RUN	dotnet ef database update
+
+# Publish
+RUN dotnet publish -c Release -o dist --no-restore 
+
+# App image
 FROM microsoft/aspnetcore:2.0.3-jessie
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		postgresql-client \
-	&& rm -rf /var/lib/apt/lists/*
-	
 ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	
-COPY --from=build-env /app/src/SimplCommerce.WebHost/out ./
-COPY --from=build-env /app/src/SimplCommerce.WebHost/dbscript.sql ./
-COPY --from=build-env /app/src/Database/StaticData_PostgreSQL.sql ./
-
-COPY --from=build-env /app/docker-entrypoint.sh /
-RUN chmod 755 /docker-entrypoint.sh
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY --from=builder /app/src/SimplCommerce.WebHost/dist ./
+ENTRYPOINT ["dotnet", "SimplCommerce.WebHost.dll"]

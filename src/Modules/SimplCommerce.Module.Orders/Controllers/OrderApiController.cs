@@ -11,6 +11,10 @@ using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Orders.Services;
+using Microsoft.Extensions.Logging;
+using SimplCommerce.Infrastructure.Filters;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -18,12 +22,17 @@ namespace SimplCommerce.Module.Orders.Controllers
     [Route("api/orders")]
     public class OrderApiController : Controller
     {
+        private readonly ILogger<OrderApiController> _logger;
         private readonly IMediaService _mediaService;
+        private readonly IOrderService _orderService;
         private readonly IRepository<Order> _orderRepository;
         private readonly IWorkContext _workContext;
 
-        public OrderApiController(IRepository<Order> orderRepository, IMediaService mediaService, IWorkContext workContext)
+        public OrderApiController(ILogger<OrderApiController> logger, IOrderService orderService, IRepository<Order> orderRepository, 
+            IMediaService mediaService, IWorkContext workContext)
         {
+            _logger = logger;
+            _orderService = orderService;
             _orderRepository = orderRepository;
             _mediaService = mediaService;
             _workContext = workContext;
@@ -60,53 +69,47 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(model);
         }
 
-        [HttpPost("grid")]
+        [HttpPost]
+        [ValidateModel]
+        public async Task<IActionResult> Create([FromBody] OrderFormVm orderForm) 
+        {
+            try
+            {
+                var (ok, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
+                return ok ? (IActionResult) Accepted() : BadRequest(new { Error = errorMessage });
+            }
+            catch (System.Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
+        }
+
+
+        [HttpPost("list")]
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
-            IQueryable<Order> query = _orderRepository
-                .Query();
+            IQueryable<Order> query = _orderRepository.Query();
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin"))
-            {
-                query = query.Where(x => x.VendorId == currentUser.VendorId);
-            }
+            query = query.WhereIf(!User.IsInRole(RoleName.Admin), i => i.VendorId == currentUser.VendorId);
 
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
-                if (search.Id != null)
-                {
-                    long id = search.Id;
-                    query = query.Where(x => x.Id == id);
-                }
-
-                if (search.Status != null)
-                {
-                    var status = (OrderStatus) search.Status;
-                    query = query.Where(x => x.OrderStatus == status);
-                }
-
-                if (search.CustomerName != null)
-                {
-                    string customerName = search.CustomerName;
-                    query = query.Where(x => x.CreatedBy.FullName.Contains(customerName));
-                }
-
-                if (search.CreatedOn != null)
-                {
-                    if (search.CreatedOn.before != null)
-                    {
-                        DateTimeOffset before = search.CreatedOn.before;
-                        query = query.Where(x => x.CreatedOn <= before);
-                    }
-
-                    if (search.CreatedOn.after != null)
-                    {
-                        DateTimeOffset after = search.CreatedOn.after;
-                        query = query.Where(x => x.CreatedOn >= after);
-                    }
-                }
+                var id = (long?) search.Id;
+                var status = (OrderStatus?) search.Status;
+                var customerName = (string) search.CustomerName;
+                var before = (DateTimeOffset?)search.CreatedOn?.before;
+                var after = (DateTimeOffset?)search.CreatedOn?.after;
+                query = query
+                    .Include(i => i.Customer)
+                    .WhereIf(id.HasValue, i => i.Id == id.Value)
+                    .WhereIf(status.HasValue, i => i.OrderStatus == status.Value)
+                    .WhereIf(customerName.HasValue(), i => i.Customer.FullName.Contains(customerName))
+                    .WhereIf(before.HasValue, x => x.CreatedOn <= before)
+                    .WhereIf(after.HasValue, x => x.CreatedOn >= after)
+                    ;
             }
 
             var orders = query.ToSmartTableResult(
@@ -114,11 +117,46 @@ namespace SimplCommerce.Module.Orders.Controllers
                 order => new
                 {
                     order.Id,
-                    CustomerName = order.CreatedBy.FullName, order.SubTotal,
-                    OrderStatus = order.OrderStatus.ToString(), order.CreatedOn
+                    CustomerName = order.Customer.FullName, 
+                    order.SubTotal,
+                    OrderStatus = order.OrderStatus.ToString(), 
+                    order.CreatedOn
                 });
 
             return Json(orders);
+        }
+
+        [HttpGet("edit/{id}")]
+        public async Task<IActionResult> Edit(long id)
+        {
+            try
+            {
+                var (order, errorMessage) = await _orderService.GetOrder(id);
+
+                return errorMessage.HasValue() 
+                    ? (IActionResult) BadRequest(new { Error = errorMessage }) : Ok(order);
+            }
+            catch (System.Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
+        }
+
+        [HttpPut]
+        [ValidateModel]
+        public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
+        {
+            try
+            {
+                var (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+                return ok ? (IActionResult) Accepted() : BadRequest(new { Error = errorMessage });
+            }
+            catch (System.Exception exception)
+            {
+                _logger.LogError(exception.Message);
+                return BadRequest(new { Error = exception.Message });
+            }
         }
 
         [HttpGet("{id}")]
@@ -132,6 +170,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.OptionCombinations).ThenInclude(x => x.Option)
                 .Include(x => x.CreatedBy)
+                .Include(x => x.Customer)
                 .FirstOrDefault(x => x.Id == id);
 
             if (order == null)
@@ -140,7 +179,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin") && order.VendorId != currentUser.VendorId)
+            if (!User.IsInRole(RoleName.Admin) && order.VendorId != currentUser.VendorId)
             {
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this order" });
             }
@@ -151,19 +190,20 @@ namespace SimplCommerce.Module.Orders.Controllers
                 CreatedOn = order.CreatedOn,
                 OrderStatus = (int) order.OrderStatus,
                 OrderStatusString = order.OrderStatus.ToString(),
-                CustomerName = order.CreatedBy.FullName,
+                CustomerName = order.Customer.FullName,
                 Subtotal = order.SubTotal,
                 Discount = order.Discount,
                 SubTotalWithDiscount = order.SubTotalWithDiscount,
-                ShippingAddress = new ShippingAddressVm
-                {
-                    AddressLine1 = order.ShippingAddress.AddressLine1,
-                    AddressLine2 = order.ShippingAddress.AddressLine2,
-                    ContactName = order.ShippingAddress.ContactName,
-                    DistrictName = order.ShippingAddress.District?.Name,
-                    StateOrProvinceName = order.ShippingAddress.StateOrProvince.Name,
-                    Phone = order.ShippingAddress.Phone
-                },
+                // TODO: Add shipping address
+                // ShippingAddress = new ShippingAddressVm
+                // {
+                //     AddressLine1 = order.ShippingAddress.AddressLine1,
+                //     AddressLine2 = order.ShippingAddress.AddressLine2,
+                //     ContactName = order.ShippingAddress.ContactName,
+                //     DistrictName = order.ShippingAddress.District?.Name,
+                //     StateOrProvinceName = order.ShippingAddress.StateOrProvince.Name,
+                //     Phone = order.ShippingAddress.Phone
+                // },
                 OrderItems = order.OrderItems.Select(x => new OrderItemVm
                 {
                     Id = x.Id,

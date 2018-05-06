@@ -1,0 +1,16 @@
+[
+    {
+        "outputFileName": "wwwroot/admin/pricing.min.js",
+        "inputFiles": [
+            "wwwroot/admin/pricing.module.js",
+            "wwwroot/admin/cartrule/cartrule-service.js",
+            "wwwroot/admin/cartrule/cartrule-list.js",
+            "wwwroot/admin/cartrule/cartrule-form.js"
+        ],
+        "minify": {
+            "enabled": true,
+            "renameLocals": false
+        },
+        "sourceMap": false
+    }
+]

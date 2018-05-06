@@ -21,7 +21,8 @@ namespace SimplCommerce.WebHost
             var builder = new ConfigurationBuilder()
                             .SetBasePath(contentRootPath)
                             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                            .AddJsonFile($"appsettings.{environmentName}.json", true);
+                            .AddJsonFile($"appsettings.{environmentName}.json", true)
+                            .AddUserSecretsIf(environmentName == "Development");
 
             builder.AddEnvironmentVariables();
             var _configuration = builder.Build();

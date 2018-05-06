@@ -15,20 +15,26 @@ namespace SimplCommerce.Module.ActivityLog.Data
 
         public IQueryable<MostViewEntityDto> List()
         {
-            return from a in DbSet
-                join e in Context.Set<Entity>() on new { a.EntityId, a.EntityTypeId } equals new { e.EntityId, e.EntityTypeId }
-                where a.ActivityTypeId == MostViewActivityTypeId
-                group a by new {a.EntityId, a.EntityTypeId, e.Name, e.Slug}
-                into g
-                orderby g.Count() descending
-                select new MostViewEntityDto
-                {
-                    EntityTypeId = g.Key.EntityTypeId,
+            var result = Query()
+                .Join(Context.Set<Entity>(), 
+                        a => new { a.EntityId, a.EntityTypeId }, 
+                        e => new { e.EntityId, e.EntityTypeId }, 
+                        (a, e) => new { 
+                            EntityId = a.EntityId,
+                            EntityTypeId = a.EntityTypeId,
+                            Name = e.Name,
+                            Slug = e.Slug
+                        })
+                .GroupBy(i => new { i.EntityId, i.EntityTypeId, i.Name, i.Slug })
+                .Select(g => new MostViewEntityDto() {
                     EntityId = g.Key.EntityId,
+                    EntityTypeId = g.Key.EntityTypeId,
                     Name = g.Key.Name,
                     Slug = g.Key.Slug,
                     ViewedCount = g.Count()
-                };
+                });
+
+            return result;
         }
     }
 }

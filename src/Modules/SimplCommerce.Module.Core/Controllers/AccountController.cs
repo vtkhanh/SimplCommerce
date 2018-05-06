@@ -55,33 +55,31 @@ namespace SimplCommerce.Module.Core.Controllers
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid) return View(model);
+
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation(1, "User logged in.");
-                    return RedirectToLocal(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning(2, "User account locked out.");
-                    return View("Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-                }
+                _logger.LogInformation(1, "User logged in.");
+                return RedirectToLocal(returnUrl);
             }
 
-            // If we got this far, something failed, redisplay form
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+            }
+
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning(2, "User account locked out.");
+                return View("Lockout");
+            }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return View(model);
         }
 
@@ -105,28 +103,30 @@ namespace SimplCommerce.Module.Core.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
-            {
-                var user = new User { UserName = model.Email, Email = model.Email, FullName = model.FullName };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
-                    // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    await _userManager.AddToRoleAsync(user, "customer");
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
-                }
-                AddErrors(result);
+            if (!ModelState.IsValid) return View(model);
+
+            var user = new User { UserName = model.Email, Email = model.Email, FullName = model.FullName };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
+                // Send an email with this link
+                // var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                // await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+
+                await _userManager.AddToRoleAsync(user, "customer");
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                _logger.LogInformation(3, "User created a new account with password.");
+
+                return RedirectToLocal(returnUrl);
             }
 
             // If we got this far, something failed, redisplay form
+            AddErrors(result);
             return View(model);
         }
 
@@ -165,27 +165,25 @@ namespace SimplCommerce.Module.Core.Controllers
                 ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
                 return View(nameof(Login));
             }
+
             var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
+            if (info == null) 
                 return RedirectToAction(nameof(Login));
-            }
 
             // Sign in the user with this external login provider if the user already has a login.
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+
             if (result.Succeeded)
             {
                 _logger.LogInformation(5, "User logged in with {Name} provider.", info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
+
             if (result.RequiresTwoFactor)
-            {
                 return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl });
-            }
+
             if (result.IsLockedOut)
-            {
                 return View("Lockout");
-            }
             else
             {
                 // If the user does not have an account, then ask the user to create an account.
@@ -238,15 +236,11 @@ namespace SimplCommerce.Module.Core.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
-            if (userId == null || code == null)
-            {
-                return View("Error");
-            }
+            if (userId == null || code == null) return View("Error");
+
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return View("Error");
-            }
+            if (user == null) return View("Error");
+
             var result = await _userManager.ConfirmEmailAsync(user, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
@@ -314,21 +308,21 @@ namespace SimplCommerce.Module.Core.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
+
             var user = await _userManager.FindByNameAsync(model.Email);
             if (user == null)
             {
                 // Don't reveal that the user does not exist
                 return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
             }
+
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
                 return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
             }
+
             AddErrors(result);
             return View();
         }
@@ -350,9 +344,8 @@ namespace SimplCommerce.Module.Core.Controllers
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
-            {
                 return View("Error");
-            }
+
             var userFactors = await _userManager.GetValidTwoFactorProvidersAsync(user);
             var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
             return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
@@ -365,23 +358,14 @@ namespace SimplCommerce.Module.Core.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendCode(SendCodeViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View();
-            }
+            if (!ModelState.IsValid) return View();
 
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user == null)
-            {
-                return View("Error");
-            }
+            if (user == null) return View("Error");
 
             // Generate the token and send it
             var code = await _userManager.GenerateTwoFactorTokenAsync(user, model.SelectedProvider);
-            if (string.IsNullOrWhiteSpace(code))
-            {
-                return View("Error");
-            }
+            if (string.IsNullOrWhiteSpace(code)) return View("Error");
 
             var message = "Your security code is: " + code;
             if (model.SelectedProvider == "Email")
@@ -449,7 +433,7 @@ namespace SimplCommerce.Module.Core.Controllers
             return View();
         }
 
-       #region Helpers
+        #region Helpers
 
         private void AddErrors(IdentityResult result)
         {

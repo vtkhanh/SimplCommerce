@@ -16,6 +16,7 @@ textarea {
 .top-bar {
     background-color: #212121;
     color: #e7e7e7;
+    padding: 0 15px;
 }
 
     .top-bar > div > ul > li > a, .top-bar .top-bar > div > ul > li > a:visited {
@@ -30,6 +31,11 @@ textarea {
 .main-header {
     padding: 15px 0;
     background-color: #f9f9f9;
+}
+
+.centered {
+    float: none;
+    margin: 0 auto;
 }
 
 @media (max-width : 992px) {
@@ -143,13 +149,17 @@ li.nav-item-group, li.nav-item-group a {
 
 .footer-content {
     margin-top: 30px;
+    padding: 0 15px;
     background-color: #eee;
+    bottom: 0;
+    width: 100%;
+    height: 3rem;
+    line-height: 3rem;
 }
 
     .footer-content hr {
         border-color: #ddd;
     }
-
 
 /* Carousel */
 .carousel-caption {
@@ -429,14 +439,14 @@ li.nav-item-group, li.nav-item-group a {
         text-decoration: none;
     }
 
-#logoutForm {
+/* #logoutForm {
     display: inline-flex;
     line-height: 22px;
 }
 
     #logoutForm button {
         text-decoration: none;
-    }
+    } */
 
 /*Responsive Navbar*/
 @media (max-width: 991px) {

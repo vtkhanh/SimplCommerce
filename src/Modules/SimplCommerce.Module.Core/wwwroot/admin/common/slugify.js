@@ -12,7 +12,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-; (function (name, root, factory) {
+(function (name, root, factory) {
     if (typeof exports === 'object') {
         module.exports = factory()
     }
@@ -136,4 +136,4 @@
     }
 
     return replace
-}))
+}));

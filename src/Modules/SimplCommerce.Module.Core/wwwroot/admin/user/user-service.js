@@ -9,6 +9,7 @@
         var service = {
             getUsers: getUsers,
             getUser: getUser,
+            searchCustomers: searchCustomers,
             createUser: createUser,
             editUser: editUser,
             deleteUser: deleteUser,
@@ -18,8 +19,12 @@
         };
         return service;
 
+        function searchCustomers(query) {
+            return $http.get('api/customer/search?query=' + query);
+        }
+
         function getUsers(params) {
-            return $http.post('api/users/grid', params);
+            return $http.post('api/users/list', params);
         }
 
         function getUser(id) {

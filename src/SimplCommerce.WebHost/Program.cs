@@ -1,36 +1,52 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.WebHost.Extensions;
 
 namespace SimplCommerce.WebHost
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            BuildWebHost2(args).Run();
-        }
+        public static void Main(string[] args) =>
+            CreateWebHostBuilder(args).Build().Run();
 
-        // Changed to BuildWebHost2 to make EF don't pickup during design time
-        private static IWebHost BuildWebHost2(string[] args) =>
-            Microsoft.AspNetCore.WebHost.CreateDefaultBuilder(args)
+        // For EF to instantiate DbContext object. "BuildWebHost" is a convention!
+        private static IWebHost BuildWebHost(string[] args) =>
+            CreateWebHostBuilder(args).Build();
+
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            Microsoft.AspNetCore.WebHost
+                .CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration(SetupConfiguration)
+                .ConfigureLogging(SetupLogging)
+                .UseSerilog();
+
+        private static void SetupLogging(WebHostBuilderContext context, ILoggingBuilder loggingBuilder)
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-        private static void SetupConfiguration(WebHostBuilderContext hostingContext, IConfigurationBuilder configBuilder)
-        {
-            var env = hostingContext.HostingEnvironment;
-            configBuilder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-
-            configBuilder.AddEnvironmentVariables();
-
-            var connectionStringConfig = configBuilder.Build();
-            configBuilder.AddEntityFrameworkConfig(options =>
-                    options.UseSqlServer(connectionStringConfig.GetConnectionString("DefaultConnection"))
-            );
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
         }
+
+        private static void SetupConfiguration(WebHostBuilderContext context, IConfigurationBuilder configBuilder) =>
+            configBuilder
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .AddUserSecretsIf(context.HostingEnvironment.IsDevelopment());
+
     }
 }

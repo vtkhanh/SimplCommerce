@@ -17,6 +17,13 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public long Id { get; set; }
 
+        [Required]
+        public int Stock { get; set; }
+
+        [Required]
+        public decimal Cost { get; set; }
+
+        [Required]
         public decimal Price { get; set; }
 
         public decimal? OldPrice { get; set; }
@@ -35,6 +42,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         [Required]
         public string Name { get; set; }
+
+        public string Sku { get; set; }
 
         [Required]
         public string Slug { get; set; }
@@ -69,8 +78,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public long? TaxClassId { get; set; }
 
-        public List<ProductLinkVm> RelatedProducts { get; set; } = new List<ProductLinkVm>();
+        public IList<ProductLinkVm> RelatedProducts { get; set; } = new List<ProductLinkVm>();
 
-        public List<ProductLinkVm> CrossSellProducts { get; set; } = new List<ProductLinkVm>();
+        public IList<ProductLinkVm> CrossSellProducts { get; set; } = new List<ProductLinkVm>();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace SimplCommerce.Infrastructure.Web.ModelBinders
 {
@@ -11,7 +12,7 @@ namespace SimplCommerce.Infrastructure.Web.ModelBinders
 
             if (!context.Metadata.IsComplexType && (context.Metadata.ModelType == typeof(decimal) || context.Metadata.ModelType == typeof(decimal?)))
             {
-                return new InvariantDecimalModelBinder(context.Metadata.ModelType);
+                return new BinderTypeModelBinder(typeof(InvariantDecimalModelBinder));
             }
 
             return null;
