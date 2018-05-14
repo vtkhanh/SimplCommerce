@@ -8,12 +8,13 @@ using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 
 namespace SimplCommerce.Module.Core
 {
     public class ModuleInitializer : IModuleInitializer
     {
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<SignInManager<User>, SimplSignInManager<User>>();
             services.AddScoped<IWorkContext, WorkContext>();

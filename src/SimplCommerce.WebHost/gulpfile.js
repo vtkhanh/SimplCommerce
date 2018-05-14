@@ -10,14 +10,14 @@ const uglify = require("gulp-uglify");
 const ignore = require('gulp-ignore');
 const del = require('del');
 const argv = require('yargs').argv;
-const install = require('gulp-install');
 
 
-const configurationName = argv.configurationName || 'Release';
-const targetFramework = 'netcoreapp2.0';
+const configurationName = argv.configurationName || 'Debug';
+const targetFramework = 'netcoreapp2.1';
 
 // debugging
 console.log(configurationName);
+console.log(targetFramework);
 
 const mPaths = {
     devModules: "../Modules/",
@@ -116,17 +116,6 @@ paths.concatCssDest = paths.webroot + "css/site.min.css";
 paths.lib = paths.webroot + "lib/";
 
 
-// Install packages
-gulp.task('install:bower', () => {
-    // return gulp
-    //   .src(["./bower.json"])
-    //   .pipe(
-    //     install({
-    //       bower: { allowRoot: true } // Or arguments as an object (transformed using Dargs: https://www.npmjs.com/package/dargs)
-    //     })
-    //   );
-});
-
 gulp.task("clean:js", function (cb) {
     rimraf(paths.concatJsDest, cb);
 });
@@ -141,7 +130,7 @@ gulp.task("clean:lib", function () {
     }
 });
 
-gulp.task("copy-lib", ["install:bower", "clean:lib"], function () {
+gulp.task("copy-lib", ["clean:lib"], function () {
     const ignoreComponents = ["**/npm.js"];
 
     for (let desDir in bower) {

@@ -26,6 +26,9 @@ namespace SimplCommerce.WebHost
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            // Add functionality to inject IOptions<T>
+            services.AddOptions();
+
             GlobalConfiguration.WebRootPath = _hostingEnvironment.WebRootPath;
             GlobalConfiguration.ContentRootPath = _hostingEnvironment.ContentRootPath;
             services.LoadInstalledModules(_hostingEnvironment.ContentRootPath);
@@ -44,7 +47,7 @@ namespace SimplCommerce.WebHost
             var moduleInitializers = sp.GetServices<IModuleInitializer>();
             foreach (var moduleInitializer in moduleInitializers)
             {
-                moduleInitializer.ConfigureServices(services);
+                moduleInitializer.ConfigureServices(services, _configuration);
             }
 
             return services.Build(_configuration, _hostingEnvironment);
