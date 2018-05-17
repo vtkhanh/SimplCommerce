@@ -179,3 +179,4 @@ src/SimplCommerce.WebHost/wwwroot/lib/
 
 # appsettings with docker
 appsettings.docker.json
+appsettings.Development.json
