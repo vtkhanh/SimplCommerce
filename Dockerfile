@@ -56,7 +56,7 @@ RUN cp -f ./appsettings.docker.json ./appsettings.json
 RUN	dotnet ef database update
 
 # Publish
-RUN dotnet publish -c Release -o dist --no-restore 
+RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
 FROM microsoft/dotnet:2.1.0-rc1-runtime
