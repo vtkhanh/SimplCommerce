@@ -51,9 +51,9 @@ WORKDIR /app/src/SimplCommerce.WebHost
 
 RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
 
-COPY appsettings.docker.json ./
-RUN cp -f ./appsettings.docker.json ./appsettings.json
-RUN	dotnet ef database update
+#COPY appsettings.docker.json ./
+#RUN cp -f ./appsettings.docker.json ./appsettings.json
+#RUN	dotnet ef database update
 
 # Publish
 RUN dotnet publish -c Release -o dist --no-restore --no-build
