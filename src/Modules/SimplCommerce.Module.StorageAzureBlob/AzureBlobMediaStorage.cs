@@ -37,9 +37,11 @@ namespace SimplCommerce.Module.StorageAzureBlob
             _blobContainer = blobClient.GetContainerReference(storageConfig.Container);
         }
 
-        public Task DeleteMediaAsync(Media media)
+        public async Task DeleteMediaAsync(Media media)
         {
-            return DeleteMediaAsync(media.FileName);
+            if (media == null) await Task.CompletedTask;
+
+            await DeleteMediaAsync(media.FileName);
         }
 
         public async Task DeleteMediaAsync(string fileName)
@@ -52,17 +54,22 @@ namespace SimplCommerce.Module.StorageAzureBlob
 
         public string GetMediaUrl(Media media)
         {
+            if (media == null) return null;
+
             return GetMediaUrl(media.FileName);
         }
 
         public string GetMediaUrl(string fileName)
         {
             CloudBlockBlob blockBlob = _blobContainer.GetBlockBlobReference(fileName);
-            return blockBlob.Uri.AbsoluteUri;
+
+            return blockBlob?.Uri.AbsoluteUri;
         }
 
         public string GetThumbnailUrl(Media media)
         {
+            if (media == null) return null;
+
             return GetMediaUrl(media.FileName);
         }
 

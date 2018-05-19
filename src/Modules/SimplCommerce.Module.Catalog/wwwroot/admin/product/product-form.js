@@ -330,7 +330,7 @@
             }
 
             promise.then(function (result) {
-                    // $state.reload();
+                    $state.go('product-edit', { id: result.data.id });
                     toastr.success("Saved successfully!");
                 })
                 .catch(function (response) {
