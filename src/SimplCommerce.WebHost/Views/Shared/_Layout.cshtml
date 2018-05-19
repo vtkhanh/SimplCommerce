@@ -13,6 +13,8 @@
     <link simpl-append-version="true" rel="stylesheet" href="~/lib/bootstrap-star-rating/css/star-rating.css" />
     <link simpl-append-version="true" rel="stylesheet" href="~/modules/core/site.css" />
 
+    @Html.Raw(JavaScriptSnippet.FullScript)
+
     @RenderSection("head", required: false)
 </head>
 

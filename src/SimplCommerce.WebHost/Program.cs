@@ -14,7 +14,12 @@ namespace SimplCommerce.WebHost
     public class Program
     {
         public static void Main(string[] args) =>
-            CreateWebHostBuilder(args).Build().Run();
+            CreateWebHostBuilder(args)
+                .ConfigureLogging(SetupLogging)
+                .UseSerilog()
+                .UseApplicationInsights()
+                .Build()
+                .Run();
 
         // For EF to instantiate DbContext object. "BuildWebHost" is a convention!
         private static IWebHost BuildWebHost(string[] args) =>
@@ -24,9 +29,7 @@ namespace SimplCommerce.WebHost
             Microsoft.AspNetCore.WebHost
                 .CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .ConfigureAppConfiguration(SetupConfiguration)
-                .ConfigureLogging(SetupLogging)
-                .UseSerilog();
+                .ConfigureAppConfiguration(SetupConfiguration);
 
         private static void SetupLogging(WebHostBuilderContext context, ILoggingBuilder loggingBuilder)
         {
