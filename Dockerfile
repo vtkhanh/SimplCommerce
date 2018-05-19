@@ -12,6 +12,16 @@ RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-lin
 	&& rm nodejs.tar.gz \
 	&& ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
+# Install npm & bower packages
+COPY src/SimplCommerce.WebHost/package.json  src/SimplCommerce.WebHost/
+RUN cd src/SimplCommerce.WebHost \
+	&& npm install --global gulp-cli \
+	&& npm install bower --save-dev \
+	&& npm install
+COPY src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
+RUN cd src/SimplCommerce.WebHost \
+	&& npm run bower install
+
 # Copy solution file
 COPY ./*.sln ./
 # Copy Infrastructure and Webhost csproj files to root directory
@@ -26,17 +36,6 @@ RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${
 
 RUN dotnet restore
 
-
-# Install npm & bower packages
-COPY src/SimplCommerce.WebHost/package.json  src/SimplCommerce.WebHost/
-RUN cd src/SimplCommerce.WebHost \
-	&& npm install --global gulp-cli \
-	&& npm install bower --save-dev \
-	&& npm install
-COPY src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
-RUN cd src/SimplCommerce.WebHost \
-	&& npm run bower install
-
 COPY ./src ./src
 COPY ./test ./test
 COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
@@ -47,15 +46,9 @@ RUN dotnet build -c Release --no-restore
 RUN chmod 755 ./run-tests.sh
 RUN ./run-tests.sh
 
-WORKDIR /app/src/SimplCommerce.WebHost
-
-RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
-
-#COPY appsettings.docker.json ./
-#RUN cp -f ./appsettings.docker.json ./appsettings.json
-#RUN	dotnet ef database update
-
 # Publish
+WORKDIR /app/src/SimplCommerce.WebHost
+RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
 RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
