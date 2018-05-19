@@ -31,18 +31,14 @@
     <link simpl-append-version="true" rel="stylesheet" href="~/lib/angular-ui-tree/angular-ui-tree.min.css" />
     <link simpl-append-version="true" rel="stylesheet" href="~/lib/angular-bootstrap-colorpicker/css/colorpicker.min.css" />
     <link simpl-append-version="true" rel="stylesheet" href="~/lib/angular-loading-bar/loading-bar.css" />
-        <link simpl-append-version="true" rel="stylesheet" href="~/modules/core/admin/admin-core.css" />
-
-    <!-- <environment include="Development">
-    </environment>
-    <environment include="Staging,Production">
-        <link simpl-append-version="true" rel="stylesheet" href="~/modules/core/admin/admin-core.min.css" />
-    </environment> -->
+    <link simpl-append-version="true" rel="stylesheet" href="~/modules/core/admin/admin-core.css" />
 
     <script>
         window.Global_AssetVersion = "@Config["Global.AssetVersion"]";
     </script>
 
+    <!-- For Application Insights -->
+    @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
     <div class="container-fluid">
