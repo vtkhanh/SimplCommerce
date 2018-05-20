@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-
-echo ""
-echo "Run tests..."
-echo ""
+set -ev
 
 for test in ./test/*/
 do
