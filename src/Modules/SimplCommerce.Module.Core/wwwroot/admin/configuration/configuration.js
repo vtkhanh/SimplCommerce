@@ -30,9 +30,11 @@
         };
 
         function init() {
-            configurationService.getSettings().then(function (result) {
-                vm.settings = result.data;
-            });
+            configurationService
+                .getSettings()
+                .then(function (result) {
+                    vm.settings = result.data;
+                });
         }
 
         init();

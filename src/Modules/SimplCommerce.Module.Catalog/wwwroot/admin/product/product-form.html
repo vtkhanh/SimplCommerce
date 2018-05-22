@@ -67,16 +67,34 @@
                             </div>
                         </div>
                     </div>
+                    <product-cost-calc modal-id="cost-calc-modal" title="Calculate cost" 
+                        cost="vm.product.cost" on-cost-change="vm.updateExpectedPrice(cost)" setting="vm.setting"></product-cost-calc>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Cost')}}</label>
                         <div class="col-sm-3">
-                            <input id="productCost" type="text" decimal maxlength="10" name="cost" ng-model="vm.product.cost" required class="form-control" />
+                            <div class="input-group">
+                                <input id="productCost" type="text" decimal maxlength="10" name="cost" ng-model="vm.product.cost" required class="form-control" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#cost-calc-modal">
+                                        <i class="fa fa-calculator"></i>
+                                    </button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Price')}}</label>
                         <div class="col-sm-3">
                             <input id="productPrice" type="text" decimal maxlength="10" name="price" ng-model="vm.product.price" required class="form-control" />
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="checkbox">
+                                <label>
+                                    <md-checkbox ng-model="vm.applyExpectedPrice" ng-change="vm.updatePrice()">
+                                        {{::vm.translate.get('Suggested')}}: <b>{{ vm.expectedPrice }}</b>
+                                    </md-checkbox>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">

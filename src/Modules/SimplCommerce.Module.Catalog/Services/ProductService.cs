@@ -7,6 +7,8 @@ using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Catalog.Services.Dtos;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.Catalog.Services
@@ -17,14 +19,17 @@ namespace SimplCommerce.Module.Catalog.Services
 
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _productRepo;
+        private readonly IRepository<AppSetting> _appSettingRepo;
         private readonly IEntityService _entityService;
         private readonly IMediaService _mediaService;
 
-        public ProductService(IMapper mapper, IRepository<Product> productRepository, 
+        public ProductService(IMapper mapper,
+            IRepository<Product> productRepo, IRepository<AppSetting> appSettingRepo,
             IEntityService entityService, IMediaService mediaService)
         {
             _mapper = mapper;
-            _productRepo = productRepository;
+            _productRepo = productRepo;
+            _appSettingRepo = appSettingRepo;
             _entityService = entityService;
             _mediaService = mediaService;
         }
@@ -86,7 +91,7 @@ namespace SimplCommerce.Module.Catalog.Services
                 .TakeIf(maxItems.HasValue, maxItems.HasValue ? maxItems.Value : 0)
                 .ToListAsync();
 
-            if (products.Any() && query.HasValue()) 
+            if (products.Any() && query.HasValue())
             {
                 foreach (var product in products)
                 {
@@ -95,11 +100,33 @@ namespace SimplCommerce.Module.Catalog.Services
                 await _productRepo.SaveChangesAsync();
             }
 
-            var result = products.Select(item => 
+            var result = products.Select(item =>
                 _mapper.Map<Product, ProductDto>(item,
-                    opt => opt.AfterMap((src, dest) =>  dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(src.ThumbnailImage))));
+                    opt => opt.AfterMap((src, dest) => dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(src.ThumbnailImage))));
 
             return result;
+        }
+
+        public async Task<ProductSettingDto> GetProductSetting()
+        {
+            var settings = await _appSettingRepo.Query()
+                .Where(x => x.IsVisibleInCommonSettingPage && x.Module == "Catalog")
+                .ToListAsync();
+
+            var result = new ProductSettingDto()
+            {
+                ConversionRate = ParseDecimalString(settings, AppSettingKey.CurrencyConversionRate, 1),
+                FeeOfPicker = ParseDecimalString(settings, AppSettingKey.FeeOfPicker, 0),
+                FeePerWeightUnit = ParseDecimalString(settings, AppSettingKey.FeePerWeightUnit, 0)
+            };
+
+            return result;
+        }
+
+        private decimal ParseDecimalString(IList<AppSetting> settings, string key, decimal defaultVal)
+        {
+            var ok = decimal.TryParse(settings.FirstOrDefault(i => i.Key == key)?.Value, out decimal result);
+            return ok ? result : defaultVal;
         }
     }
 }

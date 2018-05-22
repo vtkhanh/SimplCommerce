@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using SimplCommerce.Module.Catalog.Services.Dtos;
 
 namespace SimplCommerce.Module.Catalog.ViewModels
 {

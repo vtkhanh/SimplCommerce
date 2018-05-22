@@ -14,5 +14,7 @@ namespace SimplCommerce.Module.Catalog.Services
         Task Delete(Product product);
 
         Task<IEnumerable<ProductDto>> Search(string query, int? maxItems = null);
+
+        Task<ProductSettingDto> GetProductSetting();
     }
 }

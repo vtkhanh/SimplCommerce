@@ -6,6 +6,8 @@
 
     /* @ngInject */
     function ProductFormCtrl($state, $timeout, $stateParams, $http, categoryService, productService, summerNoteService, brandService, translateService) {
+        const MIN_PROFIT = 30000; // Min profit on one item
+
         var vm = this;
         vm.translate = translateService;
         // declare shoreDescription and description for summernote
@@ -307,6 +309,17 @@
 
         vm.updateOutOfStock = () => vm.product.isOutOfStock = vm.product.stock <= 0;
 
+        vm.updatePrice = () => {
+            if (vm.applyExpectedPrice && vm.expectedPrice != null) {
+                vm.product.price = vm.expectedPrice;
+            }
+        }
+
+        vm.updateExpectedPrice = (cost) => {
+            vm.applyExpectedPrice = false;
+            vm.expectedPrice = Math.max(MIN_PROFIT, 0.1 * cost) + cost;
+        }
+
         vm.save = function save() {
             var promise;
 
@@ -379,6 +392,12 @@
                 vm.categories = result.data;
             });
         }
+        
+        function getProductSetting() {
+            productService.getProductSetting().then((result) => {
+                vm.setting = result.data;
+            });
+        }
 
         function getProductOptions() {
             productService.getProductOptions().then(function (result) {
@@ -414,6 +433,7 @@
             if (vm.isEditMode) {
                 getProduct();
             }
+            getProductSetting();
             getProductOptions();
             getProductTemplates();
             getAttributes();

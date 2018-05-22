@@ -79,6 +79,13 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
         }
 
+        [HttpGet("setting")]
+        public async Task<IActionResult> GetSetting()
+        {
+            var result = await _productService.GetProductSetting();
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
         {
@@ -206,7 +213,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             _productService.Create(product);
 
-            return Json(new { product.Id });
+            return Accepted(new { product.Id });
         }
 
         [HttpPut("{id}")]
@@ -257,7 +264,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             _productService.Update(product);
 
-            return Accepted();
+            return Accepted(new { product.Id });
         }
 
         [HttpPost("change-status/{id}")]
@@ -278,7 +285,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             product.IsPublished = !product.IsPublished;
             await _productRepository.SaveChangesAsync();
 
-            return Accepted();
+            return Accepted(new { product.Id });
         }
 
         [HttpDelete("{id}")]

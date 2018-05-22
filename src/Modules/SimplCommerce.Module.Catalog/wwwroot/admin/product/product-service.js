@@ -10,6 +10,7 @@
             getProducts: getProducts,
             createProduct: createProduct,
             editProduct: editProduct,
+            getProductSetting: getProductSetting,
             getProductAttrs: getProductAttrs,
             getProductTemplates: getProductTemplates,
             getProductTemplate: getProductTemplate,
@@ -28,6 +29,10 @@
 
         function getProduct(id) {
             return $http.get('api/products/' + id);
+        }
+
+        function getProductSetting() {
+            return $http.get('api/products/setting');
         }
 
         function getProductAttrs() {
