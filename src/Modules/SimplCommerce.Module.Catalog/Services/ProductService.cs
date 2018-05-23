@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -125,7 +126,8 @@ namespace SimplCommerce.Module.Catalog.Services
 
         private decimal ParseDecimalString(IList<AppSetting> settings, string key, decimal defaultVal)
         {
-            var ok = decimal.TryParse(settings.FirstOrDefault(i => i.Key == key)?.Value, out decimal result);
+            var value = settings.FirstOrDefault(i => i.Key == key)?.Value;
+            var ok = decimal.TryParse(value, out decimal result);
             return ok ? result : defaultVal;
         }
     }

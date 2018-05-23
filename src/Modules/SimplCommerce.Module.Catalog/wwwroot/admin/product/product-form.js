@@ -393,12 +393,6 @@
             });
         }
         
-        function getProductSetting() {
-            productService.getProductSetting().then((result) => {
-                vm.setting = result.data;
-            });
-        }
-
         function getProductOptions() {
             productService.getProductOptions().then(function (result) {
                 vm.options = result.data;
@@ -433,7 +427,6 @@
             if (vm.isEditMode) {
                 getProduct();
             }
-            getProductSetting();
             getProductOptions();
             getProductTemplates();
             getAttributes();

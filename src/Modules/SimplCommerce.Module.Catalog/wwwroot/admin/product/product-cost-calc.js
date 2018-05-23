@@ -14,7 +14,6 @@
             bindToController: {
                 cost: '=',
                 onCostChange: '&',
-                setting: '=',
                 modalId: '@',
                 title: '@'
             }
@@ -24,11 +23,15 @@
     }
 
     /* @ngInject */
-    function ProductCostCalCtrl() {
+    function ProductCostCalCtrl(productService) {
         const vm = this;
         vm.purchasePrice = 0;
         vm.weight = 0;
         vm.total = 0;
+
+        productService.getProductSetting().then((result) => {
+            vm.setting = result.data;
+        });
 
         vm.update = function () {
             if (vm.purchasePrice != null && vm.weight != null) {
