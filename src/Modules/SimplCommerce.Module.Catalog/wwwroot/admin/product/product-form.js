@@ -359,6 +359,18 @@
                 });
         };
 
+        function init() {
+            if (vm.isEditMode) {
+                getProduct();
+            }
+            getProductOptions();
+            getProductTemplates();
+            getAttributes();
+            getCategories();
+            getBrands();
+            getTaxClasses();
+        }
+
         function getProduct() {
             productService.getProduct($stateParams.id).then(function (result) {
                 var i, index, optionIds, attributeIds;
@@ -423,17 +435,6 @@
             });
         }
 
-        function init() {
-            if (vm.isEditMode) {
-                getProduct();
-            }
-            getProductOptions();
-            getProductTemplates();
-            getAttributes();
-            getCategories();
-            getBrands();
-            getTaxClasses();
-        }
 
         function getParentCategoryIds(categoryId) {
             if (!categoryId) {
