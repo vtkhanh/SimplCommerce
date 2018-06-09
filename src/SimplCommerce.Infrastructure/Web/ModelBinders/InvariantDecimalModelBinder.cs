@@ -40,7 +40,7 @@ namespace SimplCommerce.Infrastructure.Web.ModelBinders
             }
 
             // If we haven't handled it, then we'll let the base SimpleTypeModelBinder handle it
-            var baseBinder = new SimpleTypeModelBinder(bindingContext.ModelType);
+            var baseBinder = new SimpleTypeModelBinder(bindingContext.ModelType, _loggerFactory);
             return baseBinder.BindModelAsync(bindingContext);
         }
     }

@@ -1,5 +1,5 @@
 # Build image
-FROM microsoft/dotnet:2.1.300-rc1-sdk AS builder
+FROM microsoft/dotnet:2.1-sdk AS builder
 
 WORKDIR /app
 
@@ -52,7 +52,7 @@ RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
 RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
-FROM microsoft/dotnet:2.1.0-rc1-runtime
+FROM microsoft/dotnet:2.1-aspnetcore-runtime
 ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	
