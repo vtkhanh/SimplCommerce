@@ -1,10 +1,7 @@
 #!/bin/bash
-set -e
+set -ev
 
-#Use staging db
-#export ASPNETCORE_ENVIRONMENT=Staging
-
-dotnet restore && dotnet build
+dotnet build $1
 
 cd src/SimplCommerce.WebHost \
 	&& gulp \
