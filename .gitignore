@@ -165,7 +165,7 @@ $RECYCLE.BIN/
 
 # Others
 package-lock.json
-appsettings.Production.json
+#appsettings.Production.json
 
 # Minified files
 src/Modules/**/*.min.js
@@ -179,6 +179,6 @@ src/SimplCommerce.WebHost/wwwroot/lib/
 
 # appsettings with docker
 appsettings.docker.json
-appsettings.Production.json
+#appsettings.Production.json
 appsettings.Staging.json
 appsettings.Development.json
