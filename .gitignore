@@ -165,7 +165,6 @@ $RECYCLE.BIN/
 
 # Others
 package-lock.json
-appsettings.Production.json
 
 # Minified files
 src/Modules/**/*.min.js
