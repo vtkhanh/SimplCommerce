@@ -53,6 +53,7 @@ RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
 FROM microsoft/dotnet:2.1-aspnetcore-runtime
+ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	
 COPY --from=builder /app/src/SimplCommerce.WebHost/dist ./

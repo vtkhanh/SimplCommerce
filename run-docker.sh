@@ -13,4 +13,4 @@ then
     mv ./appsettings.json src/SimplCommerce.WebHost/appsettings.json
 fi
 
-docker run --rm -it -p 80:80 kk-image
+docker run --rm -it -p 80:5000 kk-image
