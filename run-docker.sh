@@ -13,4 +13,4 @@ then
     mv ./appsettings.json src/SimplCommerce.WebHost/appsettings.json
 fi
 
-docker run --rm -it -p 8000:80 -p 8001:443 -e ASPNETCORE_HTTPS_PORT=8001 -e ASPNETCORE_Kestrel__Certificates__Default__Password="passw0rd" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx -v ${HOME}/.aspnet/https:/https/ kk-image
+docker run --rm -it -p 80:80 kk-image
