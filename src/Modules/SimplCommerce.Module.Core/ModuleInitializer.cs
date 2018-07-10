@@ -19,7 +19,6 @@ namespace SimplCommerce.Module.Core
             services.AddScoped<SignInManager<User>, SimplSignInManager<User>>();
             services.AddScoped<IWorkContext, WorkContext>();
             services.AddScoped<ISmsSender, SmsSender>();
-            services.AddAutoMapper();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

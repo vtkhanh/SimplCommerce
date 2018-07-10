@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -42,6 +43,8 @@ namespace SimplCommerce.WebHost
             services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new ModuleViewLocationExpander()); });
 
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
+
+            services.AddAutoMapper();
 
             var sp = services.BuildServiceProvider();
             var moduleInitializers = sp.GetServices<IModuleInitializer>();

@@ -99,8 +99,8 @@ namespace SimplCommerce.WebHost.Extensions
                     }
                 })
                 .AddViewLocalization()
-                .AddDataAnnotationsLocalization();
-                // .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .AddDataAnnotationsLocalization()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             foreach (var module in modules)
             {
