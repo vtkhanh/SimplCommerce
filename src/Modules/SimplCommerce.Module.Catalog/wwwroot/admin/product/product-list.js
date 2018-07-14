@@ -6,40 +6,52 @@
 
     /* @ngInject */
     function ProductListCtrl(productService, translateService) {
-        var vm = this,
-            tableStateRef;
+        const vm = this;
+        let tableStateRef;
+
         vm.translate = translateService;
         vm.products = [];
 
-        vm.getProducts = function getProducts(tableState) {
+        vm.getProducts = (tableState) => {
             tableStateRef = tableState;
             vm.isLoading = true;
-            productService.getProducts(tableState).then(function (result) {
-                vm.products = result.data.items;
-                tableState.pagination.numberOfPages = result.data.numberOfPages;
-                vm.isLoading = false;
-            });
+            productService
+                .getProducts(tableState)
+                .then((result) => {
+                    vm.products = result.data.items;
+                    tableState.pagination.numberOfPages = result.data.numberOfPages;
+                    vm.isLoading = false;
+                });
         };
 
-        vm.changeStatus = function changeStatus(product) {
-            productService.changeStatus(product).then(function () {
-                product.isPublished = !product.isPublished;
-            });
+        vm.changeStatus = (product) => {
+            productService
+                .changeStatus(product)
+                .then(() => {
+                    product.isPublished = !product.isPublished;
+                });
         };
 
-        vm.deleteProduct = function deleteProduct(product) {
+        vm.deleteProduct = (product) => {
             bootbox.confirm('Are you sure you want to delete this product: ' + product.name, function (result) {
                 if (result) {
                     productService.deleteProduct(product)
-                       .then(function (result) {
-                           vm.getProducts(tableStateRef);
-                           toastr.success(product.name + ' has been deleted');
-                       })
-                        .catch(function (response) {
+                       .then(() => {
+                               vm.getProducts(tableStateRef);
+                               toastr.success(product.name + ' has been deleted');
+                        })
+                        .catch((response) => {
                             toastr.error(response.data.error);
                        });
                 }
             });
+        };
+
+        vm.addProductByCode = () => {
+            if (vm.productCode) {
+                console.log("Add by code: " + vm.productCode);
+                vm.productCode = null;
+            }
         };
     }
 })();
