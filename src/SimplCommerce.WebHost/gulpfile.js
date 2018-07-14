@@ -12,8 +12,8 @@ const del = require('del');
 const argv = require('yargs').argv;
 
 
-const configurationName = argv.configurationName || 'Debug';
-const targetFramework = 'netcoreapp2.1';
+const configurationName = argv.configurationName;
+const targetFramework = argv.targetFramework;
 
 // debugging
 console.log(configurationName);
@@ -92,7 +92,7 @@ gulp.task('copy-static', ['clean-modules'], function () {
     .pipe(gulp.dest(mPaths.hostModules + 'SimplCommerce.Module.SampleData/SampleContent'));
 });
 
-gulp.task('copy-modules', ['clean-modules', 'copy-static', 'copy-compiled']);
+gulp.task('copy-modules', ['clean-modules', 'copy-static']);
 
 function loadModules() {
     let moduleManifestPaths;

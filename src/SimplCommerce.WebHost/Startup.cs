@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -38,6 +39,8 @@ namespace SimplCommerce.WebHost
             services.AddCustomizedIdentity();
 
             services.AddSingleton<IStringLocalizerFactory, EfStringLocalizerFactory>();
+            services.AddSingleton<IRazorViewRenderer, RazorViewRenderer>();
+
             services.AddCloudscribePagination();
 
             services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new ModuleViewLocationExpander()); });
@@ -45,6 +48,8 @@ namespace SimplCommerce.WebHost
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
             services.AddAutoMapper();
+
+            services.AddMediatR();
 
             var sp = services.BuildServiceProvider();
             var moduleInitializers = sp.GetServices<IModuleInitializer>();

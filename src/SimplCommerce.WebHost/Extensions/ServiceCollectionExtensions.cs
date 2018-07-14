@@ -35,37 +35,34 @@ namespace SimplCommerce.WebHost.Extensions
         public static IServiceCollection LoadInstalledModules(this IServiceCollection services, string contentRootPath)
         {
             var modules = new List<ModuleInfo>();
-            var moduleRootFolder = new DirectoryInfo(Path.Combine(contentRootPath, "Modules"));
-            var moduleFolders = moduleRootFolder.GetDirectories();
 
-            foreach (var moduleFolder in moduleFolders)
+            var binFolder = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            if (binFolder.Exists)
             {
-                var binFolder = new DirectoryInfo(Path.Combine(moduleFolder.FullName, "bin"));
-                if (!binFolder.Exists)
-                {
-                    continue;
-                }
+                var moduleDlls =
+                    binFolder.GetFiles("SimplCommerce.Module.*.dll", SearchOption.TopDirectoryOnly);
 
-                foreach (var file in binFolder.GetFileSystemInfos("*.dll", SearchOption.AllDirectories))
+                foreach (var dll in moduleDlls)
                 {
                     Assembly assembly;
                     try
                     {
-                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(dll.FullName);
                     }
                     catch (FileLoadException)
                     {
                         // Get loaded assembly
-                        assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(file.Name)));
+                        assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dll.Name)));
                     }
 
-                    if (assembly.FullName.Contains(moduleFolder.Name) && modules.All(i => i.Name != moduleFolder.Name))
+                    var moduleName = assembly.GetName().Name;
+
+                    if (!modules.Any(i => i.Name == moduleName))
                     {
                         modules.Add(new ModuleInfo
                         {
-                            Name = moduleFolder.Name,
-                            Assembly = assembly,
-                            Path = moduleFolder.FullName
+                            Name = moduleName,
+                            Assembly = assembly
                         });
                     }
                 }
@@ -164,27 +161,8 @@ namespace SimplCommerce.WebHost.Extensions
             IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>));
-            builder.RegisterGeneric(typeof(RepositoryWithTypedId<,>)).As(typeof(IRepositoryWithTypedId<,>));
-            builder.RegisterType<RazorViewRenderer>().As<IRazorViewRenderer>();
 
             builder.RegisterSource(new ContravariantRegistrationSource());
-            builder.RegisterType<SequentialMediator>().As<IMediator>().InstancePerLifetimeScope();
-            builder
-              .Register<SingleInstanceFactory>(ctx =>
-              {
-                  var c = ctx.Resolve<IComponentContext>();
-                  return t => { object o; return c.TryResolve(t, out o) ? o : null; };
-              })
-              .InstancePerLifetimeScope();
-
-            builder
-              .Register<MultiInstanceFactory>(ctx =>
-              {
-                  var c = ctx.Resolve<IComponentContext>();
-                  return t => (IEnumerable<object>)c.Resolve(typeof(IEnumerable<>).MakeGenericType(t));
-              })
-              .InstancePerLifetimeScope();
 
             foreach (var module in GlobalConfiguration.Modules)
             {
@@ -194,8 +172,6 @@ namespace SimplCommerce.WebHost.Extensions
                 builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Handler")).AsImplementedInterfaces();
             }
 
-            builder.RegisterInstance(configuration);
-            builder.RegisterInstance(hostingEnvironment);
             builder.Populate(services);
             var container = builder.Build();
             return container.Resolve<IServiceProvider>();

@@ -1,5 +1,5 @@
 # Build image
-FROM microsoft/dotnet:2.1-sdk AS builder
+FROM microsoft/dotnet:2.1.301-sdk AS builder
 
 WORKDIR /app
 
@@ -34,12 +34,11 @@ RUN for file in $(ls *.csproj); do mkdir -p src/Modules/${file%.*}/ && mv $file 
 COPY test/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
 
+COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
 RUN dotnet restore
 
 COPY ./src ./src
 COPY ./test ./test
-COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
-
 RUN dotnet build -c Release --no-restore
 
 # Run test projects
@@ -48,11 +47,10 @@ RUN ./run-tests.sh
 
 # Publish
 WORKDIR /app/src/SimplCommerce.WebHost
-RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
 RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
-FROM microsoft/dotnet:2.1-aspnetcore-runtime
+FROM microsoft/dotnet:2.1.1-aspnetcore-runtime
 ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	
