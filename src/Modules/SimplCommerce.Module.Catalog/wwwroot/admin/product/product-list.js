@@ -5,7 +5,7 @@
         .controller('ProductListCtrl', ProductListCtrl);
 
     /* @ngInject */
-    function ProductListCtrl(productService, translateService) {
+    function ProductListCtrl($state, productService, translateService) {
         const vm = this;
         let tableStateRef;
 
@@ -60,10 +60,12 @@
 
                             // Refresh the product list
                             if (!tableStateRef.search.predicateObject) {
-                                tableStateRef.search.predicateObject = {}; // Init predicateObject
+                                tableStateRef.search.predicateObject = {}; // Initialize predicateObject
                             }
                             tableStateRef.search.predicateObject.Sku = vm.barcode;
                             vm.getProducts(tableStateRef);
+                        } else {
+                            $state.go('product-create', { sku: vm.barcode });
                         }
 
                         vm.barcode = null;

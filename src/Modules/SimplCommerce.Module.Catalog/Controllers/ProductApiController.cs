@@ -167,7 +167,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(ProductForm model)
+        public async Task<IActionResult> Post([FromForm] ProductForm model)
         {
             if (!ModelState.IsValid)
             {
@@ -228,7 +228,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(long id, ProductForm model)
+        public async Task<IActionResult> Put(long id, [FromForm] ProductForm model)
         {
             if (!ModelState.IsValid)
             {
