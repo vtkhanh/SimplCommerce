@@ -19,7 +19,8 @@
             changeStatus: changeStatus,
             deleteProduct: deleteProduct,
             getTaxClasses: getTaxClasses,
-            searchProducts: searchProducts
+            searchProducts: searchProducts,
+            addStock: addStock
         };
         return service;
 
@@ -53,6 +54,10 @@
 
         function getProducts(params) {
             return $http.post('api/products/list', params);
+        }
+
+        function addStock(barcode) {
+            return $http.post('api/products/addStock/' + barcode, null);
         }
 
         function createProduct(product, thumbnailImage, productImages, productDocuments) {

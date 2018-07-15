@@ -12,8 +12,8 @@ const del = require('del');
 const argv = require('yargs').argv;
 
 
-const configurationName = argv.configurationName;
-const targetFramework = argv.targetFramework;
+const configurationName = argv.configurationName || 'Debug';
+const targetFramework = argv.targetFramework || 'netcoreapp2.1';
 
 // debugging
 console.log(configurationName);

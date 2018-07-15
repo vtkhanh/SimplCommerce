@@ -16,5 +16,7 @@ namespace SimplCommerce.Module.Catalog.Services
         Task<IEnumerable<ProductDto>> Search(string query, int? maxItems = null);
 
         Task<ProductSettingDto> GetProductSetting();
+
+        Task<(bool, string)> AddStock(string barcode);
     }
 }

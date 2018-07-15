@@ -19,34 +19,18 @@ namespace SimplCommerce.Module.Core.Data
 
         protected DbSet<T> DbSet { get; }
 
-        public void Add(T entity)
-        {
-            DbSet.Add(entity);
-        }
+        public void Add(T entity) => DbSet.Add(entity);
 
-        public IDbContextTransaction BeginTransaction()
-        {
-            return Context.Database.BeginTransaction();
-        }
+        public IDbContextTransaction BeginTransaction() => Context.Database.BeginTransaction();
 
-        public void SaveChanges()
-        {
-            Context.SaveChanges();
-        }
+        public void SaveChanges() => Context.SaveChanges();
 
-        public Task SaveChangesAsync()
-        {
-            return Context.SaveChangesAsync();
-        }
+        public Task SaveChangesAsync() => Context.SaveChangesAsync();
 
-        public IQueryable<T> Query()
-        {
-            return DbSet;
-        }
+        public IQueryable<T> Query() => DbSet;
 
-        public void Remove(T entity)
-        {
-            DbSet.Remove(entity);
-        }
+        public IQueryable<T> QueryAsNoTracking() => DbSet.AsNoTracking();
+
+        public void Remove(T entity) => DbSet.Remove(entity);
     }
 }

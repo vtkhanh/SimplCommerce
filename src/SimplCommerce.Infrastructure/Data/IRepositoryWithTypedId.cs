@@ -9,6 +9,8 @@ namespace SimplCommerce.Infrastructure.Data
     {
         IQueryable<T> Query();
 
+        IQueryable<T> QueryAsNoTracking();
+
         void Add(T entity);
 
         IDbContextTransaction BeginTransaction();
