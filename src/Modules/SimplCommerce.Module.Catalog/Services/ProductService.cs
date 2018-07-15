@@ -124,6 +124,19 @@ namespace SimplCommerce.Module.Catalog.Services
             return result;
         }
 
+        public async Task<(bool, string)> AddStock(string barcode) 
+        {
+            var product = await _productRepo.Query().FirstOrDefaultAsync(item => item.Sku == barcode);
+            if (product == null) return (false, $"No product found with barcode: {barcode}");
+
+            // +1 to current stock
+            product.Stock++;
+
+            await _productRepo.SaveChangesAsync();
+            
+            return (true, "");
+        }
+
         private decimal ParseDecimalString(IList<AppSetting> settings, string key, decimal defaultVal)
         {
             var value = settings.FirstOrDefault(i => i.Key == key)?.Value;

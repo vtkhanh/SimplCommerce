@@ -26,6 +26,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 {
     [Authorize(Roles = "admin, vendor")]
     [Route("api/products")]
+    [ApiController]
     public class ProductApiController : Controller
     {
         private readonly IMapper _mapper;
@@ -84,6 +85,16 @@ namespace SimplCommerce.Module.Catalog.Controllers
         {
             var result = await _productService.GetProductSetting();
             return Ok(result);
+        }
+
+        [HttpPost("addStock/{barcode}")]
+        public async Task<ActionResult<ObjectResult>> AddStock(string barcode) 
+        {
+            var (ok, error) = await _productService.AddStock(barcode);
+
+            if (!ok) _logger.LogWarning(error, barcode);
+
+            return Ok(ok);
         }
 
         [HttpGet("{id}")]

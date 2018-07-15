@@ -7,7 +7,7 @@
             <div layout-gt-xs="row">
                 <md-input-container class="hide-validation no-margin-bottom" flex-gt-xs>
                     <label>Code</label>
-                    <input ng-model="vm.productCode" ng-keypress="($event.charCode==13) ? vm.addProductByCode(this) : return">
+                    <input ng-model="vm.barcode" ng-keypress="($event.charCode==13) ? vm.addStock() : return">
                 </md-input-container>
                 <md-button ui-sref="product-create" class="md-raised md-primary"><span class="fa fa-plus">&nbsp;</span>{{::vm.translate.get('Create')}}</md-button>
             </div>

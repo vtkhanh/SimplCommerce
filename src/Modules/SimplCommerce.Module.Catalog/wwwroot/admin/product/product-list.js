@@ -35,22 +35,40 @@
         vm.deleteProduct = (product) => {
             bootbox.confirm('Are you sure you want to delete this product: ' + product.name, function (result) {
                 if (result) {
-                    productService.deleteProduct(product)
-                       .then(() => {
-                               vm.getProducts(tableStateRef);
-                               toastr.success(product.name + ' has been deleted');
+                    productService
+                        .deleteProduct(product)
+                        .then(() => {
+                            vm.getProducts(tableStateRef);
+                            toastr.success(product.name + ' has been deleted');
                         })
                         .catch((response) => {
                             toastr.error(response.data.error);
-                       });
+                        });
                 }
             });
         };
 
-        vm.addProductByCode = () => {
-            if (vm.productCode) {
-                console.log("Add by code: " + vm.productCode);
-                vm.productCode = null;
+        vm.addStock = () => {
+            if (vm.barcode) {
+                productService
+                    .addStock(vm.barcode)
+                    .then((response) => {
+                        const data = response.data;
+
+                        if (data.value === true) {
+                            toastr.success("Added successfully");
+
+                            // Refresh the product list
+                            if (!tableStateRef.search.predicateObject) {
+                                tableStateRef.search.predicateObject = {}; // Init predicateObject
+                            }
+                            tableStateRef.search.predicateObject.Sku = vm.barcode;
+                            vm.getProducts(tableStateRef);
+                        }
+
+                        vm.barcode = null;
+                    })
+                    .catch((response) => toastr.error(response.data));
             }
         };
     }

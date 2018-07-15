@@ -18,6 +18,7 @@ using SimplCommerce.Infrastructure.Filters;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
+    [ApiController]
     [Authorize(Roles = "admin, vendor")]
     [Route("api/orders")]
     public class OrderApiController : Controller
@@ -70,7 +71,6 @@ namespace SimplCommerce.Module.Orders.Controllers
         }
 
         [HttpPost]
-        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] OrderFormVm orderForm) 
         {
             try
@@ -144,7 +144,6 @@ namespace SimplCommerce.Module.Orders.Controllers
         }
 
         [HttpPut]
-        [ValidateModel]
         public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
         {
             try
