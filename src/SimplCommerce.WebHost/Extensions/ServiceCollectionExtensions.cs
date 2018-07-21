@@ -32,52 +32,19 @@ namespace SimplCommerce.WebHost.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection LoadInstalledModules(this IServiceCollection services, string contentRootPath)
+        public static IServiceCollection LoadModuleInitializers(this IServiceCollection services)
         {
-            var modules = new List<ModuleInfo>();
-
-            var binFolder = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            if (binFolder.Exists)
+            foreach (var module in GlobalConfiguration.Modules)
             {
-                var moduleDlls =
-                    binFolder.GetFiles("SimplCommerce.Module.*.dll", SearchOption.TopDirectoryOnly);
+                var moduleInitializerType = 
+                    module.Assembly.GetTypes().FirstOrDefault(x => typeof(IModuleInitializer).IsAssignableFrom(x));
 
-                foreach (var dll in moduleDlls)
-                {
-                    Assembly assembly;
-                    try
-                    {
-                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(dll.FullName);
-                    }
-                    catch (FileLoadException)
-                    {
-                        // Get loaded assembly
-                        assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dll.Name)));
-                    }
-
-                    var moduleName = assembly.GetName().Name;
-
-                    if (!modules.Any(i => i.Name == moduleName))
-                    {
-                        modules.Add(new ModuleInfo
-                        {
-                            Name = moduleName,
-                            Assembly = assembly
-                        });
-                    }
-                }
-            }
-
-            foreach (var module in modules)
-            {
-                var moduleInitializerType = module.Assembly.GetTypes().FirstOrDefault(x => typeof(IModuleInitializer).IsAssignableFrom(x));
                 if ((moduleInitializerType != null) && (moduleInitializerType != typeof(IModuleInitializer)))
                 {
                     services.AddSingleton(typeof(IModuleInitializer), moduleInitializerType);
                 }
             }
 
-            GlobalConfiguration.Modules = modules;
             return services;
         }
 

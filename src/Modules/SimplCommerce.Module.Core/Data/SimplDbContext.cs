@@ -14,7 +14,7 @@ namespace SimplCommerce.Module.Core.Data
 {
     public class SimplDbContext : IdentityDbContext<User, Role, long, IdentityUserClaim<long>, UserRole, IdentityUserLogin<long>, IdentityRoleClaim<long>, IdentityUserToken<long>>
     {
-        public SimplDbContext(DbContextOptions options) : base(options)
+        public SimplDbContext(DbContextOptions<SimplDbContext> options) : base(options)
         {
         }
 

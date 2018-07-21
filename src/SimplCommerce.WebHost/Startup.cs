@@ -28,12 +28,13 @@ namespace SimplCommerce.WebHost
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            GlobalConfiguration.WebRootPath = _hostingEnvironment.WebRootPath;
+            GlobalConfiguration.ContentRootPath = _hostingEnvironment.ContentRootPath;
+
             // Add functionality to inject IOptions<T>
             services.AddOptions();
 
-            GlobalConfiguration.WebRootPath = _hostingEnvironment.WebRootPath;
-            GlobalConfiguration.ContentRootPath = _hostingEnvironment.ContentRootPath;
-            services.LoadInstalledModules(_hostingEnvironment.ContentRootPath);
+            services.LoadModuleInitializers();
 
             services.AddCustomizedDataStore(_configuration);
             services.AddCustomizedIdentity();
