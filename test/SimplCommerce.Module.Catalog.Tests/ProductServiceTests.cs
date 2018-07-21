@@ -66,12 +66,7 @@ namespace SimplCommerce.Module.Catalog.Tests
             public async Task AddStockAsync_WithInvalidBarcode_ShouldReturnFalse(string barcode)
             {
                 // Arrange
-                Product product;
-                using (var context = new SimplDbContext(_options))
-                {
-                    var productRepo = new Repository<Product>(context);
-                    product = await productRepo.Query().FirstAsync();
-                }
+                Product product = await GetProductBySkuAsync(null);
 
                 // Act
                 bool ok;
@@ -83,12 +78,7 @@ namespace SimplCommerce.Module.Catalog.Tests
                     (ok, message) = await productService.AddStockAsync(barcode);
                 }
 
-                Product updatedProduct;
-                using (var context = new SimplDbContext(_options))
-                {
-                    var productRepo = new Repository<Product>(context);
-                    updatedProduct = await productRepo.Query().FirstAsync();
-                }
+                Product updatedProduct = await GetProductBySkuAsync(null);
 
                 // Assert
                 Assert.False(ok);
@@ -102,7 +92,9 @@ namespace SimplCommerce.Module.Catalog.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var productRepo = new Repository<Product>(context);
-                    product = await productRepo.Query().FirstAsync(p => p.Sku == sku);
+                    product = !string.IsNullOrEmpty(sku)
+                        ? await productRepo.Query().FirstAsync(p => p.Sku == sku)
+                        : await productRepo.Query().FirstAsync();
                 }
 
                 return product;
