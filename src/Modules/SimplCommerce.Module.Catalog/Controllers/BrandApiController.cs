@@ -58,7 +58,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                     IsPublished = model.IsPublished
                 };
 
-                await _brandService.Create(brand);
+                await _brandService.CreateAsync(brand);
                 return CreatedAtAction(nameof(Get), new { id = brand.Id }, null);
             }
             return BadRequest(ModelState);
@@ -80,7 +80,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 brand.SeoTitle = model.Slug;
                 brand.IsPublished = model.IsPublished;
 
-                await _brandService.Update(brand);
+                await _brandService.UpdateAsync(brand);
                 return Accepted();
             }
 
@@ -97,7 +97,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return NotFound();
             }
 
-            await _brandService.Delete(brand);
+            await _brandService.DeleteAsync(brand);
             return NoContent();
         }
     }

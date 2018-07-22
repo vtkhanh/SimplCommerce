@@ -50,7 +50,7 @@ namespace SimplCommerce.Module.Vendors.Services
         public async Task Delete(Vendor vendor)
         {
             vendor.IsDeleted = true;
-            await _entityService.Remove(vendor.Id, VendorEntityTypeId);
+            await _entityService.RemoveAsync(vendor.Id, VendorEntityTypeId);
             _vendorRepository.SaveChanges();
         }
     }

@@ -13,6 +13,6 @@ namespace SimplCommerce.Module.Core.Services
 
         void Update(string newName, string newSlug, long entityId, long entityTypeId);
 
-        Task Remove(long entityId, long entityTypeId);
+        Task RemoveAsync(long entityId, long entityTypeId);
     }
 }

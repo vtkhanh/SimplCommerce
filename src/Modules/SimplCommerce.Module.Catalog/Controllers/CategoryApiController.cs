@@ -36,7 +36,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
         public async Task<IActionResult> Get()
         {
-            var gridData = await _categoryService.GetAll();
+            var gridData = await _categoryService.GetAllAsync();
             return Json(gridData);
         }
 
@@ -78,7 +78,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 };
 
                 await SaveCategoryImage(category, model);
-                await _categoryService.Create(category);
+                await _categoryService.CreateAsync(category);
                 return CreatedAtAction(nameof(Get), new { id = category.Id }, null);
             }
             return BadRequest(ModelState);
@@ -105,7 +105,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 category.IsPublished = model.IsPublished;
 
                 await SaveCategoryImage(category, model);
-                await _categoryService.Update(category);
+                await _categoryService.UpdateAsync(category);
 
                 return Accepted();
             }
@@ -128,7 +128,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return BadRequest(new { Error = "Please make sure this category contains no children" });
             }
 
-            await _categoryService.Delete(category);
+            await _categoryService.DeleteAsync(category);
             return NoContent();
         }
 

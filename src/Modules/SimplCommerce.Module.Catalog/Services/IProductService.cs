@@ -11,12 +11,12 @@ namespace SimplCommerce.Module.Catalog.Services
 
         void Update(Product product);
 
-        Task Delete(Product product);
+        Task DeleteAsync(Product product);
 
-        Task<IEnumerable<ProductDto>> Search(string query, int? maxItems = null);
+        Task<IEnumerable<ProductDto>> SearchAsync(string query, int? maxItems = null);
 
-        Task<ProductSettingDto> GetProductSetting();
+        Task<ProductSettingDto> GetProductSettingAsync();
 
-        Task<(bool, string)> AddStock(string barcode);
+        Task<(bool, string)> AddStockAsync(string barcode);
     }
 }

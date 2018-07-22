@@ -4,6 +4,7 @@ using MediatR;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Events;
+using Microsoft.EntityFrameworkCore;
 
 namespace SimplCommerce.Module.Core.Services
 {
@@ -63,9 +64,11 @@ namespace SimplCommerce.Module.Core.Services
             entity.Slug = newSlug;
         }
 
-        public async Task Remove(long entityId, long entityTypeId)
+        public async Task RemoveAsync(long entityId, long entityTypeId)
         {
-            var entity = _entityRepository.Query().FirstOrDefault(x => x.EntityId == entityId && x.EntityTypeId == entityTypeId);
+            var entity = await _entityRepository
+                .Query()
+                .FirstOrDefaultAsync(x => x.EntityId == entityId && x.EntityTypeId == entityTypeId);
 
             if (entity != null)
             {

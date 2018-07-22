@@ -50,7 +50,7 @@ namespace SimplCommerce.Module.News.Services
         public async Task Delete(NewsCategory category)
         {
             category.IsDeleted = true;
-            await _entityService.Remove(category.Id, NewsCategoryEntityTypeId);
+            await _entityService.RemoveAsync(category.Id, NewsCategoryEntityTypeId);
             _categoryRepository.SaveChanges();
         }
     }

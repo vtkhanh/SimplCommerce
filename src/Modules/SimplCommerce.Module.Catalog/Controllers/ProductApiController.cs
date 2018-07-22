@@ -70,7 +70,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             try
             {
                 const int maxItems = 100;
-                var products = await _productService.Search(query, maxItems);
+                var products = await _productService.SearchAsync(query, maxItems);
                 return Ok(products);
             }
             catch (Exception exception)
@@ -83,14 +83,14 @@ namespace SimplCommerce.Module.Catalog.Controllers
         [HttpGet("setting")]
         public async Task<IActionResult> GetSetting()
         {
-            var result = await _productService.GetProductSetting();
+            var result = await _productService.GetProductSettingAsync();
             return Ok(result);
         }
 
         [HttpPost("addStock/{barcode}")]
         public async Task<ActionResult<ObjectResult>> AddStock(string barcode) 
         {
-            var (ok, error) = await _productService.AddStock(barcode);
+            var (ok, error) = await _productService.AddStockAsync(barcode);
 
             if (!ok) _logger.LogWarning(error, barcode);
 
@@ -314,7 +314,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            await _productService.Delete(product);
+            await _productService.DeleteAsync(product);
 
             return NoContent();
         }

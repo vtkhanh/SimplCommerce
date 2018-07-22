@@ -22,7 +22,7 @@ namespace SimplCommerce.Module.Catalog.Services
             _entityService = entityService;
         }
 
-        public async Task<IList<CategoryListItem>> GetAll()
+        public async Task<IList<CategoryListItem>> GetAllAsync()
         {
             var categories = await _categoryRepository.Query().Where(x => !x.IsDeleted).ToListAsync();
             var categoriesList = new List<CategoryListItem>();
@@ -51,7 +51,7 @@ namespace SimplCommerce.Module.Catalog.Services
             return categoriesList.OrderBy(x => x.Name).ToList();
         }
 
-        public async Task Create(Category category)
+        public async Task CreateAsync(Category category)
         {
             using (var transaction = _categoryRepository.BeginTransaction())
             {
@@ -66,16 +66,16 @@ namespace SimplCommerce.Module.Catalog.Services
             }
         }
 
-        public async Task Update(Category category)
+        public async Task UpdateAsync(Category category)
         {
             category.SeoTitle = _entityService.ToSafeSlug(category.SeoTitle, category.Id, CategoryEntityTypeId);
             _entityService.Update(category.Name, category.SeoTitle, category.Id, CategoryEntityTypeId);
             await _categoryRepository.SaveChangesAsync();
         }
 
-        public async Task Delete(Category category)
+        public async Task DeleteAsync(Category category)
         {
-             await _entityService.Remove(category.Id, CategoryEntityTypeId);
+             await _entityService.RemoveAsync(category.Id, CategoryEntityTypeId);
             _categoryRepository.Remove(category);
             _categoryRepository.SaveChanges();
         }

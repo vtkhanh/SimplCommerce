@@ -69,20 +69,20 @@ namespace SimplCommerce.Module.Catalog.Services
             {
                 if (slug != null)
                 {
-                    _entityService.Remove(product.Id, ProductEntityTypeId);
+                    _entityService.RemoveAsync(product.Id, ProductEntityTypeId);
                 }
             }
             _productRepo.SaveChanges();
         }
 
-        public async Task Delete(Product product)
+        public async Task DeleteAsync(Product product)
         {
             product.IsDeleted = true;
-            await _entityService.Remove(product.Id, ProductEntityTypeId);
+            await _entityService.RemoveAsync(product.Id, ProductEntityTypeId);
             _productRepo.SaveChanges();
         }
 
-        public async Task<IEnumerable<ProductDto>> Search(string query, int? maxItems = null)
+        public async Task<IEnumerable<ProductDto>> SearchAsync(string query, int? maxItems = null)
         {
             var products = await _productRepo.Query()
                 .Include(i => i.ThumbnailImage)
@@ -108,7 +108,7 @@ namespace SimplCommerce.Module.Catalog.Services
             return result;
         }
 
-        public async Task<ProductSettingDto> GetProductSetting()
+        public async Task<ProductSettingDto> GetProductSettingAsync()
         {
             var settings = await _appSettingRepo.Query()
                 .Where(x => x.IsVisibleInCommonSettingPage && x.Module == "Catalog")
@@ -124,7 +124,7 @@ namespace SimplCommerce.Module.Catalog.Services
             return result;
         }
 
-        public async Task<(bool, string)> AddStock(string barcode) 
+        public async Task<(bool, string)> AddStockAsync(string barcode) 
         {
             var product = await _productRepo.Query().FirstOrDefaultAsync(item => item.Sku == barcode);
             if (product == null) return (false, $"No product found with barcode: {barcode}");

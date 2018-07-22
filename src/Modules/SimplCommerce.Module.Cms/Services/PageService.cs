@@ -43,7 +43,7 @@ namespace SimplCommerce.Module.Cms.Services
         public async Task Delete(Page page)
         {
             _pageRepository.Remove(page);
-            await _entityService.Remove(page.Id, PageEntityTypeId);
+            await _entityService.RemoveAsync(page.Id, PageEntityTypeId);
             _pageRepository.SaveChanges();
         }
     }

@@ -5,12 +5,12 @@ namespace SimplCommerce.Module.Catalog.Services
 {
     public interface IBrandService
     {
-        Task Create(Brand brand);
+        Task CreateAsync(Brand brand);
 
-        Task Update(Brand brand);
+        Task UpdateAsync(Brand brand);
 
-        Task Delete(long id);
+        Task DeleteAsync(long id);
 
-        Task Delete(Brand brand);
+        Task DeleteAsync(Brand brand);
     }
 }

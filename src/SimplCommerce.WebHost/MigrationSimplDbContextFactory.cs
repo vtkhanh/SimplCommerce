@@ -31,7 +31,7 @@ namespace SimplCommerce.WebHost
             var containerBuilder = new ContainerBuilder();
             IServiceCollection services = new ServiceCollection();
 
-            services.LoadInstalledModules(contentRootPath);
+            services.LoadModuleInitializers();
             services.AddCustomizedDataStore(_configuration);
             containerBuilder.Populate(services);
             var _serviceProvider = containerBuilder.Build().Resolve<IServiceProvider>();
