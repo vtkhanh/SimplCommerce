@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,6 +22,8 @@ namespace SimplCommerce.Module.Core.Data
 
         public void Add(T entity) => DbSet.Add(entity);
 
+        public void AddRange(IEnumerable<T> entities) => DbSet.AddRange(entities);
+
         public IDbContextTransaction BeginTransaction() => Context.Database.BeginTransaction();
 
         public void SaveChanges() => Context.SaveChanges();
@@ -32,5 +35,6 @@ namespace SimplCommerce.Module.Core.Data
         public IQueryable<T> QueryAsNoTracking() => DbSet.AsNoTracking();
 
         public void Remove(T entity) => DbSet.Remove(entity);
+
     }
 }

@@ -5,6 +5,8 @@ using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Catalog.Services;
 using Xunit;
 using SimplCommerce.Infrastructure.Data;
+using System.Collections.Generic;
+using SimplCommerce.Infrastructure;
 
 namespace SimplCommerce.Module.Catalog.Tests
 {
@@ -21,20 +23,23 @@ namespace SimplCommerce.Module.Catalog.Tests
                     .UseInMemoryDatabase(databaseName: nameof(AddStockAsync))
                     .Options;
 
-                var product = new Product()
-                {
-                    Sku = "12345",
-                    Stock = 0
-                };
                 using (var context = new SimplDbContext(_options))
                 {
+                    var products = new List<Product>{
+                        new Product() { Sku = "1", Stock = 1 },
+                        new Product() { Sku = "12", Stock = 2 },
+                        new Product() { Sku = "123", Stock = 3 },
+                        new Product() { Sku = "1234", Stock = 4 },
+                        new Product() { Sku = "12345", Stock = 5 },
+                    };
                     var productRepo = new Repository<Product>(context);
-                    productRepo.Add(product);
+                    productRepo.AddRange(products);
                     productRepo.SaveChanges();
                 }
             }
 
             [Theory]
+            [InlineData("12")]
             [InlineData("12345")]
             public async Task AddStockAsync_WithExistedBarcode_ShouldAddStock(string barcode)
             {
@@ -42,15 +47,7 @@ namespace SimplCommerce.Module.Catalog.Tests
                 var product = await GetProductBySkuAsync(barcode);
 
                 // Act
-                bool ok;
-                string message;
-                using (var context = new SimplDbContext(_options))
-                {
-                    var productRepo = new Repository<Product>(context);
-                    var productService = new ProductService(null, productRepo, null, null, null);
-                    (ok, message) = await productService.AddStockAsync(barcode);
-                }
-
+                var (ok, message) = await AddAsync(barcode);
                 var updatedProduct = await GetProductBySkuAsync(barcode);
 
                 // Assert
@@ -69,6 +66,17 @@ namespace SimplCommerce.Module.Catalog.Tests
                 Product product = await GetProductBySkuAsync(null);
 
                 // Act
+                var (ok, message) = await AddAsync(barcode);
+                Product updatedProduct = await GetProductBySkuAsync(null);
+
+                // Assert
+                Assert.False(ok);
+                Assert.Contains(barcode ?? "", message);
+                Assert.Equal(product.Stock, updatedProduct.Stock);
+            }
+
+            private async Task<(bool, string)> AddAsync(string barcode)
+            {
                 bool ok;
                 string message;
                 using (var context = new SimplDbContext(_options))
@@ -77,27 +85,18 @@ namespace SimplCommerce.Module.Catalog.Tests
                     var productService = new ProductService(null, productRepo, null, null, null);
                     (ok, message) = await productService.AddStockAsync(barcode);
                 }
-
-                Product updatedProduct = await GetProductBySkuAsync(null);
-
-                // Assert
-                Assert.False(ok);
-                Assert.NotEqual(string.Empty, message);
-                Assert.Equal(product.Stock, updatedProduct.Stock);
+                return (ok, message);
             }
 
             private async Task<Product> GetProductBySkuAsync(string sku)
             {
-                Product product;
                 using (var context = new SimplDbContext(_options))
                 {
                     var productRepo = new Repository<Product>(context);
-                    product = !string.IsNullOrEmpty(sku)
-                        ? await productRepo.Query().FirstAsync(p => p.Sku == sku)
-                        : await productRepo.Query().FirstAsync();
+                    var product = await productRepo.Query()
+                        .FirstIfAsync(!sku.IsNullOrEmpty(), p => p.Sku == sku);
+                    return product;
                 }
-
-                return product;
             }
 
         }

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Modules\SimplCommerce.Module.Cms\SimplCommerce.Module.Cms.csproj" />
+    <ProjectReference Include="..\..\src\SimplCommerce.Infrastructure\SimplCommerce.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Modules\SimplCommerce.Module.Core\SimplCommerce.Module.Core.csproj" />
     <ProjectReference Include="..\..\src\Modules\SimplCommerce.Module.Catalog\SimplCommerce.Module.Catalog.csproj" />
   </ItemGroup>
