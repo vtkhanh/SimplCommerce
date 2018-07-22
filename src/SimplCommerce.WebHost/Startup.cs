@@ -34,7 +34,7 @@ namespace SimplCommerce.WebHost
             // Add functionality to inject IOptions<T>
             services.AddOptions();
 
-            services.LoadModuleInitializers();
+            services.LoadModuleInitializers().RunModuleConfigureServices(_configuration);
 
             services.AddCustomizedDataStore(_configuration);
             services.AddCustomizedIdentity();
@@ -44,20 +44,16 @@ namespace SimplCommerce.WebHost
 
             services.AddCloudscribePagination();
 
-            services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new ModuleViewLocationExpander()); });
+            services.Configure<RazorViewEngineOptions>(options =>
+            {
+                options.ViewLocationExpanders.Add(new ModuleViewLocationExpander());
+            });
 
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
             services.AddAutoMapper();
 
             services.AddMediatR();
-
-            var sp = services.BuildServiceProvider();
-            var moduleInitializers = sp.GetServices<IModuleInitializer>();
-            foreach (var moduleInitializer in moduleInitializers)
-            {
-                moduleInitializer.ConfigureServices(services, _configuration);
-            }
 
             return services.Build(_configuration, _hostingEnvironment);
         }
@@ -81,11 +77,7 @@ namespace SimplCommerce.WebHost
             app.UseCustomizedIdentity();
             app.UseCustomizedMvc();
 
-            var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
-            foreach (var moduleInitializer in moduleInitializers)
-            {
-                moduleInitializer.Configure(app, env);
-            }
+            app.RunModuleConfigures(env);
         }
     }
 }
