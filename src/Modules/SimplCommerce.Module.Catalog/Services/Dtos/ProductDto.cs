@@ -16,6 +16,6 @@ namespace SimplCommerce.Module.Catalog.Services.Dtos
 
         public string ThumbnailImageUrl { get; set; }
 
-        public string Display => $"{Name}{(Sku.HasValue() ? $" {Sku}" : "")}";
+        public string Display => $"{Name}{(Sku.HasValue() ? $" - {Sku}" : "")}";
     }
 }

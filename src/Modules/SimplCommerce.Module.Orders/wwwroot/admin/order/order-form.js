@@ -29,6 +29,8 @@
                 .catch((response) => toastr.error(response.data.error));
 
         vm.addToCart = (product) => {
+            if (!product) return;
+
             const addedItem = _.find(vm.orderItems, { productId: product.id });
             if (addedItem) {
                 addedItem.quantity = (addedItem.quantity || 0) + 1;
@@ -72,6 +74,11 @@
         }
 
         vm.save = () => {
+            if (!vm.customer) {
+                toastr.error("No customer selected!");
+                return;
+            }
+
             const params = {
                 customerId: vm.customer.id,
                 shippingAmount: vm.shippingAmount,
