@@ -74,11 +74,6 @@
         }
 
         vm.save = () => {
-            if (!vm.customer) {
-                toastr.error("No customer selected!");
-                return;
-            }
-
             const params = {
                 customerId: vm.customer.id,
                 shippingAmount: vm.shippingAmount,
@@ -90,7 +85,10 @@
             };
             if (vm.orderId === 0) {
                 orderService.createOrder(params)
-                    .then((result) => toastr.success("Saved successfully."))
+                    .then((result) => {
+                        $state.go('order-edit', { id: result.data.id });
+                        toastr.success("Saved successfully.");
+                    })
                     .catch((response) => processError(response.data));
             } else {
                 params.orderId = vm.orderId;

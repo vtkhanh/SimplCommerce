@@ -3,27 +3,28 @@
         <h2>{{::vm.translate.get(vm.pageTitle)}}</h2>
     </div>
     <div class="panel-body">
-        <form name="orderForm" class="form-horizontal">
+        <form name="orderForm" class="form-horizontal" >
             <my-validation errors="vm.validationErrors"></my-validation>
             <div>
                 <div class="form-group">
-                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Customers')}}</label> -->
+                    <!-- Select customer -->
                     <div class="col-sm-10 col-xs-8">
                         <md-autocomplete 
-                            required
+                            required="required"
                             md-input-name="customer"
                             md-no-cache="false"
                             md-autoselect="true"
                             md-selected-item="vm.customer" 
                             md-search-text="vm.customerQuery" 
                             md-items="item in vm.searchCustomers(vm.customerQuery)"
-                            md-item-text="item.display" md-min-length="0" 
-                            placeholder="{{::vm.translate.get('Search customers')}}">
+                            md-item-text="item.display" 
+                            md-min-length="0" 
+                            md-floating-label="{{::vm.translate.get('Search customers')}}">
                             <md-item-template>
                                 <span md-highlight-text="vm.customerQuery" md-highlight-flags="gi">{{item.display}}</span>
                             </md-item-template>
-                            <div ng-messages="orderForm.customer.$error" role="alert">
-                                <div ng-message="required">This field is required</div>
+                            <div ng-messages="orderForm.customer.$error" class="md-block">
+                                <div ng-message="required">Customer is required</div>
                             </div>
                             <md-not-found>
                                 No customer "{{vm.customerQuery}}" were found.
@@ -32,7 +33,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Products')}}</label> -->
+                    <!-- Add products -->
                     <div class="col-sm-10 col-xs-8">
                         <md-autocomplete 
                             style="min-width: 0;"
@@ -43,7 +44,7 @@
                             md-search-text="vm.productQuery" 
                             md-items="item in vm.searchProducts(vm.productQuery)"
                             md-item-text="item.display" md-min-length="0" 
-                            placeholder="{{::vm.translate.get('Search products')}}"
+                            md-floating-label="{{::vm.translate.get('Search products')}}"
                             ng-keypress="($event.charCode==13) ? vm.addToCart(vm.selectedProduct) : return">
                             <md-item-template>
                                 <span md-highlight-text="vm.productQuery" md-highlight-flags="gi">{{item.display}}</span>
@@ -54,7 +55,7 @@
                         </md-autocomplete>
                     </div>
                     <div class="col-sm-2 col-xs-4">
-                        <md-button class="md-raised md-primary no-margin-top" ng-disabled="!vm.selectedProduct" 
+                        <md-button class="md-raised md-primary" ng-disabled="!vm.selectedProduct" 
                             ng-click="vm.addToCart(vm.selectedProduct)">
                             <i class="fa fa-plus">&nbsp;</i>Add
                         </md-button>
@@ -66,7 +67,7 @@
                         <md-input-container>
                             <label>{{::vm.translate.get('Order status')}}</label>
                             <md-select placeholder="{{::vm.translate.get('Select a status')}}" ng-model="vm.orderStatus"
-                                        style="min-width: 200px;">
+                                        style="min-width: 200px;" aria-label="Order status">
                                 <md-option ng-repeat="status in vm.orderStatusList" value="{{status.value}}">{{status.text}}</md-option>
                             </md-select>
                         </md-input-container>
@@ -114,7 +115,7 @@
                                         <md-input-container class="no-margin-bottom no-margin-top hide-validation">
                                             <input type="number" class="text-center" required 
                                             ng-model="item.quantity" min="0" 
-                                            ng-change="vm.updateSubtotal(item)"/>
+                                            ng-change="vm.updateSubtotal(item)" aria-label="Quantity"/>
                                         </md-input-container>
                                     </td>
                                     <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>
@@ -141,7 +142,7 @@
                                     <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
                                     <td class="col-sm-1">
                                         <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                            <input type="number" class="text-center" ng-model="vm.shippingAmount" min="0" ng-change="vm.updateOrderTotal()"/>
+                                            <input type="number" class="text-center" ng-model="vm.shippingAmount" min="0" ng-change="vm.updateOrderTotal()" aria-label="Shipping amount"/>
                                         </md-input-container>
                                     </td>
                                     <td class="col-sm-1"></td>
@@ -168,10 +169,10 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-12">
-                        <button class="btn btn-primary" ng-disabled="orderForm.$invalid" ng-click="vm.save()">
+                        <button type="button" class="btn btn-primary" ng-disabled="orderForm.$invalid" ng-click="vm.save()">
                             <i class="fa fa-check">&nbsp;</i>{{::vm.translate.get('Save')}}
                         </button>
-                        <button ui-sref="order" class="btn btn-default">{{::vm.translate.get('Cancel')}}</button>
+                        <button type="button" ui-sref="order" class="btn btn-default">{{::vm.translate.get('Cancel')}}</button>
                     </div>
                 </div>
             </div>

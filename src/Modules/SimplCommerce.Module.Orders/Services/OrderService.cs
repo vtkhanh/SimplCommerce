@@ -93,11 +93,11 @@ namespace SimplCommerce.Module.Orders.Services
             return (result, null);
         }
 
-        public async Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest)
+        public async Task<(long, string)> CreateOrderAsync(OrderFormVm orderRequest)
         {
             if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
             {
-                return (false, "Shopping cart cannot be empty");
+                return (0, "Shopping cart cannot be empty");
             }
 
             var user = _workContext.GetCurrentUser();
@@ -109,7 +109,7 @@ namespace SimplCommerce.Module.Orders.Services
             _orderRepository.Add(order);
             await _orderRepository.SaveChangesAsync();
 
-            return (true, null);
+            return (order.Id, null);
         }
 
         public async Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest)

@@ -12,7 +12,7 @@ namespace SimplCommerce.Module.Orders.Services
         /// </summary>
         /// <param name="orderRequest">order detail</param>
         /// <returns>bool: success/fail; string: errorMessage</returns>
-        Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest);
+        Task<(long, string)> CreateOrderAsync(OrderFormVm orderRequest);
 
         /// <summary>
         /// Order updated by admins

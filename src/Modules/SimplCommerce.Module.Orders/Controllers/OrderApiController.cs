@@ -18,9 +18,9 @@ using SimplCommerce.Infrastructure.Filters;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
-    [ApiController]
     [Authorize(Roles = "admin, vendor")]
     [Route("api/orders")]
+    [ApiController]
     public class OrderApiController : Controller
     {
         private readonly ILogger<OrderApiController> _logger;
@@ -75,8 +75,10 @@ namespace SimplCommerce.Module.Orders.Controllers
         {
             try
             {
-                var (ok, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
-                return ok ? (IActionResult) Accepted() : BadRequest(new { Error = errorMessage });
+                var (orderId, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
+                return orderId > 0 
+                    ? (IActionResult) Ok(new { Id = orderId}) 
+                    : BadRequest(new { Error = errorMessage });
             }
             catch (System.Exception exception)
             {
