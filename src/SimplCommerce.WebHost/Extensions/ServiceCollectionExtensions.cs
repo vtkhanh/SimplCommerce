@@ -48,6 +48,18 @@ namespace SimplCommerce.WebHost.Extensions
             return services;
         }
 
+        public static IServiceCollection RunModuleConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            var sp = services.BuildServiceProvider();
+            var moduleInitializers = sp.GetServices<IModuleInitializer>();
+            foreach (var moduleInitializer in moduleInitializers)
+            {
+                moduleInitializer.ConfigureServices(services, configuration);
+            }
+
+            return services;
+        }
+
         public static IServiceCollection AddCustomizedMvc(this IServiceCollection services, IList<ModuleInfo> modules)
         {
             var mvcBuilder = services
