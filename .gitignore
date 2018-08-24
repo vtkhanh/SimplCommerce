@@ -21,6 +21,7 @@ dist/
 .vs/
 .idea/
 .vscode/
+properties/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/

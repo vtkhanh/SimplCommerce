@@ -145,10 +145,22 @@ namespace SimplCommerce.WebHost.Extensions
 
             foreach (var module in GlobalConfiguration.Modules)
             {
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Repository")).AsImplementedInterfaces();
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Service")).AsImplementedInterfaces();
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("ServiceProvider")).AsImplementedInterfaces();
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Handler")).AsImplementedInterfaces();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Repository"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Service"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("ServiceProvider"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Handler"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
             }
 
             builder.Populate(services);
