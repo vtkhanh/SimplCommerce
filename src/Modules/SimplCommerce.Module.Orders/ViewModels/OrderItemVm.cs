@@ -34,7 +34,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public string TotalString => SubTotal.ToString("C");
 
-        public string Display => $"{ProductName}{(ProductSku.HasValue() ? $" {ProductSku}" : "")}";
+        public string Display => ProductName;
 
         public IEnumerable<ProductVariationOptionVm> VariationOptions { get; set; } =
             new List<ProductVariationOptionVm>();

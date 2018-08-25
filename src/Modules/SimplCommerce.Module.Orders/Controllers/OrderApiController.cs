@@ -23,16 +23,14 @@ namespace SimplCommerce.Module.Orders.Controllers
     [ApiController]
     public class OrderApiController : Controller
     {
-        private readonly ILogger<OrderApiController> _logger;
         private readonly IMediaService _mediaService;
         private readonly IOrderService _orderService;
         private readonly IRepository<Order> _orderRepository;
         private readonly IWorkContext _workContext;
 
-        public OrderApiController(ILogger<OrderApiController> logger, IOrderService orderService, IRepository<Order> orderRepository, 
+        public OrderApiController(IOrderService orderService, IRepository<Order> orderRepository,
             IMediaService mediaService, IWorkContext workContext)
         {
-            _logger = logger;
             _orderService = orderService;
             _orderRepository = orderRepository;
             _mediaService = mediaService;
@@ -42,7 +40,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet]
         public async Task<ActionResult> Get(int status, int numRecords)
         {
-            var orderStatus = (OrderStatus) status;
+            var orderStatus = (OrderStatus)status;
             if ((numRecords <= 0) || (numRecords > 100))
             {
                 numRecords = 5;
@@ -63,30 +61,23 @@ namespace SimplCommerce.Module.Orders.Controllers
                 .Select(x => new
                 {
                     x.Id,
-                    CustomerName = x.CreatedBy.FullName, x.SubTotal,
-                    OrderStatus = x.OrderStatus.ToString(), x.CreatedOn
+                    CustomerName = x.CreatedBy.FullName,
+                    x.SubTotal,
+                    OrderStatus = x.OrderStatus.ToString(),
+                    x.CreatedOn
                 });
 
             return Json(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] OrderFormVm orderForm) 
+        public async Task<IActionResult> Create([FromBody] OrderFormVm orderForm)
         {
-            try
-            {
-                var (orderId, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
-                return orderId > 0 
-                    ? (IActionResult) Ok(new { Id = orderId}) 
-                    : BadRequest(new { Error = errorMessage });
-            }
-            catch (System.Exception exception)
-            {
-                _logger.LogError(exception.Message);
-                return BadRequest(new { Error = exception.Message });
-            }
+            var (orderId, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
+            return orderId > 0
+                ? (IActionResult)Ok(new { Id = orderId })
+                : BadRequest(new { Error = errorMessage });
         }
-
 
         [HttpPost("list")]
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
@@ -99,9 +90,9 @@ namespace SimplCommerce.Module.Orders.Controllers
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
-                var id = (long?) search.Id;
-                var status = (OrderStatus?) search.Status;
-                var customerName = (string) search.CustomerName;
+                var id = (long?)search.Id;
+                var status = (OrderStatus?)search.Status;
+                var customerName = (string)search.CustomerName;
                 var before = (DateTimeOffset?)search.CreatedOn?.before;
                 var after = (DateTimeOffset?)search.CreatedOn?.after;
                 query = query
@@ -119,9 +110,9 @@ namespace SimplCommerce.Module.Orders.Controllers
                 order => new
                 {
                     order.Id,
-                    CustomerName = order.Customer.FullName, 
+                    CustomerName = order.Customer.FullName,
                     order.SubTotal,
-                    OrderStatus = order.OrderStatus.ToString(), 
+                    OrderStatus = order.OrderStatus.ToString(),
                     order.CreatedOn
                 });
 
@@ -131,33 +122,17 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(long id)
         {
-            try
-            {
-                var (order, errorMessage) = await _orderService.GetOrder(id);
+            var (order, errorMessage) = await _orderService.GetOrder(id);
 
-                return errorMessage.HasValue() 
-                    ? (IActionResult) BadRequest(new { Error = errorMessage }) : Ok(order);
-            }
-            catch (System.Exception exception)
-            {
-                _logger.LogError(exception.Message);
-                return BadRequest(new { Error = exception.Message });
-            }
+            return errorMessage.HasValue()
+                ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
         }
 
         [HttpPut]
         public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
         {
-            try
-            {
-                var (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
-                return ok ? (IActionResult) Accepted() : BadRequest(new { Error = errorMessage });
-            }
-            catch (System.Exception exception)
-            {
-                _logger.LogError(exception.Message);
-                return BadRequest(new { Error = exception.Message });
-            }
+            var (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+            return ok ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
         }
 
         [HttpGet("{id}")]
@@ -189,7 +164,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             {
                 Id = order.Id,
                 CreatedOn = order.CreatedOn,
-                OrderStatus = (int) order.OrderStatus,
+                OrderStatus = (int)order.OrderStatus,
                 OrderStatusString = order.OrderStatus.ToString(),
                 CustomerName = order.Customer.FullName,
                 Subtotal = order.SubTotal,
@@ -236,17 +211,17 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             if (Enum.IsDefined(typeof(OrderStatus), statusId))
             {
-                order.OrderStatus = (OrderStatus) statusId;
+                order.OrderStatus = (OrderStatus)statusId;
                 _orderRepository.SaveChanges();
                 return Ok();
             }
-            return BadRequest(new {Error = "unsupported order status"});
+            return BadRequest(new { Error = "unsupported order status" });
         }
 
         [HttpGet("order-status")]
         public IActionResult GetOrderStatus()
         {
-            var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new {Id = x.Key, Name = x.Value});
+            var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new { Id = x.Key, Name = x.Value });
             return Json(model);
         }
     }
