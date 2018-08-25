@@ -30,7 +30,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
     public class ProductApiController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<ProductApiController> _logger;
         private readonly IMediaService _mediaService;
         private readonly IRepository<ProductAttributeValue> _productAttributeValueRepository;
         private readonly IRepository<ProductCategory> _productCategoryRepository;
@@ -42,7 +41,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
         public ProductApiController(
             IMapper mapper,
-            ILogger<ProductApiController> logger,
             IRepository<Product> productRepository,
             IMediaService mediaService,
             IProductService productService,
@@ -53,7 +51,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IWorkContext workContext)
         {
             _mapper = mapper;
-            _logger = logger;
             _productRepository = productRepository;
             _mediaService = mediaService;
             _productService = productService;
@@ -65,19 +62,11 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string query) 
+        public async Task<IActionResult> Search(string query)
         {
-            try
-            {
-                const int maxItems = 100;
-                var products = await _productService.SearchAsync(query, maxItems);
-                return Ok(products);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.Message);
-                return BadRequest(new { Error = exception.Message });
-            }
+            const int maxItems = 100;
+            var products = await _productService.SearchAsync(query, maxItems);
+            return Ok(products);
         }
 
         [HttpGet("setting")]
@@ -88,11 +77,9 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPost("addStock/{barcode}")]
-        public async Task<ActionResult<ObjectResult>> AddStock(string barcode) 
+        public async Task<ActionResult<ObjectResult>> AddStock(string barcode)
         {
             var (ok, error) = await _productService.AddStockAsync(barcode);
-
-            if (!ok) _logger.LogWarning(error, barcode);
 
             return Ok(ok);
         }
@@ -116,7 +103,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
 
             var productVm = _mapper.Map<Product, ProductVm>(product,
-                opt => opt.AfterMap((src, dest) => {
+                opt => opt.AfterMap((src, dest) =>
+                {
                     dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage);
                 }));
             productVm.ProductImages = _mapper.Map<IList<ProductMediaVm>>(
@@ -255,7 +243,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            product = _mapper.Map(model.Product, product, 
+            product = _mapper.Map(model.Product, product,
                 opt => opt.AfterMap((src, dest) => dest.UpdatedBy = currentUser));
 
             await SaveProductMedias(model, product);
@@ -435,7 +423,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 optionIndex++;
             }
 
-            var deleteds = 
+            var deleteds =
                 product.OptionValues.Where(x => productVm.Options.All(vm => vm.Id != x.OptionId)).ToList();
             foreach (var optionValue in deleteds)
             {

@@ -39,10 +39,10 @@
                 const orderItem = {
                     productId: product.id,
                     productName: product.name,
+                    productSku: product.sku,
                     productPrice: product.price,
                     productStock: product.stock,
                     stock: product.stock,
-                    display: product.display,
                     productImage: product.thumbnailImageUrl,
                     quantity: 1,
                     oldQuantity: 0,
