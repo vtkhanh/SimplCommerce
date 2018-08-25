@@ -32,60 +32,31 @@ namespace SimplCommerce.WebHost.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection LoadInstalledModules(this IServiceCollection services, string contentRootPath)
+        public static IServiceCollection LoadModuleInitializers(this IServiceCollection services)
         {
-            var modules = new List<ModuleInfo>();
-            var moduleRootFolder = new DirectoryInfo(Path.Combine(contentRootPath, "Modules"));
-            var moduleFolders = moduleRootFolder.GetDirectories();
-
-            foreach (var moduleFolder in moduleFolders)
+            foreach (var module in GlobalConfiguration.Modules)
             {
-                var binFolder = new DirectoryInfo(Path.Combine(moduleFolder.FullName, "bin"));
-                if (!binFolder.Exists)
-                {
-                    continue;
-                }
+                var moduleInitializerType = 
+                    module.Assembly.GetTypes().FirstOrDefault(x => typeof(IModuleInitializer).IsAssignableFrom(x));
 
-                foreach (var file in binFolder.GetFileSystemInfos("*.dll", SearchOption.AllDirectories))
-                {
-                    Assembly assembly;
-                    try
-                    {
-                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
-                    }
-                    catch (FileLoadException)
-                    {
-                        // Get loaded assembly
-                        assembly = Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(file.Name)));
-
-                        // if (assembly == null)
-                        // {
-                        //     throw;
-                        // }
-                    }
-
-                    if (assembly.FullName.Contains(moduleFolder.Name) && modules.All(i => i.Name != moduleFolder.Name))
-                    {
-                        modules.Add(new ModuleInfo
-                        {
-                            Name = moduleFolder.Name,
-                            Assembly = assembly,
-                            Path = moduleFolder.FullName
-                        });
-                    }
-                }
-            }
-
-            foreach (var module in modules)
-            {
-                var moduleInitializerType = module.Assembly.GetTypes().FirstOrDefault(x => typeof(IModuleInitializer).IsAssignableFrom(x));
                 if ((moduleInitializerType != null) && (moduleInitializerType != typeof(IModuleInitializer)))
                 {
                     services.AddSingleton(typeof(IModuleInitializer), moduleInitializerType);
                 }
             }
 
-            GlobalConfiguration.Modules = modules;
+            return services;
+        }
+
+        public static IServiceCollection RunModuleConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            var sp = services.BuildServiceProvider();
+            var moduleInitializers = sp.GetServices<IModuleInitializer>();
+            foreach (var moduleInitializer in moduleInitializers)
+            {
+                moduleInitializer.ConfigureServices(services, configuration);
+            }
+
             return services;
         }
 
@@ -169,38 +140,29 @@ namespace SimplCommerce.WebHost.Extensions
             IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>));
-            builder.RegisterGeneric(typeof(RepositoryWithTypedId<,>)).As(typeof(IRepositoryWithTypedId<,>));
-            builder.RegisterType<RazorViewRenderer>().As<IRazorViewRenderer>();
 
             builder.RegisterSource(new ContravariantRegistrationSource());
-            builder.RegisterType<SequentialMediator>().As<IMediator>().InstancePerLifetimeScope();
-            builder
-              .Register<SingleInstanceFactory>(ctx =>
-              {
-                  var c = ctx.Resolve<IComponentContext>();
-                  return t => { object o; return c.TryResolve(t, out o) ? o : null; };
-              })
-              .InstancePerLifetimeScope();
-
-            builder
-              .Register<MultiInstanceFactory>(ctx =>
-              {
-                  var c = ctx.Resolve<IComponentContext>();
-                  return t => (IEnumerable<object>)c.Resolve(typeof(IEnumerable<>).MakeGenericType(t));
-              })
-              .InstancePerLifetimeScope();
 
             foreach (var module in GlobalConfiguration.Modules)
             {
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Repository")).AsImplementedInterfaces();
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Service")).AsImplementedInterfaces();
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("ServiceProvider")).AsImplementedInterfaces();
-                builder.RegisterAssemblyTypes(module.Assembly).Where(t => t.Name.EndsWith("Handler")).AsImplementedInterfaces();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Repository"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Service"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("ServiceProvider"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Handler"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
             }
 
-            builder.RegisterInstance(configuration);
-            builder.RegisterInstance(hostingEnvironment);
             builder.Populate(services);
             var container = builder.Build();
             return container.Resolve<IServiceProvider>();

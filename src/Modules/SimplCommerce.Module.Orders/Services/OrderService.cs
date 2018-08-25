@@ -93,23 +93,23 @@ namespace SimplCommerce.Module.Orders.Services
             return (result, null);
         }
 
-        public async Task<(bool, string)> CreateOrderAsync(OrderFormVm orderRequest)
+        public async Task<(long, string)> CreateOrderAsync(OrderFormVm orderRequest)
         {
             if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
             {
-                return (false, "Shopping cart cannot be empty");
+                return (0, "Shopping cart cannot be empty");
             }
 
             var user = _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
 
             UpdateOrderGeneralInfo(order, orderRequest);
-            AddNewOrderItems(order, orderRequest.OrderItems);
+            await AddNewOrderItemsAsync(order, orderRequest.OrderItems);
 
             _orderRepository.Add(order);
             await _orderRepository.SaveChangesAsync();
 
-            return (true, null);
+            return (order.Id, null);
         }
 
         public async Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest)
@@ -129,7 +129,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.UpdatedOn = DateTimeOffset.Now;
             UpdateOrderGeneralInfo(order, orderRequest);
 
-            AddNewOrderItems(order, orderRequest.OrderItems);
+            await AddNewOrderItemsAsync(order, orderRequest.OrderItems);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -382,7 +382,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.OrderStatus = orderRequest.OrderStatus;
         }
 
-        private void AddNewOrderItems(Order order, IEnumerable<OrderItemVm> orderItems)
+        private async Task AddNewOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
         {
             if (order.OrderItems.Any())
             {
@@ -398,7 +398,7 @@ namespace SimplCommerce.Module.Orders.Services
             foreach (var item in orderItems)
             {
                 // Update product stock
-                var product = _productRepo.Query().FirstOrDefault(i => i.Id == item.ProductId);
+                var product = await _productRepo.Query().FirstOrDefaultAsync(i => i.Id == item.ProductId);
                 if (product == null) continue;
                 product.Stock -= item.Quantity;
 

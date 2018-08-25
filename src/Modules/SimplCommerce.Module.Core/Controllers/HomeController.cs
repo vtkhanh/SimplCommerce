@@ -29,7 +29,7 @@ namespace SimplCommerce.Module.Core.Controllers
 
         public IActionResult Index()
         {
-            if (_env.IsProduction()) return Redirect("/admin");
+            if (_env.IsProduction()) return Redirect("/user");
 
             var model = new HomeViewModel();
 

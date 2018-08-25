@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using SimplCommerce.Module.Catalog.Services.Dtos;
 
 namespace SimplCommerce.Module.Catalog.ViewModels
 {
@@ -25,6 +26,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         [Required]
         public decimal Price { get; set; }
+
+        public int Weight { get; set; }
 
         public decimal? OldPrice { get; set; }
 

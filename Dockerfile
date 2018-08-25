@@ -1,5 +1,5 @@
 # Build image
-FROM microsoft/dotnet:2.1.300-preview2-sdk AS builder
+FROM microsoft/dotnet:2.1.301-sdk AS builder
 
 WORKDIR /app
 
@@ -11,6 +11,16 @@ RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-lin
 	&& tar -xzf "nodejs.tar.gz" -C /usr/local --strip-components=1 \
 	&& rm nodejs.tar.gz \
 	&& ln -s /usr/local/bin/node /usr/local/bin/nodejs
+
+# Install npm & bower packages
+COPY src/SimplCommerce.WebHost/package.json  src/SimplCommerce.WebHost/
+RUN cd src/SimplCommerce.WebHost \
+	&& npm install --global gulp-cli \
+	&& npm install bower --save-dev \
+	&& npm install
+COPY src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
+RUN cd src/SimplCommerce.WebHost \
+	&& npm run bower install
 
 # Copy solution file
 COPY ./*.sln ./
@@ -24,39 +34,24 @@ RUN for file in $(ls *.csproj); do mkdir -p src/Modules/${file%.*}/ && mv $file 
 COPY test/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
 
-RUN dotnet restore  --no-cache
-
-
-# Install npm & bower packages
-COPY src/SimplCommerce.WebHost/package.json src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
-RUN cd src/SimplCommerce.WebHost \
-	&& npm install --global gulp-cli \
-	&& npm install bower --save-dev \
-	&& npm install
-RUN cd src/SimplCommerce.WebHost \
-	&& npm run bower install
-
-# Just to check packaged installed
-RUN ls -al src/SimplCommerce.WebHost
+COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
+RUN dotnet restore
 
 COPY ./src ./src
 COPY ./test ./test
-COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
-
 RUN dotnet build -c Release --no-restore
 
 # Run test projects
 RUN chmod 755 ./run-tests.sh
 RUN ./run-tests.sh
 
+# Publish
 WORKDIR /app/src/SimplCommerce.WebHost
-RUN sed -i 's/Debug/Release/' gulpfile.js && gulp
-RUN cp -f ./appsettings.docker.json ./appsettings.json
-# RUN	dotnet ef database update
-RUN dotnet publish -c Release -o dist --no-restore 
+RUN dotnet ef database update
+RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
-FROM microsoft/dotnet:2.1-aspnetcore-runtime
+FROM microsoft/dotnet:2.1.1-aspnetcore-runtime
 ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	

@@ -6,11 +6,23 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Net.Http.Headers;
 using SimplCommerce.Module.Core.Extensions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using SimplCommerce.Infrastructure;
 
 namespace SimplCommerce.WebHost.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
+        public static IApplicationBuilder RunModuleConfigures(this IApplicationBuilder app, IHostingEnvironment env)
+        {
+            var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
+            foreach (var moduleInitializer in moduleInitializers)
+            {
+                moduleInitializer.Configure(app, env);
+            }
+            return app;
+        }
+
         public static IApplicationBuilder UseCustomizedIdentity(this IApplicationBuilder app)
         {
             app.UseAuthentication();

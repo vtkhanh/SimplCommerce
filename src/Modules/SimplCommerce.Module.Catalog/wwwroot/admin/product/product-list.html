@@ -1,12 +1,16 @@
 ﻿<div class="page-header">
     <div class="row">
-        <div class="col-xs-7">
+        <div class="col-xs-9">
             <h2>{{::vm.translate.get('Products')}}</h2>
         </div>
-        <div class="col-xs-5 text-right">
-            <a ui-sref="product-create" class="btn btn-primary">
-                <span class="fa fa-plus">&nbsp;</span>{{::vm.translate.get('Create Product')}}
-            </a>
+        <div class="col-xs-3">
+            <div layout-gt-xs="row">
+                <md-input-container class="hide-validation no-margin-bottom" flex-gt-xs>
+                    <label>Code</label>
+                    <input ng-model="vm.barcode" ng-keypress="($event.charCode==13) ? vm.addStock() : return">
+                </md-input-container>
+                <md-button ui-sref="product-create" class="md-raised md-primary"><span class="fa fa-plus">&nbsp;</span>{{::vm.translate.get('Create')}}</md-button>
+            </div>
         </div>
     </div>
 </div>

@@ -29,6 +29,8 @@
                 .catch((response) => toastr.error(response.data.error));
 
         vm.addToCart = (product) => {
+            if (!product) return;
+
             const addedItem = _.find(vm.orderItems, { productId: product.id });
             if (addedItem) {
                 addedItem.quantity = (addedItem.quantity || 0) + 1;
@@ -37,10 +39,10 @@
                 const orderItem = {
                     productId: product.id,
                     productName: product.name,
+                    productSku: product.sku,
                     productPrice: product.price,
                     productStock: product.stock,
                     stock: product.stock,
-                    display: product.display,
                     productImage: product.thumbnailImageUrl,
                     quantity: 1,
                     oldQuantity: 0,
@@ -83,7 +85,10 @@
             };
             if (vm.orderId === 0) {
                 orderService.createOrder(params)
-                    .then((result) => toastr.success("Saved successfully."))
+                    .then((result) => {
+                        $state.go('order-edit', { id: result.data.id });
+                        toastr.success("Saved successfully.");
+                    })
                     .catch((response) => processError(response.data));
             } else {
                 params.orderId = vm.orderId;

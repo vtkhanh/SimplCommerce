@@ -1,4 +1,5 @@
-﻿@{
+﻿@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment Env
+@{
     Layout = null;
 }
 
@@ -16,7 +17,7 @@
         </div>
     </div>
 </div>
-    @if (User.IsInRole("admin")) // temporarily disable
+    @if (Env.EnvironmentName != "Production") // temporarily disable
     {
 <div class="row">
     <div class="col-md-12">
@@ -31,7 +32,7 @@
     </div>
 </div>
     }
-@if (User.IsInRole("admin")) // temporarily disable
+@if (Env.EnvironmentName != "Production") // temporarily disable
 {
 <div class="row">
     <div class="col-md-6">

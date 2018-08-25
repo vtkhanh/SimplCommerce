@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Module.Core.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace SimplCommerce.Module.StorageAmazonS3
 {
@@ -13,7 +14,7 @@ namespace SimplCommerce.Module.StorageAmazonS3
             
         }
 
-        public void ConfigureServices(IServiceCollection serviceCollection)
+        public void ConfigureServices(IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.AddSingleton<IMediaService, S3MediaService>();
         }

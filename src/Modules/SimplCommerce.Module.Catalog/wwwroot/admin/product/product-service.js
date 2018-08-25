@@ -10,6 +10,7 @@
             getProducts: getProducts,
             createProduct: createProduct,
             editProduct: editProduct,
+            getProductSetting: getProductSetting,
             getProductAttrs: getProductAttrs,
             getProductTemplates: getProductTemplates,
             getProductTemplate: getProductTemplate,
@@ -18,7 +19,8 @@
             changeStatus: changeStatus,
             deleteProduct: deleteProduct,
             getTaxClasses: getTaxClasses,
-            searchProducts: searchProducts
+            searchProducts: searchProducts,
+            addStock: addStock
         };
         return service;
 
@@ -28,6 +30,10 @@
 
         function getProduct(id) {
             return $http.get('api/products/' + id);
+        }
+
+        function getProductSetting() {
+            return $http.get('api/products/setting');
         }
 
         function getProductAttrs() {
@@ -48,6 +54,10 @@
 
         function getProducts(params) {
             return $http.post('api/products/list', params);
+        }
+
+        function addStock(barcode) {
+            return $http.post('api/products/addStock/' + barcode, null);
         }
 
         function createProduct(product, thumbnailImage, productImages, productDocuments) {

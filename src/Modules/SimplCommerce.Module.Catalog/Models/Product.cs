@@ -14,6 +14,8 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public string Specification { get; set; }
 
+        public int Weight { get; set; }
+
         public decimal Cost { get; set; }
 
         public decimal Price { get; set; }
@@ -168,7 +170,7 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public IEnumerable<ProductMedia> GetMediasWithUrl(MediaType type, Func<Media, string> getUrlFunc)
         {
-            var result = Medias.Where(x => x.Media.MediaType == MediaType.Image);
+            var result = Medias.Where(x => x.Media.MediaType == type);
             foreach (var item in result)
             {
                 item.MediaUrl = getUrlFunc(item.Media);

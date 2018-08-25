@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-
-echo ""
-echo "Run tests..."
-echo ""
+set -ev
 
 for test in ./test/*/
 do
     echo "Testing $test"
     pushd "$test"
-    dotnet test -c Release --no-restore --no-build
+    dotnet test -c Release --no-restore
     popd
 done

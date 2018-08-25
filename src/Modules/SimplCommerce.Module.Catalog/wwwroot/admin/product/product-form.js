@@ -6,10 +6,21 @@
 
     /* @ngInject */
     function ProductFormCtrl($state, $timeout, $stateParams, $http, categoryService, productService, summerNoteService, brandService, translateService) {
+        const MIN_PROFIT = 30000; // Min profit on one item
+
         var vm = this;
         vm.translate = translateService;
         // declare shoreDescription and description for summernote
-        vm.product = { shortDescription: '', description: '', specification: '', isPublished: true, price: 0, isCallForPricing: false, isAllowToOrder: true };
+        vm.product = { 
+            sku: $stateParams.sku,
+            shortDescription: '', 
+            description: '', 
+            specification: '', 
+            isPublished: true, 
+            price: 0, 
+            isCallForPricing: false, 
+            isAllowToOrder: true 
+        };
         vm.product.categoryIds = [];
         vm.product.options = [];
         vm.product.variations = [];
@@ -307,6 +318,17 @@
 
         vm.updateOutOfStock = () => vm.product.isOutOfStock = vm.product.stock <= 0;
 
+        vm.updatePrice = () => {
+            if (vm.applyExpectedPrice && vm.expectedPrice != null) {
+                vm.product.price = vm.expectedPrice;
+            }
+        }
+
+        vm.updateExpectedPrice = (cost) => {
+            vm.applyExpectedPrice = false;
+            vm.expectedPrice = Math.max(MIN_PROFIT, 0.1 * cost) + cost;
+        }
+
         vm.save = function save() {
             var promise;
 
@@ -315,6 +337,7 @@
             vm.product.brandId = vm.product.brandId === null ? '' : vm.product.brandId;
             vm.product.sku = vm.product.sku === null ? '' : vm.product.sku;
             vm.product.slug = vm.product.slug === null ? '' : vm.product.slug;
+            vm.product.weight = vm.product.weight === null ? '' : vm.product.weight;
             vm.product.oldPrice = vm.product.oldPrice === null ? '' : vm.product.oldPrice;
             vm.product.specialPrice = vm.product.specialPrice === null ? '' : vm.product.specialPrice;
             vm.product.specialPriceStart = vm.product.specialPriceStart === null ? '' : vm.product.specialPriceStart;
@@ -330,7 +353,7 @@
             }
 
             promise.then(function (result) {
-                    // $state.reload();
+                    $state.go('product-edit', { id: result.data.id });
                     toastr.success("Saved successfully!");
                 })
                 .catch(function (response) {
@@ -345,6 +368,18 @@
                     }
                 });
         };
+
+        function init() {
+            if (vm.isEditMode) {
+                getProduct();
+            }
+            getProductOptions();
+            getProductTemplates();
+            getAttributes();
+            getCategories();
+            getBrands();
+            getTaxClasses();
+        }
 
         function getProduct() {
             productService.getProduct($stateParams.id).then(function (result) {
@@ -379,7 +414,7 @@
                 vm.categories = result.data;
             });
         }
-
+        
         function getProductOptions() {
             productService.getProductOptions().then(function (result) {
                 vm.options = result.data;
@@ -410,17 +445,6 @@
             });
         }
 
-        function init() {
-            if (vm.isEditMode) {
-                getProduct();
-            }
-            getProductOptions();
-            getProductTemplates();
-            getAttributes();
-            getCategories();
-            getBrands();
-            getTaxClasses();
-        }
 
         function getParentCategoryIds(categoryId) {
             if (!categoryId) {

@@ -26,10 +26,10 @@ namespace SimplCommerce.Module.Catalog.Controllers
 {
     [Authorize(Roles = "admin, vendor")]
     [Route("api/products")]
+    [ApiController]
     public class ProductApiController : Controller
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<ProductApiController> _logger;
         private readonly IMediaService _mediaService;
         private readonly IRepository<ProductAttributeValue> _productAttributeValueRepository;
         private readonly IRepository<ProductCategory> _productCategoryRepository;
@@ -41,7 +41,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
         public ProductApiController(
             IMapper mapper,
-            ILogger<ProductApiController> logger,
             IRepository<Product> productRepository,
             IMediaService mediaService,
             IProductService productService,
@@ -52,7 +51,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IWorkContext workContext)
         {
             _mapper = mapper;
-            _logger = logger;
             _productRepository = productRepository;
             _mediaService = mediaService;
             _productService = productService;
@@ -64,19 +62,26 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string query) 
+        public async Task<IActionResult> Search(string query)
         {
-            try
-            {
-                const int maxItems = 100;
-                var products = await _productService.Search(query, maxItems);
-                return Ok(products);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.Message);
-                return BadRequest(new { Error = exception.Message });
-            }
+            const int maxItems = 100;
+            var products = await _productService.SearchAsync(query, maxItems);
+            return Ok(products);
+        }
+
+        [HttpGet("setting")]
+        public async Task<IActionResult> GetSetting()
+        {
+            var result = await _productService.GetProductSettingAsync();
+            return Ok(result);
+        }
+
+        [HttpPost("addStock/{barcode}")]
+        public async Task<ActionResult<ObjectResult>> AddStock(string barcode)
+        {
+            var (ok, error) = await _productService.AddStockAsync(barcode);
+
+            return Ok(ok);
         }
 
         [HttpGet("{id}")]
@@ -98,7 +103,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
 
             var productVm = _mapper.Map<Product, ProductVm>(product,
-                opt => opt.AfterMap((src, dest) => {
+                opt => opt.AfterMap((src, dest) =>
+                {
                     dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(product.ThumbnailImage);
                 }));
             productVm.ProductImages = _mapper.Map<IList<ProductMediaVm>>(
@@ -149,7 +155,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(ProductForm model)
+        public async Task<IActionResult> Post([FromForm] ProductForm model)
         {
             if (!ModelState.IsValid)
             {
@@ -205,11 +211,12 @@ namespace SimplCommerce.Module.Catalog.Controllers
             MapProductLinkVmToProduct(model, product);
 
             _productService.Create(product);
-            return CreatedAtAction(nameof(Get), new { id = product.Id }, null);
+
+            return Accepted(new { product.Id });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(long id, ProductForm model)
+        public async Task<IActionResult> Put(long id, [FromForm] ProductForm model)
         {
             if (!ModelState.IsValid)
             {
@@ -236,29 +243,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            product = _mapper.Map(model.Product, product, 
+            product = _mapper.Map(model.Product, product,
                 opt => opt.AfterMap((src, dest) => dest.UpdatedBy = currentUser));
-
-            // product.Name = model.Product.Name;
-            // product.Sku = model.Product.Sku;
-            // product.Stock = model.Product.Stock;
-            // product.SeoTitle = model.Product.Slug;
-            // product.ShortDescription = model.Product.ShortDescription;
-            // product.Description = model.Product.Description;
-            // product.Specification = model.Product.Specification;
-            // product.Cost = model.Product.Cost;
-            // product.Price = model.Product.Price;
-            // product.OldPrice = model.Product.OldPrice;
-            // product.SpecialPrice = model.Product.SpecialPrice;
-            // product.SpecialPriceStart = model.Product.SpecialPriceStart;
-            // product.SpecialPriceEnd = model.Product.SpecialPriceEnd;
-            // product.BrandId = model.Product.BrandId;
-            // product.TaxClassId = model.Product.TaxClassId;
-            // product.IsFeatured = model.Product.IsFeatured;
-            // product.IsPublished = model.Product.IsPublished;
-            // product.IsCallForPricing = model.Product.IsCallForPricing;
-            // product.IsAllowToOrder = model.Product.IsAllowToOrder;
-            // product.UpdatedBy = currentUser;
 
             await SaveProductMedias(model, product);
 
@@ -277,7 +263,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             _productService.Update(product);
 
-            return Accepted();
+            return Accepted(new { product.Id });
         }
 
         [HttpPost("change-status/{id}")]
@@ -298,7 +284,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             product.IsPublished = !product.IsPublished;
             await _productRepository.SaveChangesAsync();
 
-            return Accepted();
+            return Accepted(new { product.Id });
         }
 
         [HttpDelete("{id}")]
@@ -316,7 +302,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }
 
-            await _productService.Delete(product);
+            await _productService.DeleteAsync(product);
 
             return NoContent();
         }
@@ -437,7 +423,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 optionIndex++;
             }
 
-            var deleteds = 
+            var deleteds =
                 product.OptionValues.Where(x => productVm.Options.All(vm => vm.Id != x.OptionId)).ToList();
             foreach (var optionValue in deleteds)
             {

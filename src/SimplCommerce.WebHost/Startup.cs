@@ -1,4 +1,6 @@
 ﻿using System;
+using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -28,24 +30,30 @@ namespace SimplCommerce.WebHost
         {
             GlobalConfiguration.WebRootPath = _hostingEnvironment.WebRootPath;
             GlobalConfiguration.ContentRootPath = _hostingEnvironment.ContentRootPath;
-            services.LoadInstalledModules(_hostingEnvironment.ContentRootPath);
+
+            // Add functionality to inject IOptions<T>
+            services.AddOptions();
+
+            services.LoadModuleInitializers().RunModuleConfigureServices(_configuration);
 
             services.AddCustomizedDataStore(_configuration);
             services.AddCustomizedIdentity();
 
             services.AddSingleton<IStringLocalizerFactory, EfStringLocalizerFactory>();
+            services.AddSingleton<IRazorViewRenderer, RazorViewRenderer>();
+
             services.AddCloudscribePagination();
 
-            services.Configure<RazorViewEngineOptions>(options => { options.ViewLocationExpanders.Add(new ModuleViewLocationExpander()); });
+            services.Configure<RazorViewEngineOptions>(options =>
+            {
+                options.ViewLocationExpanders.Add(new ModuleViewLocationExpander());
+            });
 
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
-            var sp = services.BuildServiceProvider();
-            var moduleInitializers = sp.GetServices<IModuleInitializer>();
-            foreach (var moduleInitializer in moduleInitializers)
-            {
-                moduleInitializer.ConfigureServices(services);
-            }
+            services.AddAutoMapper();
+
+            services.AddMediatR();
 
             return services.Build(_configuration, _hostingEnvironment);
         }
@@ -69,11 +77,7 @@ namespace SimplCommerce.WebHost
             app.UseCustomizedIdentity();
             app.UseCustomizedMvc();
 
-            var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
-            foreach (var moduleInitializer in moduleInitializers)
-            {
-                moduleInitializer.Configure(app, env);
-            }
+            app.RunModuleConfigures(env);
         }
     }
 }

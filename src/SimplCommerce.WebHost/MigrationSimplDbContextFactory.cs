@@ -18,25 +18,20 @@ namespace SimplCommerce.WebHost
 
             var contentRootPath = Directory.GetCurrentDirectory();
 
-            var builder = new ConfigurationBuilder()
+            var configuration = new ConfigurationBuilder()
                             .SetBasePath(contentRootPath)
                             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                             .AddJsonFile($"appsettings.{environmentName}.json", true)
-                            .AddUserSecretsIf(environmentName == "Development");
+                            .AddUserSecretsIf(environmentName == "Development")
+                            .AddEnvironmentVariables()
+                            .Build();
 
-            builder.AddEnvironmentVariables();
-            var _configuration = builder.Build();
-
-            //setup DI
-            var containerBuilder = new ContainerBuilder();
             IServiceCollection services = new ServiceCollection();
+            services.AddCustomizedDataStore(configuration);
 
-            services.LoadInstalledModules(contentRootPath);
-            services.AddCustomizedDataStore(_configuration);
-            containerBuilder.Populate(services);
-            var _serviceProvider = containerBuilder.Build().Resolve<IServiceProvider>();
+            var serviceProvider = services.BuildServiceProvider();
 
-            return _serviceProvider.GetRequiredService<SimplDbContext>();
+            return serviceProvider.GetRequiredService<SimplDbContext>();
         }
     }
 }

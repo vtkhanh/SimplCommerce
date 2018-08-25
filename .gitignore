@@ -165,7 +165,6 @@ $RECYCLE.BIN/
 
 # Others
 package-lock.json
-appsettings.Production.json
 
 # Minified files
 src/Modules/**/*.min.js
@@ -176,3 +175,9 @@ src/**/Logs/
 
 # lib folder. Get installed when deploying with "bower install && gulp copy-lib"
 src/SimplCommerce.WebHost/wwwroot/lib/
+
+# appsettings with docker
+appsettings.docker.json
+appsettings.Production.json
+appsettings.Staging.json
+appsettings.Development.json

@@ -11,19 +11,19 @@
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Product Name')}}</label>
                         <div class="col-sm-10">
-                            <input name="name" ng-model="vm.product.name" ng-change="vm.updateSlug()" required class="form-control" />
+                            <input name="name" type="text" ng-model="vm.product.name" ng-change="vm.updateSlug()" required class="form-control" />
                         </div>
                     </div>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Slug')}}</label>
                         <div class="col-sm-10">
-                            <input name="slug" ng-model="vm.product.slug" required class="form-control" />
+                            <input name="slug" type="text" ng-model="vm.product.slug" required class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Sku')}}</label>
                         <div class="col-sm-10">
-                            <input name="sku" ng-model="vm.product.sku" class="form-control" />
+                            <input name="sku" type="text" ng-model="vm.product.sku" class="form-control" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -54,7 +54,7 @@
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Stock')}}</label>
                         <div class="col-sm-3">
-                            <input id="productStock" type="text" maxlength="10" name="stock" ng-model="vm.product.stock" 
+                            <input id="productStock" type="number" name="stock" ng-model="vm.product.stock" 
                                     required class="form-control" ng-change="vm.updateOutOfStock()"/>
                         </div>
                         <div class="col-sm-3">
@@ -67,25 +67,50 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{::vm.translate.get('Weight')}}</label>
+                        <div class="col-sm-3">
+                            <input id="productWeight" type="number" step="any" name="weight" ng-model="vm.product.weight" class="form-control" />
+                        </div>
+                    </div>
+                    <product-cost-calc modal-id="cost-calc-modal" title="Calculate cost" 
+                        cost="vm.product.cost" weight="vm.product.weight" on-cost-change="vm.updateExpectedPrice(cost)">
+                    </product-cost-calc>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Cost')}}</label>
                         <div class="col-sm-3">
-                            <input id="productCost" type="text" decimal maxlength="10" name="cost" ng-model="vm.product.cost" required class="form-control" />
+                            <div class="input-group">
+                                <input id="productCost" type="number" step="any" name="cost" ng-model="vm.product.cost" required class="form-control" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#cost-calc-modal">
+                                        <i class="fa fa-calculator"></i>
+                                    </button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Price')}}</label>
                         <div class="col-sm-3">
-                            <input id="productPrice" type="text" decimal maxlength="10" name="price" ng-model="vm.product.price" required class="form-control" />
+                            <input id="productPrice" type="number" step="any" name="price" ng-model="vm.product.price" required class="form-control" />
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="checkbox">
+                                <label>
+                                    <md-checkbox ng-model="vm.applyExpectedPrice" ng-change="vm.updatePrice()">
+                                        {{::vm.translate.get('Suggested')}}: <b>{{ vm.expectedPrice }}</b>
+                                    </md-checkbox>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Old Price')}}</label>
                         <div class="col-sm-3">
-                            <input id="productOldPrice" type="text" decimal maxlength="10" name="oldPrice" ng-model="vm.product.oldPrice" class="form-control" />
+                            <input id="productOldPrice" type="number" step="any" name="oldPrice" ng-model="vm.product.oldPrice" class="form-control" />
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Special Price')}}</label>
                         <div class="col-sm-3">
                             <input id="productSpecialPrice" type="text" decimal maxlength="10" name="specialPrice" ng-model="vm.product.specialPrice" class="form-control" />
@@ -118,7 +143,7 @@
                         <div class="col-sm-3">
                             <select class="form-control" ng-model="vm.product.taxClassId" ng-options="taxClass.id as taxClass.name for taxClass in vm.taxClasses"></select>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Thumbnail')}}</label>
                         <div class="col-sm-10">
@@ -157,7 +182,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <div class="checkbox">
                                 <label>
@@ -192,7 +217,7 @@
                                 </label>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </uib-tab>
                 <uib-tab index="1" heading="{{::vm.translate.get('Product Variations')}}">
                     <div class="form-group">
@@ -256,10 +281,10 @@
                                 <tr ng-repeat="variation in vm.product.variations">
                                     <td>{{variation.name}}</td>
                                     <td>
-                                        <input id="{{variation.normalizedName}}Price" type="text" decimal maxlength="10" required class="form-control" ng-model="variation.price" />
+                                        <input id="{{variation.normalizedName}}Price" type="number" step="any" required class="form-control" ng-model="variation.price" />
                                     </td>
                                     <td>
-                                        <input id="{{variation.normalizedName}}OldPrice" type="text" decimal  maxlength="10" class="form-control" ng-model="variation.oldPrice" />
+                                        <input id="{{variation.normalizedName}}OldPrice" type="number" step="any" class="form-control" ng-model="variation.oldPrice" />
                                     </td>
                                     <td></td>
                                     <td>
@@ -284,10 +309,10 @@
                                                         </div>
                                                     </td>
                                                     <td class="col-sm-2">
-                                                        <input id="addingVariationPrice" type="text" decimal maxlength="10" class="form-control" ng-model="vm.addingVariation.price" />
+                                                        <input id="addingVariationPrice" type="number" step="any" class="form-control" ng-model="vm.addingVariation.price" />
                                                     </td>
                                                     <td class="col-sm-2">
-                                                        <input id="addingVariationOldPrice" type="text" decimal maxlength="10" class="form-control" ng-model="vm.addingVariation.oldPrice" />
+                                                        <input id="addingVariationOldPrice" type="number" step="any" class="form-control" ng-model="vm.addingVariation.oldPrice" />
                                                     </td>
                                                     <td class="col-sm-2"></td>
                                                     <td class="col-sm-2">

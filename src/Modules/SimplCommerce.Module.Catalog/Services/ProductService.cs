@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -7,6 +8,8 @@ using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Catalog.Services.Dtos;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.Catalog.Services
@@ -17,14 +20,17 @@ namespace SimplCommerce.Module.Catalog.Services
 
         private readonly IMapper _mapper;
         private readonly IRepository<Product> _productRepo;
+        private readonly IRepository<AppSetting> _appSettingRepo;
         private readonly IEntityService _entityService;
         private readonly IMediaService _mediaService;
 
-        public ProductService(IMapper mapper, IRepository<Product> productRepository, 
+        public ProductService(IMapper mapper,
+            IRepository<Product> productRepo, IRepository<AppSetting> appSettingRepo,
             IEntityService entityService, IMediaService mediaService)
         {
             _mapper = mapper;
-            _productRepo = productRepository;
+            _productRepo = productRepo;
+            _appSettingRepo = appSettingRepo;
             _entityService = entityService;
             _mediaService = mediaService;
         }
@@ -63,20 +69,20 @@ namespace SimplCommerce.Module.Catalog.Services
             {
                 if (slug != null)
                 {
-                    _entityService.Remove(product.Id, ProductEntityTypeId);
+                    _entityService.RemoveAsync(product.Id, ProductEntityTypeId);
                 }
             }
             _productRepo.SaveChanges();
         }
 
-        public async Task Delete(Product product)
+        public async Task DeleteAsync(Product product)
         {
             product.IsDeleted = true;
-            await _entityService.Remove(product.Id, ProductEntityTypeId);
+            await _entityService.RemoveAsync(product.Id, ProductEntityTypeId);
             _productRepo.SaveChanges();
         }
 
-        public async Task<IEnumerable<ProductDto>> Search(string query, int? maxItems = null)
+        public async Task<IEnumerable<ProductDto>> SearchAsync(string query, int? maxItems = null)
         {
             var products = await _productRepo.Query()
                 .Include(i => i.ThumbnailImage)
@@ -86,7 +92,7 @@ namespace SimplCommerce.Module.Catalog.Services
                 .TakeIf(maxItems.HasValue, maxItems.HasValue ? maxItems.Value : 0)
                 .ToListAsync();
 
-            if (products.Any() && query.HasValue()) 
+            if (products.Any() && query.HasValue())
             {
                 foreach (var product in products)
                 {
@@ -95,11 +101,47 @@ namespace SimplCommerce.Module.Catalog.Services
                 await _productRepo.SaveChangesAsync();
             }
 
-            var result = products.Select(item => 
+            var result = products.Select(item =>
                 _mapper.Map<Product, ProductDto>(item,
-                    opt => opt.AfterMap((src, dest) =>  dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(src.ThumbnailImage))));
+                    opt => opt.AfterMap((src, dest) => dest.ThumbnailImageUrl = _mediaService.GetThumbnailUrl(src.ThumbnailImage))));
 
             return result;
+        }
+
+        public async Task<ProductSettingDto> GetProductSettingAsync()
+        {
+            var settings = await _appSettingRepo.Query()
+                .Where(x => x.IsVisibleInCommonSettingPage && x.Module == "Catalog")
+                .ToListAsync();
+
+            var result = new ProductSettingDto()
+            {
+                ConversionRate = ParseDecimalString(settings, AppSettingKey.CurrencyConversionRate, 1),
+                FeeOfPicker = ParseDecimalString(settings, AppSettingKey.FeeOfPicker, 0),
+                FeePerWeightUnit = ParseDecimalString(settings, AppSettingKey.FeePerWeightUnit, 0)
+            };
+
+            return result;
+        }
+
+        public async Task<(bool, string)> AddStockAsync(string barcode) 
+        {
+            var product = await _productRepo.Query().FirstOrDefaultAsync(item => item.Sku == barcode);
+            if (product == null) return (false, $"No product found with barcode: {barcode}");
+
+            // +1 to current stock
+            product.Stock++;
+
+            await _productRepo.SaveChangesAsync();
+            
+            return (true, "");
+        }
+
+        private decimal ParseDecimalString(IList<AppSetting> settings, string key, decimal defaultVal)
+        {
+            var value = settings.FirstOrDefault(i => i.Key == key)?.Value;
+            var ok = decimal.TryParse(value, out decimal result);
+            return ok ? result : defaultVal;
         }
     }
 }

@@ -186,3 +186,12 @@ td>span.glyphicon-remove {
 table.vertical-align-middle tr td {
     vertical-align: middle;
 }
+
+/* user list */
+.actions {
+    min-width: 5em;
+}
+
+.control-description {
+    padding-top: 7px;
+}

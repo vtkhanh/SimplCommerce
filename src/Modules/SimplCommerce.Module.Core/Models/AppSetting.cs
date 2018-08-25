@@ -11,5 +11,7 @@ namespace SimplCommerce.Module.Core.Models
         public string Module { get; set; }
 
         public bool IsVisibleInCommonSettingPage { get; set; }
+
+        public string Description { get; set; }
     }
 }

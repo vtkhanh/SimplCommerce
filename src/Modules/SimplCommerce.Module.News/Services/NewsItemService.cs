@@ -58,7 +58,7 @@ namespace SimplCommerce.Module.News.Services
             if (newsItem != null)
             {
                 newsItem.IsDeleted = true;
-                await _entityService.Remove(newsItem.Id, NewsItemEntityTypeId);
+                await _entityService.RemoveAsync(newsItem.Id, NewsItemEntityTypeId);
                 _newsItemRepository.SaveChanges();
             }
         }
