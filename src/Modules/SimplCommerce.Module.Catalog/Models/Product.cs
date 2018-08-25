@@ -14,6 +14,8 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public string Specification { get; set; }
 
+        public int Weight { get; set; }
+
         public decimal Cost { get; set; }
 
         public decimal Price { get; set; }

@@ -67,8 +67,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{::vm.translate.get('Weight')}}</label>
+                        <div class="col-sm-3">
+                            <input id="productWeight" type="number" step="any" name="weight" ng-model="vm.product.weight" class="form-control" />
+                        </div>
+                    </div>
                     <product-cost-calc modal-id="cost-calc-modal" title="Calculate cost" 
-                        cost="vm.product.cost" on-cost-change="vm.updateExpectedPrice(cost)"></product-cost-calc>
+                        cost="vm.product.cost" weight="vm.product.weight" on-cost-change="vm.updateExpectedPrice(cost)">
+                    </product-cost-calc>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Cost')}}</label>
                         <div class="col-sm-3">

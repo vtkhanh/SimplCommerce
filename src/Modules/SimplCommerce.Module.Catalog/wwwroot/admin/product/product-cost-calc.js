@@ -13,6 +13,7 @@
             controllerAs: 'vm',
             bindToController: {
                 cost: '=',
+                weight: '=',
                 onCostChange: '&',
                 modalId: '@',
                 title: '@'
@@ -26,7 +27,6 @@
     function ProductCostCalCtrl(productService) {
         const vm = this;
         vm.purchasePrice = 0;
-        vm.weight = 0;
         vm.total = 0;
 
         productService.getProductSetting().then((result) => {
