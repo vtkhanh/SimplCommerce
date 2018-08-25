@@ -27,6 +27,8 @@ namespace SimplCommerce.Module.Catalog.ViewModels
         [Required]
         public decimal Price { get; set; }
 
+        public int Weight { get; set; }
+
         public decimal? OldPrice { get; set; }
 
         public decimal? SpecialPrice { get; set; }

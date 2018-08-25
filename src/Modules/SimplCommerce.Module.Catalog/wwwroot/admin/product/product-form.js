@@ -337,6 +337,7 @@
             vm.product.brandId = vm.product.brandId === null ? '' : vm.product.brandId;
             vm.product.sku = vm.product.sku === null ? '' : vm.product.sku;
             vm.product.slug = vm.product.slug === null ? '' : vm.product.slug;
+            vm.product.weight = vm.product.weight === null ? '' : vm.product.weight;
             vm.product.oldPrice = vm.product.oldPrice === null ? '' : vm.product.oldPrice;
             vm.product.specialPrice = vm.product.specialPrice === null ? '' : vm.product.specialPrice;
             vm.product.specialPriceStart = vm.product.specialPriceStart === null ? '' : vm.product.specialPriceStart;
