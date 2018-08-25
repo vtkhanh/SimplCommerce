@@ -47,7 +47,6 @@ RUN ./run-tests.sh
 
 # Publish
 WORKDIR /app/src/SimplCommerce.WebHost
-RUN dotnet ef database update
 RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
