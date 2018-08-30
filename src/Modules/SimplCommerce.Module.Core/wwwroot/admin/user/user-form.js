@@ -58,6 +58,13 @@
                 });
         };
 
+        vm.updateEmailAndPasswordIfNeeded = function () {
+            if (vm.user.phoneNumber) {
+                vm.user.password = vm.user.phoneNumber;
+                vm.user.email = vm.user.password + '@mail.com';
+            }
+        }
+
         function getVendors() {
             userService.getVendors().then(function (result) {
                 vm.vendors = result.data;
