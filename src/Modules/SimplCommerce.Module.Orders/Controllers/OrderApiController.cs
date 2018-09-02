@@ -111,7 +111,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 {
                     order.Id,
                     CustomerName = order.Customer.FullName,
-                    order.SubTotal,
+                    Total = order.OrderTotal,
                     OrderStatus = order.OrderStatus.ToString(),
                     order.CreatedOn
                 });
@@ -122,7 +122,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(long id)
         {
-            var (order, errorMessage) = await _orderService.GetOrder(id);
+            var (order, errorMessage) = await _orderService.GetOrderAsync(id);
 
             return errorMessage.HasValue()
                 ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
@@ -145,8 +145,8 @@ namespace SimplCommerce.Module.Orders.Controllers
                 .Include(x => x.ShippingAddress).ThenInclude(x => x.Country)
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.OptionCombinations).ThenInclude(x => x.Option)
-                .Include(x => x.CreatedBy)
                 .Include(x => x.Customer)
+                .Include(x => x.CreatedBy)
                 .FirstOrDefault(x => x.Id == id);
 
             if (order == null)

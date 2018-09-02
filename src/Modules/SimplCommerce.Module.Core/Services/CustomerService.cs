@@ -25,6 +25,7 @@ namespace SimplCommerce.Module.Core.Services
         {
             var customers = await _userRepo.Query()
                 .Include(i => i.Roles)
+                .Include(i => i.DefaultShippingAddress)
                 .Where(i => !i.IsDeleted && i.Roles.Any(r => r.Role.Name == RoleName.Customer))
                 .WhereIf(query.HasValue(), i => i.FullName.Contains(query) || i.PhoneNumber.Contains(query) || i.Email.Contains(query))
                 .ToListAsync();

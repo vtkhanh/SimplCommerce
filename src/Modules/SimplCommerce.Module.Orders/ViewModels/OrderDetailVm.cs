@@ -9,6 +9,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public string CustomerName { get; set; }
 
+        public string CustomerAddress { get; set; }
+
         public DateTimeOffset CreatedOn { get; set; }
 
         public string OrderStatusString { get; set; }

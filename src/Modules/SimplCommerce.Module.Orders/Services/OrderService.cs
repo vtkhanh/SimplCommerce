@@ -60,7 +60,7 @@ namespace SimplCommerce.Module.Orders.Services
             _mediaService = mediaService;
         }
 
-        public async Task<(OrderFormVm, string)> GetOrder(long orderId)
+        public async Task<(OrderFormVm, string)> GetOrderAsync(long orderId)
         {
             var order = await _orderRepository.Query()
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)

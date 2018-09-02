@@ -20,7 +20,7 @@
                 <th class="">{{::vm.translate.get('Status')}}</th>
                 <th class="">{{::vm.translate.get('Customer')}}</th>
                 <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
-                <th st-sort="SubTotal" class=" sortable">{{::vm.translate.get('SubTotal')}}</th>
+                <th st-sort="Total" class=" sortable">{{::vm.translate.get('Total')}}</th>
                 <th class="">Actions</th>
             </tr>
             <tr>
@@ -55,7 +55,7 @@
                 <td class="">{{order.orderStatus}}</td>
                 <td class="">{{order.customerName}}</td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
-                <td class="">{{order.subTotal | currency }}</td>
+                <td class="">{{order.total | currency }}</td>
                 <td class="text-center">
                     <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
                         <span class="fa fa-edit"></span>
