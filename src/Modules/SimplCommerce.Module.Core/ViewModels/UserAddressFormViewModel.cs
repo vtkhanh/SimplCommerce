@@ -23,11 +23,11 @@ namespace SimplCommerce.Module.Core.ViewModels
 
         public string City { get; set; }
 
-        public long StateOrProvinceId { get; set; }
+        public long? StateOrProvinceId { get; set; }
 
         public long? DistrictId { get; set; }
 
-        public long CountryId { get; set; }
+        public long? CountryId { get; set; }
 
         public IList<SelectListItem> StateOrProvinces { get; set; }
 

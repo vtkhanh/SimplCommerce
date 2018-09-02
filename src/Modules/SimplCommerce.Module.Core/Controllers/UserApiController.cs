@@ -9,6 +9,8 @@ using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Core.ViewModels;
+using SimplCommerce.Infrastructure;
+using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.Core.Controllers
 {
@@ -18,12 +20,13 @@ namespace SimplCommerce.Module.Core.Controllers
     {
         private readonly IRepository<User> _userRepository;
         private readonly UserManager<User> _userManager;
+        private readonly IUserService _userService;
 
-        public UserApiController(IRepository<User> userRepository, UserManager<User> userManager)
-        {
-            _userRepository = userRepository;
-            _userManager = userManager;
-        }
+        public UserApiController(IRepository<User> userRepo, 
+            UserManager<User> userManager,
+            IUserService userService
+            ) =>
+            (_userRepository, _userManager, _userService) = (userRepo, userManager, userService);
 
         [HttpPost("list")]
         public IActionResult List([FromBody] SmartTableParam param)
@@ -105,6 +108,7 @@ namespace SimplCommerce.Module.Core.Controllers
         {
             var user = await _userRepository.Query()
                 .Include(x => x.Roles)
+                .Include(x => x.DefaultShippingAddress)
                 .Include(x => x.CustomerGroups)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -119,6 +123,7 @@ namespace SimplCommerce.Module.Core.Controllers
                 FullName = user.FullName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                Address = user.DefaultShippingAddressId.HasValue ? user.DefaultShippingAddress.AddressLine1 : "",
                 VendorId = user.VendorId,
                 RoleIds = user.Roles.Select(x => x.RoleId).ToList(),
                 CustomerGroupIds = user.CustomerGroups.Select(x => x.CustomerGroupId).ToList()
@@ -132,38 +137,11 @@ namespace SimplCommerce.Module.Core.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new User
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FullName = model.FullName,
-                    PhoneNumber = model.PhoneNumber,
-                    VendorId = model.VendorId
-                };
+                var (result, userId) = await _userService.CreateUserAsync(model);
 
-                foreach (var roleId in model.RoleIds)
-                {
-                    var userRole = new UserRole
-                    {
-                        RoleId = roleId
-                    };
-
-                    user.Roles.Add(userRole);
-                    userRole.User = user;
-                }
-
-                foreach (var customergroupId in model.CustomerGroupIds)
-                {
-                    var userCustomerGroup = new UserCustomerGroup
-                    {
-                        CustomerGroupId = customergroupId
-                    };
-                }
-
-                var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    return CreatedAtAction(nameof(Get), new { id = user.Id }, null);
+                    return CreatedAtAction(nameof(Get), new { id = userId }, null);
                 }
 
                 AddErrors(result);
@@ -177,25 +155,7 @@ namespace SimplCommerce.Module.Core.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userRepository.Query()
-                    .Include(x => x.Roles)
-                    .Include(x => x.CustomerGroups)
-                    .FirstOrDefaultAsync(x => x.Id == id);
-
-                if(user == null)
-                {
-                    return NotFound();
-                }
-
-                user.Email = model.Email;
-                user.UserName = model.Email;
-                user.FullName = model.FullName;
-                user.PhoneNumber = model.PhoneNumber;
-                user.VendorId = model.VendorId;
-                AddOrDeleteRoles(model, user);
-                AddOrDeleteCustomerGroups(model, user);
-
-                var result = await _userManager.UpdateAsync(user);
+                var result = await _userService.UpdateUserAsync(id, model);
 
                 if (result.Succeeded)
                 {
@@ -220,62 +180,6 @@ namespace SimplCommerce.Module.Core.Controllers
             user.IsDeleted = true;
             await _userRepository.SaveChangesAsync();
             return NoContent();
-        }
-
-        private void AddOrDeleteRoles(UserForm model, User user)
-        {
-            foreach (var roleId in model.RoleIds)
-            {
-                if (user.Roles.Any(x => x.RoleId == roleId))
-                {
-                    continue;
-                }
-
-                var userRole = new UserRole
-                {
-                    RoleId = roleId,
-                    User = user
-                };
-                user.Roles.Add(userRole);
-            }
-
-            var deletedUserRoles =
-                user.Roles.Where(userRole => !model.RoleIds.Contains(userRole.RoleId))
-                    .ToList();
-
-            foreach (var deletedUserRole in deletedUserRoles)
-            {
-                deletedUserRole.User = null;
-                user.Roles.Remove(deletedUserRole);
-            }
-        }
-
-        private void AddOrDeleteCustomerGroups(UserForm model, User user)
-        {
-            foreach (var customergroupId in model.CustomerGroupIds)
-            {
-                if (user.CustomerGroups.Any(x => x.CustomerGroupId == customergroupId))
-                {
-                    continue;
-                }
-
-                var userCustomerGroup = new UserCustomerGroup
-                {
-                    CustomerGroupId = customergroupId,
-                    User = user
-                };
-                user.CustomerGroups.Add(userCustomerGroup);
-            }
-
-            var deletedUserCustomerGroups =
-                user.CustomerGroups.Where(userCustomerGroup => !model.CustomerGroupIds.Contains(userCustomerGroup.CustomerGroupId))
-                    .ToList();
-
-            foreach (var deletedUserCustomerGroup in deletedUserCustomerGroups)
-            {
-                deletedUserCustomerGroup.User = null;
-                user.CustomerGroups.Remove(deletedUserCustomerGroup);
-            }
         }
 
         private void AddErrors(IdentityResult result)

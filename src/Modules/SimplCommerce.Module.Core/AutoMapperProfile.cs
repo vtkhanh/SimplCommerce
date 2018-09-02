@@ -11,7 +11,8 @@ namespace SimplCommerce.Module.Core
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, CustomerDto>();
+            CreateMap<User, CustomerDto>()
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.DefaultShippingAddress.AddressLine1));
         }
     }
 }

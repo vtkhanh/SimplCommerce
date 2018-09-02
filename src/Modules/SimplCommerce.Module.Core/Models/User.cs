@@ -25,18 +25,18 @@ namespace SimplCommerce.Module.Core.Models
 
         public DateTimeOffset UpdatedOn { get; set; }
 
-        public IList<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+        public virtual ICollection<UserAddress> UserAddresses { get; set; } = new HashSet<UserAddress>();
 
-        public UserAddress DefaultShippingAddress { get; set; }
+        public virtual Address DefaultShippingAddress { get; set; }
 
         public long? DefaultShippingAddressId { get; set; }
 
-        public UserAddress DefaultBillingAddress { get; set; }
+        public virtual Address DefaultBillingAddress { get; set; }
 
         public long? DefaultBillingAddressId { get; set; }
 
-        public IList<UserRole> Roles { get; set; } =  new List<UserRole>();
+        public virtual ICollection<UserRole> Roles { get; set; } =  new HashSet<UserRole>();
 
-        public IList<UserCustomerGroup> CustomerGroups { get; set; } = new List<UserCustomerGroup>();
+        public virtual ICollection<UserCustomerGroup> CustomerGroups { get; set; } = new HashSet<UserCustomerGroup>();
     }
 }

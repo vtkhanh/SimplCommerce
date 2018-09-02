@@ -36,7 +36,7 @@ namespace SimplCommerce.Module.ShippingPrices.Services
 
                 if (!provider.ToAllShippingEnabledCountries)
                 {
-                    if (!provider.OnlyCountryIds.Contains(request.ShippingAddress.CountryId))
+                    if (!provider.OnlyCountryIds.Contains((long)request.ShippingAddress.CountryId))
                     {
                         continue;
                     }
@@ -44,7 +44,7 @@ namespace SimplCommerce.Module.ShippingPrices.Services
 
                 if (!provider.ToAllShippingEnabledStatesOrProvinces)
                 {
-                    if (!provider.OnlyStateOrProvinceIds.Contains(request.ShippingAddress.StateOrProvinceId))
+                    if (!provider.OnlyStateOrProvinceIds.Contains((long) request.ShippingAddress.StateOrProvinceId))
                     {
                         continue;
                     }

@@ -6,6 +6,6 @@ namespace SimplCommerce.Module.Core.Services
 {
     public interface ICustomerService
     {
-         Task<IEnumerable<CustomerDto>> SearchAsync(string query);
+        Task<IEnumerable<CustomerDto>> SearchAsync(string query);
     }
 }

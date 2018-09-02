@@ -77,8 +77,11 @@
                 </div>
                 <div class="form-group">
                     <!-- <label class="col-sm-2 control-label">{{::vm.translate.get('Selected customer')}}</label> -->
-                    <div class="col-sm-10" ng-if="vm.customer">
-                        <span><i class="fa fa-user">&nbsp;</i>{{vm.customer.display}}</span>
+                    <div class="col-sm-12" ng-if="vm.customer">
+                        <div class="row">
+                            <div class="col-sm-4"><i class="fa fa-user">&nbsp;</i>{{vm.customer.display}}</div>
+                            <div class="col-sm-8"><span ng-show="vm.customer.address"><i class="fa fa-map-marker">&nbsp;</i>{{vm.customer.address}}</span></div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
