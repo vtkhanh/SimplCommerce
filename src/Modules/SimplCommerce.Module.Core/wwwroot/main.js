@@ -9,8 +9,7 @@
             if ($cultureInput.val() === lang) {
                 e.preventDefault();
                 return;
-            }
-            else {
+            } else {
                 $cultureInput.val(lang);
                 $langForm.submit();
             }
@@ -30,3 +29,12 @@
         });
     });
 })(jQuery);
+
+
+Number.prototype.toCurrency = function () {
+    // TODO: Currently use US format hard-codedly
+    return this.toLocaleString('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    });
+}

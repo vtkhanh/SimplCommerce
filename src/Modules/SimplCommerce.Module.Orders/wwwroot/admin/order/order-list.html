@@ -55,7 +55,7 @@
                 <td class="">{{order.orderStatus}}</td>
                 <td class="">{{order.customerName}}</td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
-                <td class="">{{order.total | currency }}</td>
+                <td class="">{{order.total.toCurrency()}}</td>
                 <td class="text-center">
                     <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
                         <span class="fa fa-edit"></span>

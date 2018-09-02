@@ -19,6 +19,15 @@ namespace SimplCommerce.Module.Catalog
                 .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
                 .ForMember(dest => dest.IsOutOfStock, opt => opt.MapFrom(src => src.Stock <= 0))
                 .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.Categories.Select(x => x.CategoryId).ToList()))
+                .ForMember(dest => dest.Attributes, opt => opt.Ignore())
+                .ForMember(dest => dest.Options, opt => opt.Ignore())
+                .ForMember(dest => dest.Variations, opt => opt.Ignore())
+                .ForMember(dest => dest.ThumbnailImageUrl, opt => opt.Ignore())
+                .ForMember(dest => dest.ProductImages, opt => opt.Ignore())
+                .ForMember(dest => dest.ProductDocuments, opt => opt.Ignore())
+                .ForMember(dest => dest.DeletedMediaIds, opt => opt.Ignore())
+                .ForMember(dest => dest.RelatedProducts, opt => opt.Ignore())
+                .ForMember(dest => dest.CrossSellProducts, opt => opt.Ignore())
                 .ReverseMap()
                 .ForMember(dest => dest.HasOptions, opt => opt.MapFrom(src => src.Variations.Any() ? true : false))
                 .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
@@ -45,7 +54,9 @@ namespace SimplCommerce.Module.Catalog
             CreateMap<ProductMedia, ProductMediaVm>()
                 .ForMember(dest => dest.Caption, opt => opt.MapFrom(src => src.Media.Caption))
                 ;
-            CreateMap<Product, ProductDto>();
+            CreateMap<Product, ProductDto>()
+                .ForMember(dest => dest.ThumbnailImageUrl, opt => opt.Ignore())
+                ;
         }
     }
 }

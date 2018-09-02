@@ -98,7 +98,7 @@
                             <div class="checkbox">
                                 <label>
                                     <md-checkbox ng-model="vm.applyExpectedPrice" ng-change="vm.updatePrice()">
-                                        {{::vm.translate.get('Suggested')}}: <b>{{ vm.expectedPrice }}</b>
+                                        {{::vm.translate.get('Suggested')}}: <b>{{ vm.expectedPrice.toCurrency() }}</b>
                                     </md-checkbox>
                                 </label>
                             </div>
