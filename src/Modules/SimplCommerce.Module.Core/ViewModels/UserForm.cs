@@ -22,6 +22,8 @@ namespace SimplCommerce.Module.Core.ViewModels
 
         public string Address { get; set; }
 
+        public string Link { get; set; }
+
         public IList<long> RoleIds { get; set; } = new List<long>();
         public IList<long> CustomerGroupIds { get; set; } = new List<long>();
     }

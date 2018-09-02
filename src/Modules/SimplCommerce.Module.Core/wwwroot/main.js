@@ -15,18 +15,22 @@
             }
         });
 
-        $('.product-list .thumbnail').matchHeight({
-            byRow: true,
-            property: 'height',
-            target: null,
-            remove: false
-        });
+        if (typeof $('.product-list .thumbnail').matchHeight === "function") {
+            $('.product-list .thumbnail').matchHeight({
+                byRow: true,
+                property: 'height',
+                target: null,
+                remove: false
+            });
+        }
 
-        $('input.rating-loading').rating({
-            language: window.simplGlobalSetting.lang,
-            filledStar: '<i class="fa fa-star"></i>',
-            emptyStar: '<i class="fa fa-star-o"></i>'
-        });
+        if (window.simplGlobalSetting) {
+            $('input.rating-loading').rating({
+                language: window.simplGlobalSetting.lang,
+                filledStar: '<i class="fa fa-star"></i>',
+                emptyStar: '<i class="fa fa-star-o"></i>'
+            });
+        }
     });
 })(jQuery);
 

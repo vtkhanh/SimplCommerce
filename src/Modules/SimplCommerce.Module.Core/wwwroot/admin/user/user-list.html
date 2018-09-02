@@ -12,7 +12,7 @@
 <table class="table table-striped" st-pipe="vm.getUsers" st-table="vm.users">
     <thead>
         <tr>
-            <th st-sort="Email" class="sortable">{{::vm.translate.get('Email')}}</th>
+            <th st-sort="PhoneNumber" class="sortable">{{::vm.translate.get('Phone')}}</th>
             <th st-sort="FullName" class="sortable">{{::vm.translate.get('FullName')}}</th>
             <th>{{::vm.translate.get('Roles')}}</th>
             <!-- <th>{{::vm.translate.get('Customer Groups')}}</th> -->
@@ -22,7 +22,7 @@
         <tr>
             <th>
                 <div class="form-group">
-                    <input class="form-control" st-search="Email"/>
+                    <input class="form-control" st-search="PhoneNumber"/>
                 </div>
             </th>
             <th>
@@ -46,7 +46,7 @@
     </thead>
     <tbody ng-show="!vm.isLoading">
         <tr ng-repeat="user in vm.users">
-            <td>{{user.email}}</td>
+            <td>{{user.phoneNumber}}</td>
             <td>{{user.fullName}}</td>
             <td>{{user.roles}}</td>
             <!-- <td>{{user.customerGroups}}</td> -->
