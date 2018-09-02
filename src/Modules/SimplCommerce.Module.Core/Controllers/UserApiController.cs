@@ -11,6 +11,7 @@ using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Core.ViewModels;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Module.Core.Services;
+using AutoMapper;
 
 namespace SimplCommerce.Module.Core.Controllers
 {
@@ -18,34 +19,35 @@ namespace SimplCommerce.Module.Core.Controllers
     [Route("api/users")]
     public class UserApiController : Controller
     {
+        private readonly IMapper _mapper;
         private readonly IRepository<User> _userRepository;
         private readonly UserManager<User> _userManager;
         private readonly IUserService _userService;
 
-        public UserApiController(IRepository<User> userRepo, 
+        public UserApiController(
+            IMapper mapper,
+            IRepository<User> userRepo,
             UserManager<User> userManager,
-            IUserService userService
-            ) =>
-            (_userRepository, _userManager, _userService) = (userRepo, userManager, userService);
+            IUserService userService) =>
+            (_mapper, _userRepository, _userManager, _userService) =
+                (mapper, userRepo, userManager, userService);
 
         [HttpPost("list")]
         public IActionResult List([FromBody] SmartTableParam param)
         {
             var query = _userRepository.Query()
-                .Include(x => x.Roles)
-                    .ThenInclude(x => x.Role)
-                .Include(x => x.CustomerGroups)
-                    .ThenInclude(x => x.CustomerGroup)
+                .Include(x => x.Roles).ThenInclude(x => x.Role)
+                .Include(x => x.CustomerGroups).ThenInclude(x => x.CustomerGroup)
                 .Where(x => !x.IsDeleted);
 
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
 
-                if (search.Email != null)
+                if (search.PhoneNumber != null)
                 {
-                    string email = search.Email;
-                    query = query.Where(x => x.Email.Contains(email));
+                    string phoneNumber = search.PhoneNumber;
+                    query = query.Where(x => x.PhoneNumber.Contains(phoneNumber));
                 }
 
                 if (search.FullName != null)
@@ -95,6 +97,7 @@ namespace SimplCommerce.Module.Core.Controllers
                     Id = user.Id,
                     Email = user.Email,
                     FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
                     CreatedOn = user.CreatedOn,
                     Roles = string.Join(", ", user.Roles.Select(x => x.Role.Name)),
                     CustomerGroups = string.Join(", ", user.CustomerGroups.Select(x => x.CustomerGroup.Name))
@@ -112,22 +115,24 @@ namespace SimplCommerce.Module.Core.Controllers
                 .Include(x => x.CustomerGroups)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            var model = new UserForm
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.DefaultShippingAddressId.HasValue ? user.DefaultShippingAddress.AddressLine1 : "",
-                VendorId = user.VendorId,
-                RoleIds = user.Roles.Select(x => x.RoleId).ToList(),
-                CustomerGroupIds = user.CustomerGroups.Select(x => x.CustomerGroupId).ToList()
-            };
+            var model = _mapper.Map<UserForm>(user);
+            // var model = new UserForm
+            // {
+            //     Id = user.Id,
+            //     FullName = user.FullName,
+            //     Email = user.Email,
+            //     PhoneNumber = user.PhoneNumber,
+            //     Address = user.DefaultShippingAddressId.HasValue ? user.DefaultShippingAddress.AddressLine1 : "",
+            //     Link = user.Link,
+            //     VendorId = user.VendorId,
+            //     RoleIds = user.Roles.Select(x => x.RoleId).ToList(),
+            //     CustomerGroupIds = user.CustomerGroups.Select(x => x.CustomerGroupId).ToList()
+            // };
 
             return Json(model);
         }

@@ -17,6 +17,8 @@ namespace SimplCommerce.Module.Core.Models
 
         public string FullName { get; set; }
 
+        public string Link { get; set; }
+
         public long? VendorId { get; set; }
 
         public bool IsDeleted { get; set; }
@@ -35,7 +37,7 @@ namespace SimplCommerce.Module.Core.Models
 
         public long? DefaultBillingAddressId { get; set; }
 
-        public virtual ICollection<UserRole> Roles { get; set; } =  new HashSet<UserRole>();
+        public virtual ICollection<UserRole> Roles { get; set; } = new HashSet<UserRole>();
 
         public virtual ICollection<UserCustomerGroup> CustomerGroups { get; set; } = new HashSet<UserCustomerGroup>();
     }

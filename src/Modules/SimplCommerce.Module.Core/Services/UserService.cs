@@ -63,6 +63,7 @@ namespace SimplCommerce.Module.Core.Services
             user.FullName = model.FullName;
             user.PhoneNumber = model.PhoneNumber;
             user.VendorId = model.VendorId;
+            user.Link = model.Link;
         }
 
         private void AddOrUpdateAddress(User user, string address)
