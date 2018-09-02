@@ -236,7 +236,8 @@ namespace SimplCommerce.Module.Orders.Services
 
             foreach (var cartItem in cart.Items)
             {
-                var taxPercent = await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, shippingAddress.CountryId, shippingAddress.StateOrProvinceId);
+                var taxPercent = 
+                    await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, (long) shippingAddress.CountryId, (long) shippingAddress.StateOrProvinceId);
                 var orderItem = new OrderItem
                 {
                     Product = cartItem.Product,
@@ -276,7 +277,8 @@ namespace SimplCommerce.Module.Orders.Services
 
                 foreach (var cartItem in cart.Items.Where(x => x.Product.VendorId == vendorId))
                 {
-                    var taxPercent = await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, shippingAddress.CountryId, shippingAddress.StateOrProvinceId);
+                    var taxPercent = 
+                        await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, (long) shippingAddress.CountryId, (long) shippingAddress.StateOrProvinceId);
                     var orderItem = new OrderItem
                     {
                         Product = cartItem.Product,

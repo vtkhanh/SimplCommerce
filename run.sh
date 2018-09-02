@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ev
 
+dotnet clean
+
 dotnet build $1
 
 cd src/SimplCommerce.WebHost \

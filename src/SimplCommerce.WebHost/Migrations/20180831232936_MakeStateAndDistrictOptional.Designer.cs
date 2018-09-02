@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimplCommerce.Module.Core.Data;
 
 namespace SimplCommerce.WebHost.Migrations
 {
     [DbContext(typeof(SimplDbContext))]
-    partial class SimplDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180831232936_MakeStateAndDistrictOptional")]
+    partial class MakeStateAndDistrictOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2100,12 +2102,12 @@ namespace SimplCommerce.WebHost.Migrations
 
             modelBuilder.Entity("SimplCommerce.Module.Core.Models.User", b =>
                 {
-                    b.HasOne("SimplCommerce.Module.Core.Models.Address", "DefaultBillingAddress")
+                    b.HasOne("SimplCommerce.Module.Core.Models.UserAddress", "DefaultBillingAddress")
                         .WithMany()
                         .HasForeignKey("DefaultBillingAddressId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("SimplCommerce.Module.Core.Models.Address", "DefaultShippingAddress")
+                    b.HasOne("SimplCommerce.Module.Core.Models.UserAddress", "DefaultShippingAddress")
                         .WithMany()
                         .HasForeignKey("DefaultShippingAddressId")
                         .OnDelete(DeleteBehavior.Restrict);

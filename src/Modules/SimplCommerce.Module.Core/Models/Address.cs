@@ -19,16 +19,16 @@ namespace SimplCommerce.Module.Core.Models
 
         public long? DistrictId { get; set; }
 
-        public District District { get; set; }
+        public virtual District District { get; set; }
 
-        public long StateOrProvinceId { get; set; }
+        public long? StateOrProvinceId { get; set; }
 
-        public StateOrProvince StateOrProvince { get; set; }
+        public virtual StateOrProvince StateOrProvince { get; set; }
 
-        public long CountryId { get; set; }
+        public long? CountryId { get; set; }
 
-        public Country Country { get; set; }
+        public virtual Country Country { get; set; }
 
-        public IList<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+        public virtual IList<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
     }
 }
