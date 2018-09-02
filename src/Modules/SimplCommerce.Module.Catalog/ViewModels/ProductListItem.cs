@@ -10,6 +10,12 @@ namespace SimplCommerce.Module.Catalog.ViewModels
 
         public string Sku { get; set; }
 
+        public int Weight { get; set; }
+
+        public decimal Cost { get; set; }
+
+        public decimal Price { get; set; }
+
         public bool HasOptions { get; set; }
 
         public bool IsVisibleIndividually { get; set; }

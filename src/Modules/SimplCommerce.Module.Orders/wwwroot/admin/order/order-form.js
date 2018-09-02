@@ -163,13 +163,5 @@
 
         init();
 
-        // TODO: move to global scope
-        Number.prototype.toCurrency = function () {
-            // TODO: Currently use US format hard-codedly
-            return this.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            });
-        }
     }
 })();

@@ -21,6 +21,7 @@ namespace SimplCommerce.Module.Core.Services
             _mapper = mapper;
             _userRepo = userRepo;
         }
+
         public async Task<IEnumerable<CustomerDto>> SearchAsync(string query)
         {
             var customers = await _userRepo.Query()
