@@ -76,6 +76,7 @@
         vm.save = () => {
             const params = {
                 customerId: vm.customer.id,
+                trackingNumber: vm.trackingNumber,
                 shippingAmount: vm.shippingAmount,
                 discount: vm.discount,
                 subTotal: vm.orderSubTotal,
@@ -98,20 +99,13 @@
             }
         };
 
-        // vm.onSearchCustomer = (query) => {
-        //     _.throttle(() => {
-        //         vm.customers = vm.searchCustomers(query);
-        //     }, 300);
-        // }
-
         function init() {
             vm.orderId = $stateParams.id || 0;
 
             if (vm.orderId === 0) { // Create order
-                // vm.customers = vm.searchCustomers();
-
                 vm.customer = null;
                 vm.selectedProduct = null;
+                vm.trackingNumber = null;
                 vm.orderItems = [];
                 vm.orderSubTotal = 0;
                 vm.shippingAmount = 0;
@@ -127,11 +121,12 @@
 
                         vm.searchCustomers()
                             .then((data) => {
-                                vm.customer = _.find(data, item => item.id === order.customerId);
+                               vm.customer = _.find(data, item => item.id === order.customerId);
                             });
 
                         vm.selectedProduct = null;
 
+                        vm.trackingNumber = order.trackingNumber;
                         vm.orderSubTotal = order.subTotal;
                         vm.shippingAmount = order.shippingAmount;
                         vm.discount = order.discount;

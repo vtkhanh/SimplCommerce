@@ -77,17 +77,19 @@ namespace SimplCommerce.Module.Orders.Services
                 ShippingAmount = order.ShippingAmount,
                 Discount = order.Discount,
                 OrderTotal = order.OrderTotal,
-                OrderItems = order.OrderItems.Select(item => new OrderItemVm
-                {
-                    Id = item.Id,
-                    ProductId = item.ProductId,
-                    ProductName = item.Product.Name,
-                    ProductSku = item.Product.Sku,
-                    ProductPrice = item.ProductPrice,
-                    Stock = item.Product.Stock,
-                    ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
-                    Quantity = item.Quantity
-                }).ToList()
+                TrackingNumber = order.TrackingNumber,
+                OrderItems = order.OrderItems.Select(item =>
+                    new OrderItemVm
+                    {
+                        Id = item.Id,
+                        ProductId = item.ProductId,
+                        ProductName = item.Product.Name,
+                        ProductSku = item.Product.Sku,
+                        ProductPrice = item.ProductPrice,
+                        Stock = item.Product.Stock,
+                        ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
+                        Quantity = item.Quantity
+                    }).ToList()
             };
 
             return (result, null);
@@ -236,8 +238,8 @@ namespace SimplCommerce.Module.Orders.Services
 
             foreach (var cartItem in cart.Items)
             {
-                var taxPercent = 
-                    await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, (long) shippingAddress.CountryId, (long) shippingAddress.StateOrProvinceId);
+                var taxPercent =
+                    await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, (long)shippingAddress.CountryId, (long)shippingAddress.StateOrProvinceId);
                 var orderItem = new OrderItem
                 {
                     Product = cartItem.Product,
@@ -277,8 +279,8 @@ namespace SimplCommerce.Module.Orders.Services
 
                 foreach (var cartItem in cart.Items.Where(x => x.Product.VendorId == vendorId))
                 {
-                    var taxPercent = 
-                        await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, (long) shippingAddress.CountryId, (long) shippingAddress.StateOrProvinceId);
+                    var taxPercent =
+                        await _taxService.GetTaxPercent(cartItem.Product.TaxClassId, (long)shippingAddress.CountryId, (long)shippingAddress.StateOrProvinceId);
                     var orderItem = new OrderItem
                     {
                         Product = cartItem.Product,
@@ -382,6 +384,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount;
             order.OrderTotal = orderRequest.OrderTotal;
             order.OrderStatus = orderRequest.OrderStatus;
+            order.TrackingNumber = orderRequest.TrackingNumber;
         }
 
         private async Task AddNewOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
