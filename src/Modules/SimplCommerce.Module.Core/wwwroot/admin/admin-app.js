@@ -38,13 +38,11 @@
     toastr.options.closeButton = true;
     adminApp.config([
         "$urlRouterProvider",
-        "$httpProvider",
         "$locationProvider",
         "cfpLoadingBarProvider",
         "$mdDateLocaleProvider",
         function (
             $urlRouterProvider,
-            $httpProvider,
             $locationProvider,
             cfpLoadingBarProvider,
             $mdDateLocaleProvider
@@ -60,19 +58,6 @@
 
             // Format for md-datepicker
             $mdDateLocaleProvider.formatDate = (date) => date ? moment(date).format('ll') : '';
-
-            $httpProvider.interceptors.push(function () {
-                return {
-                    request: function (config) {
-                        if (/modules.*admin.*\.html/i.test(config.url)) {
-                            var separator = config.url.indexOf("?") === -1 ? "?" : "&";
-                            config.url = `${config.url}${separator}v=${window.Global_AssetVersion}`;
-                        }
-
-                        return config;
-                    }
-                };
-            });
         }
     ]);
 })();

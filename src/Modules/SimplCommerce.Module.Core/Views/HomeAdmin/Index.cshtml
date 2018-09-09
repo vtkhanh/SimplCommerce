@@ -19,19 +19,7 @@
     <!-- <base href="/admin"/> -->
     <title>Admin - KK-cosmetics</title>
 
-    <!-- Switch to use CDN for third-party libraries -->
-    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
-
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/angular-material/angular-material.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/angular-bootstrap/ui-bootstrap-csp.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/toastr/toastr.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/summernote/summernote.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/angular-ui-tree/angular-ui-tree.min.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/angular-bootstrap-colorpicker/css/colorpicker.min.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/angular-loading-bar/loading-bar.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/modules/core/admin/admin-core.css" />
+    @Html.Partial("_IndexStyles")
 
     <script>
         window.Global_AssetVersion = "@Config["Global.AssetVersion"]";
