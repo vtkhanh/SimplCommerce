@@ -12,6 +12,7 @@
         "ui.bootstrap.datetimepicker",
         "ui.tree",
         "summernote",
+        "xeditable",
         "colorpicker.module",
         "simplAdmin.common",
         "simplAdmin.dashboard",
@@ -45,7 +46,7 @@
             $urlRouterProvider,
             $locationProvider,
             cfpLoadingBarProvider,
-            $mdDateLocaleProvider
+            $mdDateLocaleProvider,
         ) {
             // Remove prefix '!' (Default)
             $locationProvider.hashPrefix("");
@@ -60,4 +61,8 @@
             $mdDateLocaleProvider.formatDate = (date) => date ? moment(date).format('ll') : '';
         }
     ]);
+
+    adminApp.run(['editableOptions', function (editableOptions) {
+        editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+    }]);
 })();

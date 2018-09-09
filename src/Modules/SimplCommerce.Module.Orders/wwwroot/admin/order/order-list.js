@@ -22,5 +22,14 @@
                 vm.isLoading = false;
             });
         };
+
+        vm.changeTrackingNumber = function (orderId, trackingNumber) {
+            return orderService
+                .changeTrackingNumber(orderId, trackingNumber)
+                .then(() => {
+                    toastr.success("Saved successfully.");
+                })
+                .catch((response) => processError(response.data));
+        }
     }
 })();

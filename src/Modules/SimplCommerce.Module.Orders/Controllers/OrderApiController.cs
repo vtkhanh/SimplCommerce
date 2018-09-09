@@ -197,7 +197,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(model);
         }
 
-        [HttpPost("change-order-status/{id}")]
+        [HttpPut("change-order-status/{id}")]
         public async Task<IActionResult> ChangeStatus(long id, [FromBody] int statusId)
         {
             var order = _orderRepository.Query().FirstOrDefault(x => x.Id == id);
@@ -227,5 +227,13 @@ namespace SimplCommerce.Module.Orders.Controllers
             var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new { Id = x.Key, Name = x.Value });
             return Json(model);
         }
+
+        [HttpPut("change-tracking-number")]
+        public async Task<IActionResult> ChangeTrackingNumber(OrderUpdateVm order)
+        {
+            var (ok, error) = await _orderService.UpdateTrackingNumberAsync(order.OrderId, order.TrackingNumber);
+            return ok ? Ok() : (IActionResult) BadRequest(new { Error = error });
+        }
+
     }
 }
