@@ -237,14 +237,14 @@
                                                         <td class="col-sm-2"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Discount")}}:</td>
-                                                        <td class="col-sm-1 text-center">{{vm.discount}}</td>
+                                                        <td class="col-sm-1 text-center">{{vm.discount.toCurrency()}}</td>
                                                     </tr>
                                                     <tr class="active">
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-2"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
-                                                        <td class="col-sm-1 text-center">{{vm.shippingAmount}}</td>
+                                                        <td class="col-sm-1 text-center">{{vm.shippingAmount.toCurrency()}}</td>
                                                     </tr>
                                                     <tr class="success">
                                                         <td class="col-sm-1"></td>

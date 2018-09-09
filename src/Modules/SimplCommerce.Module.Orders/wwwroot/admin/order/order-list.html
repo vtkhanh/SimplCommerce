@@ -54,7 +54,11 @@
             <tr ng-repeat="order in vm.orders" class="{{(order.orderStatus === 'Complete' ? 'success' : (order.orderStatus === 'Cancelled' ? 'danger' : ''))}}">
                 <td class="">{{order.orderStatus}}</td>
                 <td class="">{{order.customerName}}</td>
-                <td class="">{{order.trackingNumber}}</td>
+                <td class="">
+                    <a href="#" editable-text="order.trackingNumber" onbeforesave="vm.changeTrackingNumber(order.id, $data)">
+                        {{ order.trackingNumber || 'empty' }}
+                    </a>
+                </td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
                 <td class="">{{order.total.toCurrency()}}</td>
                 <td class="text-center">

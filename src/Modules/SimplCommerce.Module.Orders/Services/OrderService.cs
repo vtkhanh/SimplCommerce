@@ -102,7 +102,7 @@ namespace SimplCommerce.Module.Orders.Services
                 return (0, "Shopping cart cannot be empty");
             }
 
-            var user = _workContext.GetCurrentUser();
+            var user = await _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
 
             UpdateOrderGeneralInfo(order, orderRequest);
@@ -121,7 +121,7 @@ namespace SimplCommerce.Module.Orders.Services
                 return (false, "Shopping cart cannot be empty");
             }
 
-            var user = _workContext.GetCurrentUser();
+            var user = await _workContext.GetCurrentUser();
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
@@ -334,6 +334,20 @@ namespace SimplCommerce.Module.Orders.Services
             return taxAmount;
         }
 
+        public async Task<(bool, string)> UpdateTrackingNumberAsync(long orderId, string trackingNumber)
+        {
+            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+            if (order == null)
+            {
+                return (false, $"Cannot find order with Id: {orderId}");
+            }
+
+            order.TrackingNumber = trackingNumber;
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
+        }
+
         private async Task<decimal> ApplyDiscount(User user, Cart cart)
         {
             decimal discount = 0;
@@ -416,5 +430,6 @@ namespace SimplCommerce.Module.Orders.Services
                 order.AddOrderItem(orderItem);
             }
         }
+
     }
 }

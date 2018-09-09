@@ -22,6 +22,13 @@ namespace SimplCommerce.Module.Orders.Services
         Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest);
 
         /// <summary>
+        /// Update order tracking number
+        /// </summary>
+        /// <param name="trackingNumber"></param>
+        /// <returns></returns>
+        Task<(bool, string)> UpdateTrackingNumberAsync(long orderId, string trackingNumber);
+
+        /// <summary>
         /// Get order detail for editting
         /// </summary>
         /// <param name="orderId"></param>

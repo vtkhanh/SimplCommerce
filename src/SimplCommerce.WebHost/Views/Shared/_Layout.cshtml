@@ -8,10 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
 
-    <link simpl-append-version="true" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
-    <link simpl-append-version="true" rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
-    <link simpl-append-version="true" rel="stylesheet" href="~/lib/bootstrap-star-rating/css/star-rating.css" />
-    <link simpl-append-version="true" rel="stylesheet" href="~/modules/core/site.css" />
+    <link asp-append-version="true" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
+    <link asp-append-version="true" rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+    <link asp-append-version="true" rel="stylesheet" href="~/lib/bootstrap-star-rating/css/star-rating.css" />
+    <link asp-append-version="true" rel="stylesheet" href="~/modules/core/site.css" />
 
     @Html.Raw(JavaScriptSnippet.FullScript)
 
@@ -102,16 +102,16 @@
             window.simplGlobalSetting = {};
             window.simplGlobalSetting.lang = '@CultureInfo.CurrentCulture.Name';
         </script>
-        <script simpl-append-version="true" src="~/lib/jquery/jquery.js"></script>
-        <script simpl-append-version="true" src="~/lib/bootstrap/js/bootstrap.js"></script>
-        <script simpl-append-version="true" src="~/lib/matchHeight/jquery.matchHeight.js"></script>
-        <script simpl-append-version="true" src="~/lib/bootstrap-star-rating/js/star-rating.js"></script>
+        <script asp-append-version="true" src="~/lib/jquery/jquery.js"></script>
+        <script asp-append-version="true" src="~/lib/bootstrap/js/bootstrap.js"></script>
+        <script asp-append-version="true" src="~/lib/matchHeight/jquery.matchHeight.js"></script>
+        <script asp-append-version="true" src="~/lib/bootstrap-star-rating/js/star-rating.js"></script>
         @if (CultureInfo.CurrentCulture.Name == "vi-VN") {
-        <script simpl-append-version="true" src="~/lib/bootstrap-star-rating/js/locales/vi-vn.js"></script>
+        <script asp-append-version="true" src="~/lib/bootstrap-star-rating/js/locales/vi-vn.js"></script>
         }
-        <script simpl-append-version="true" src="~/modules/core/main.js"></script>
-        <script simpl-append-version="true" src="~/modules/shopping-cart/add-to-cart.js"></script>
-        <script simpl-append-version="true" src="~/modules/product-comparison/product-comparison.js"></script>
+        <script asp-append-version="true" src="~/modules/core/main.js"></script>
+        <script asp-append-version="true" src="~/modules/shopping-cart/add-to-cart.js"></script>
+        <script asp-append-version="true" src="~/modules/product-comparison/product-comparison.js"></script>
         @RenderSection("scripts", required: false)
 </body>
 

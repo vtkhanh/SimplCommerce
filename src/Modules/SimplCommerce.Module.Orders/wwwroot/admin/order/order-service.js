@@ -14,7 +14,8 @@
             createOrder: createOrder,
             updateOrder: updateOrder,
             getOrderStatus: getOrderStatus,
-            changeOrderStatus: changeOrderStatus
+            changeOrderStatus: changeOrderStatus,
+            changeTrackingNumber: changeTrackingNumber
         };
         return service;
 
@@ -25,6 +26,7 @@
         function updateOrder(params) {
             return $http.put(`api/orders`, params);
         }
+
 
         function getOrdersForGrid(params) {
             return $http.post('api/orders/list', params);
@@ -47,7 +49,11 @@
         }
 
         function changeOrderStatus(orderId, statusId) {
-            return $http.post('api/orders/change-order-status/' + orderId, statusId);
+            return $http.put('api/orders/change-order-status/' + orderId, statusId);
+        }
+
+        function changeTrackingNumber(orderId, trackingNumber){
+            return $http.put('api/orders/change-tracking-number', { orderId, trackingNumber });
         }
     }
 })();
