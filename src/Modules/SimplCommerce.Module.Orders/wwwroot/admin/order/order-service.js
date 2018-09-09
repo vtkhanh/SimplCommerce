@@ -49,7 +49,7 @@
         }
 
         function changeOrderStatus(orderId, statusId) {
-            return $http.put('api/orders/change-order-status/' + orderId, statusId);
+            return $http.put('api/orders/change-order-status', { orderId, status: statusId });
         }
 
         function changeTrackingNumber(orderId, trackingNumber){

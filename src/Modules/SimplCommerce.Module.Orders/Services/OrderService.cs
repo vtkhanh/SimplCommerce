@@ -348,6 +348,20 @@ namespace SimplCommerce.Module.Orders.Services
             return (true, null);
         }
 
+        public async Task<(bool, string)> UpdateStatusAsync(long orderId, OrderStatus status)
+        {
+            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+            if (order == null)
+            {
+                return (false, $"Cannot find order with Id: {orderId}");
+            }
+
+            order.OrderStatus = status;
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
+        }
+
         private async Task<decimal> ApplyDiscount(User user, Cart cart)
         {
             decimal discount = 0;
