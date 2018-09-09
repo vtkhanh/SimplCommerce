@@ -115,6 +115,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                     CustomerName = order.Customer.FullName,
                     TrackingNumber = order.TrackingNumber,
                     Total = order.OrderTotal,
+                    StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),
                     order.CreatedOn
                 });
@@ -197,28 +198,11 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(model);
         }
 
-        [HttpPut("change-order-status/{id}")]
-        public async Task<IActionResult> ChangeStatus(long id, [FromBody] int statusId)
+        [HttpPut("change-order-status")]
+        public async Task<IActionResult> ChangeStatus(OrderUpdateVm order)
         {
-            var order = _orderRepository.Query().FirstOrDefault(x => x.Id == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin") && order.VendorId != currentUser.VendorId)
-            {
-                return new BadRequestObjectResult(new { error = "You don't have permission to manage this order" });
-            }
-
-            if (Enum.IsDefined(typeof(OrderStatus), statusId))
-            {
-                order.OrderStatus = (OrderStatus)statusId;
-                _orderRepository.SaveChanges();
-                return Ok();
-            }
-            return BadRequest(new { Error = "unsupported order status" });
+            var (ok, error) = await _orderService.UpdateStatusAsync(order.OrderId, order.Status);
+            return ok ? Ok() : (IActionResult) BadRequest(new { Error = error });
         }
 
         [HttpGet("order-status")]
