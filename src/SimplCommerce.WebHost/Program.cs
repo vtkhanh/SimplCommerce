@@ -44,12 +44,20 @@ namespace SimplCommerce.WebHost
                 .CreateLogger();
         }
 
-        private static void SetupConfiguration(WebHostBuilderContext context, IConfigurationBuilder configBuilder) =>
+        private static void SetupConfiguration(WebHostBuilderContext context, IConfigurationBuilder configBuilder)
+        {
             configBuilder
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .AddUserSecretsIf(context.HostingEnvironment.IsDevelopment());
+            
+            var config = configBuilder.Build();
+            configBuilder.AddEntityFrameworkConfig(options =>
+                options.UseSqlServer(config.GetConnectionString("DefaultConnection"))
+            );
+
+        }
 
     }
 }
