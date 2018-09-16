@@ -57,9 +57,13 @@ namespace SimplCommerce.Module.Orders.Models
 
         public decimal ShippingAmount { get; set; }
 
+        public decimal ShippingCost { get; set; }
+
         public decimal TaxAmount { get; set; }
 
         public decimal OrderTotal { get; set; }
+
+        public decimal OrderTotalCost { get; set; }
 
         public string PaymentMethod { get; set; }
 

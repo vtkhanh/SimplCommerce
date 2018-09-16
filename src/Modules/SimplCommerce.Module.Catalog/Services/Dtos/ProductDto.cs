@@ -12,6 +12,8 @@ namespace SimplCommerce.Module.Catalog.Services.Dtos
 
         public decimal Price { get; set; }
 
+        public decimal Cost { get; set; }
+
         public int Stock { get; set; }
 
         public string ThumbnailImageUrl { get; set; }

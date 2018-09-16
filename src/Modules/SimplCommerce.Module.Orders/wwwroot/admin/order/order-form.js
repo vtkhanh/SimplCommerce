@@ -41,15 +41,15 @@
                     productName: product.name,
                     productSku: product.sku,
                     productPrice: product.price,
+                    productCost: product.cost,
                     productStock: product.stock,
                     stock: product.stock,
                     productImage: product.thumbnailImageUrl,
                     quantity: 1,
-                    oldQuantity: 0,
-                    subTotal: product.price
+                    oldQuantity: 0
                 };
                 vm.orderItems.push(orderItem);
-                vm.updateOrderSubTotal();
+                vm.updateSubtotal(orderItem);
             }
         };
 
@@ -58,14 +58,31 @@
             vm.updateOrderSubTotal();
         };
 
+        vm.onShippingAmountUpdate = () => {
+            vm.updateOrderTotal();
+
+            if (!vm.shippingCost || vm.shippingCost < vm.shippingAmount) {
+                vm.shippingCost = vm.shippingAmount;
+                vm.onShippingCostUpdate();
+            }
+        }
+
+        vm.onShippingCostUpdate = () => {
+            vm.updateOrderTotalCost();
+        }
+
         vm.updateSubtotal = (orderItem) => {
             orderItem.subTotal = orderItem.productPrice * orderItem.quantity;
             orderItem.stock = orderItem.productStock - orderItem.quantity + orderItem.oldQuantity;
+
             vm.updateOrderSubTotal();
+
+            vm.updateSubtotalCost(orderItem);
         };
 
-        vm.updateOrderTotal = () => {
-            vm.orderTotal = vm.orderSubTotal + vm.shippingAmount - vm.discount;
+        vm.updateSubtotalCost = (orderItem) => {
+            orderItem.subTotalCost = orderItem.productCost * orderItem.quantity;
+            vm.updateOrderSubTotalCost();
         };
 
         vm.updateOrderSubTotal = () => {
@@ -73,14 +90,29 @@
             vm.updateOrderTotal();
         }
 
+        vm.updateOrderSubTotalCost = () => {
+            vm.orderSubTotalCost = _.sumBy(vm.orderItems, item => item.subTotalCost);
+            vm.updateOrderTotalCost();
+        }
+
+        vm.updateOrderTotal = () => {
+            vm.orderTotal = vm.orderSubTotal + vm.shippingAmount - vm.discount;
+        };
+
+        vm.updateOrderTotalCost = () => {
+            vm.orderTotalCost = vm.orderSubTotalCost + vm.shippingCost;
+        };
+
         vm.save = () => {
             const params = {
                 customerId: vm.customer.id,
                 trackingNumber: vm.trackingNumber,
                 shippingAmount: vm.shippingAmount,
+                shippingCost: vm.shippingCost,
                 discount: vm.discount,
                 subTotal: vm.orderSubTotal,
                 orderTotal: vm.orderTotal,
+                orderTotalCost: vm.orderTotalCost,
                 orderStatus: vm.orderStatus || 0, // Default: Pending
                 orderItems: vm.orderItems
             };
@@ -109,6 +141,7 @@
                 vm.orderItems = [];
                 vm.orderSubTotal = 0;
                 vm.shippingAmount = 0;
+                vm.shippingCost = 0;
                 vm.discount = 0;
                 vm.orderTotal = 0;
                 vm.orderStatus = 0; // Pending
@@ -128,9 +161,12 @@
 
                         vm.trackingNumber = order.trackingNumber;
                         vm.orderSubTotal = order.subTotal;
+                        vm.orderSubTotalCost = order.subTotalCost;
                         vm.shippingAmount = order.shippingAmount;
+                        vm.shippingCost = order.shippingCost;
                         vm.discount = order.discount;
                         vm.orderTotal = order.orderTotal;
+                        vm.orderTotalCost = order.orderTotalCost;
                         vm.orderStatus = order.orderStatus;
                         vm.orderStatusList = order.orderStatusList;
                         vm.orderItems = order.orderItems;
