@@ -21,23 +21,21 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public decimal ProductPrice { get; set; }
 
+        public decimal ProductCost { get; set; }
+
         public int Stock { get; set; }
 
         public string ProductPriceString => ProductPrice.ToString("C");
 
         public int Quantity { get; set; }
 
-        public decimal Total => Quantity * ProductPrice;
-
-        // TODO: Use either Total or Subtotal
         public decimal SubTotal => Quantity * ProductPrice;
 
-        public string TotalString => SubTotal.ToString("C");
+        public decimal SubTotalCost => Quantity * ProductCost;
 
         public string Display => ProductName;
 
-        public IEnumerable<ProductVariationOptionVm> VariationOptions { get; set; } =
-            new List<ProductVariationOptionVm>();
+        public IEnumerable<ProductVariationOptionVm> VariationOptions { get; set; } = new List<ProductVariationOptionVm>();
 
         public static IEnumerable<ProductVariationOptionVm> GetVariationOption(Product variation)
         {

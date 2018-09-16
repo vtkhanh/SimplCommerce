@@ -21,7 +21,8 @@
                 <th class="">{{::vm.translate.get('Customer')}}</th>
                 <th class="">{{::vm.translate.get('Tracking Number')}}</th>
                 <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
-                <th st-sort="Total" class=" sortable">{{::vm.translate.get('Total')}}</th>
+                <th st-sort="Cost" class="sortable">{{::vm.translate.get('Cost')}}</th>
+                <th st-sort="Total" class="sortable">{{::vm.translate.get('Total')}}</th>
                 <th class="">Actions</th>
             </tr>
             <tr>
@@ -48,6 +49,7 @@
                 </th>
                 <th class=""></th>
                 <th class=""></th>
+                <th class=""></th>
             </tr>
         </thead>
         <tbody ng-show="!vm.isLoading">
@@ -64,6 +66,7 @@
                     </a>
                 </td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
+                <td class="">{{order.cost.toCurrency()}}</td>
                 <td class="">{{order.total.toCurrency()}}</td>
                 <td class="text-center">
                     <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">

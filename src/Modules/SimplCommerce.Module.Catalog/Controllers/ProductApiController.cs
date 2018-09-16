@@ -21,6 +21,7 @@ using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using SimplCommerce.Module.Catalog.Services.Dtos;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -62,11 +63,11 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string query)
+        public async Task<ActionResult<IList<ProductDto>>> Search(string query)
         {
             const int maxItems = 100;
             var products = await _productService.SearchAsync(query, maxItems);
-            return Ok(products);
+            return products.ToList();
         }
 
         [HttpGet("setting")]

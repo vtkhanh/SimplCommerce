@@ -75,8 +75,10 @@ namespace SimplCommerce.Module.Orders.Services
                 CustomerId = order.CustomerId,
                 SubTotal = order.SubTotal,
                 ShippingAmount = order.ShippingAmount,
+                ShippingCost = order.ShippingCost,
                 Discount = order.Discount,
                 OrderTotal = order.OrderTotal,
+                OrderTotalCost = order.OrderTotalCost,
                 TrackingNumber = order.TrackingNumber,
                 OrderItems = order.OrderItems.Select(item =>
                     new OrderItemVm
@@ -85,6 +87,7 @@ namespace SimplCommerce.Module.Orders.Services
                         ProductId = item.ProductId,
                         ProductName = item.Product.Name,
                         ProductSku = item.Product.Sku,
+                        ProductCost = item.Product.Cost,
                         ProductPrice = item.ProductPrice,
                         Stock = item.Product.Stock,
                         ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
@@ -408,9 +411,11 @@ namespace SimplCommerce.Module.Orders.Services
             order.CustomerId = orderRequest.CustomerId;
             order.SubTotal = orderRequest.SubTotal;
             order.ShippingAmount = orderRequest.ShippingAmount;
+            order.ShippingCost = orderRequest.ShippingCost;
             order.Discount = orderRequest.Discount;
             order.SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount;
             order.OrderTotal = orderRequest.OrderTotal;
+            order.OrderTotalCost = orderRequest.OrderTotalCost;
             order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
         }

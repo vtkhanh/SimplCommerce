@@ -114,6 +114,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                     order.Id,
                     CustomerName = order.Customer.FullName,
                     TrackingNumber = order.TrackingNumber,
+                    Cost = order.OrderTotalCost,
                     Total = order.OrderTotal,
                     StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),

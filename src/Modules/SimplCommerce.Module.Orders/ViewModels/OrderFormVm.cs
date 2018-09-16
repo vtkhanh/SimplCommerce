@@ -35,6 +35,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public decimal ShippingAmount { get; set; }
 
+        public decimal ShippingCost { get; set; }
+
         public decimal Discount { get; set; }
 
         public string TrackingNumber { get; set; }
@@ -43,8 +45,12 @@ namespace SimplCommerce.Module.Orders.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "SubTotal is required")]
         public decimal SubTotal { get; set; }
 
+        public decimal SubTotalCost => OrderItems.Sum(item => item.SubTotalCost);
+
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "OrderTotal is required")]
         public decimal OrderTotal { get; set; }
+
+        public decimal OrderTotalCost { get; set; }
     }
 }
