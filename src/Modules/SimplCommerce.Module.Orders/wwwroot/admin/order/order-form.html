@@ -24,7 +24,8 @@
                         </md-autocomplete>
                     </div>
                     <div class="col-sm-6 col-xs-8">
-                        <md-autocomplete style="min-width: 0;" md-no-cache="false" md-autoselect="true"
+                        <md-autocomplete style="min-width: 0;" 
+                            md-autofocus md-no-cache="false" md-autoselect="true"
                             md-selected-item="vm.selectedProduct" md-selected-item-change="vm.addToCart(vm.selectedProduct)"
                             md-search-text="vm.productQuery" md-select-on-match="true" md-items="item in vm.searchProducts(vm.productQuery)"
                             md-item-text="item.display" md-min-length="0" md-floating-label="{{::vm.translate.get('Search products')}}"
