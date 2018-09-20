@@ -51,6 +51,10 @@
                 vm.orderItems.push(orderItem);
                 vm.updateSubtotal(orderItem);
             }
+
+            // Clear search text
+            vm.productQuery = '';
+            vm.selectedProduct = undefined;
         };
 
         vm.removeFromCart = (product) => {
