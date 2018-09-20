@@ -52,6 +52,8 @@
                 vm.updateSubtotal(orderItem);
             }
 
+            toastr.success("Added");
+
             // Clear search text
             vm.productQuery = '';
             vm.selectedProduct = undefined;
