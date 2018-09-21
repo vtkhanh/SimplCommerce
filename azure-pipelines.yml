@@ -19,17 +19,15 @@ steps:
 - script: dotnet restore
   displayName: dotnet restore
 
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-
 - task: DotNetCoreCLI@2
   displayName: dotnet test
   inputs:
     command: test
     projects: '**/*Tests.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-restore --no-build'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
 
 - script: |
     docker build -t $(Docker.UserId)/$(Docker.Image):$(dockerVersion) .
     docker login -u $(Docker.UserId) -p $(Docker.Password)
     docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
+    displayName: docker build & push
