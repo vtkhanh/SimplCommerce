@@ -16,6 +16,9 @@ steps:
   inputs:
     version: '2.1.301'
 
+- script: dotnet restore
+  displayName: dotnet restore
+
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
@@ -26,11 +29,7 @@ steps:
     projects: '**/*Tests.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore --no-build'
 
-- script: docker build -t $(Docker.UserId)/$(Docker.Image):$(dockerVersion) .
-  displayName: docker build $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
-
-- script: docker login -u $(Docker.UserId) -p $(Docker.Password)
-  displayName: docker login
-
-- script: docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
-  displayName: docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
+- script: |
+    docker build -t $(Docker.UserId)/$(Docker.Image):$(dockerVersion) .
+    docker login -u $(Docker.UserId) -p $(Docker.Password)
+    docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
