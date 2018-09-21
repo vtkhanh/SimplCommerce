@@ -8,20 +8,33 @@ pool:
 
 variables:
     buildConfiguration: 'Release'
+    dockerVersion: latest
 
 steps:
 - task: DotNetCoreInstaller@0
+  displayName: Use .NET SDK 2.1.301
   inputs:
     version: '2.1.301'
-
-- script: dotnet restore
-  displayName: dotnet restore
 
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
+  displayName: dotnet test
   inputs:
     command: test
     projects: '**/*Tests.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --no-restore --no-build'
+
+- script: docker build -t $(Docker.UserId)/$(Docker.Image):$(dockerVersion) .
+  displayName: docker build $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
+
+- task: Docker@1
+  displayName: docker login
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryEndpoint: DockerHub
+    command: login
+
+- script: docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
+  displayName: docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
