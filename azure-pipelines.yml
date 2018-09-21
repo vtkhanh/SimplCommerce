@@ -30,4 +30,3 @@ steps:
     docker build -t $(Docker.UserId)/$(Docker.Image):$(dockerVersion) .
     docker login -u $(Docker.UserId) -p $(Docker.Password)
     docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
-    displayName: docker build & push
