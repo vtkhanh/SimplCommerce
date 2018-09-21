@@ -29,12 +29,8 @@ steps:
 - script: docker build -t $(Docker.UserId)/$(Docker.Image):$(dockerVersion) .
   displayName: docker build $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
 
-- task: Docker@1
+- script: docker login -u $(Docker.UserId) -p $(Docker.Password)
   displayName: docker login
-  inputs:
-    containerregistrytype: 'Dockerregistry'
-    dockerRegistryEndpoint: DockerHub
-    command: login
 
 - script: docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
   displayName: docker push $(Docker.UserId)/$(Docker.Image):$(dockerVersion)
