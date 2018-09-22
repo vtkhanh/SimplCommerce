@@ -41,7 +41,7 @@ namespace SimplCommerce.Module.Orders.Services
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        Task<(OrderFormVm, string)> GetOrderAsync(long orderId);
+        Task<(GetOrderVm, string)> GetOrderAsync(long orderId);
 
         /// <summary>
         /// Create order for user from active cart

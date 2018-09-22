@@ -140,65 +140,6 @@ namespace SimplCommerce.Module.Orders.Controllers
             return ok ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(long id)
-        {
-            var order = _orderRepository
-                .Query()
-                .Include(x => x.ShippingAddress).ThenInclude(x => x.District)
-                .Include(x => x.ShippingAddress).ThenInclude(x => x.StateOrProvince)
-                .Include(x => x.ShippingAddress).ThenInclude(x => x.Country)
-                .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
-                .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.OptionCombinations).ThenInclude(x => x.Option)
-                .Include(x => x.Customer)
-                .Include(x => x.CreatedBy)
-                .FirstOrDefault(x => x.Id == id);
-
-            if (order == null)
-            {
-                return new NotFoundResult();
-            }
-
-            var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole(RoleName.Admin) && order.VendorId != currentUser.VendorId)
-            {
-                return new BadRequestObjectResult(new { error = "You don't have permission to manage this order" });
-            }
-
-            var model = new OrderDetailVm
-            {
-                Id = order.Id,
-                CreatedOn = order.CreatedOn,
-                OrderStatus = (int)order.OrderStatus,
-                OrderStatusString = order.OrderStatus.ToString(),
-                CustomerName = order.Customer.FullName,
-                Subtotal = order.SubTotal,
-                Discount = order.Discount,
-                SubTotalWithDiscount = order.SubTotalWithDiscount,
-                // TODO: Add shipping address
-                // ShippingAddress = new ShippingAddressVm
-                // {
-                //     AddressLine1 = order.ShippingAddress.AddressLine1,
-                //     AddressLine2 = order.ShippingAddress.AddressLine2,
-                //     ContactName = order.ShippingAddress.ContactName,
-                //     DistrictName = order.ShippingAddress.District?.Name,
-                //     StateOrProvinceName = order.ShippingAddress.StateOrProvince.Name,
-                //     Phone = order.ShippingAddress.Phone
-                // },
-                OrderItems = order.OrderItems.Select(x => new OrderItemVm
-                {
-                    Id = x.Id,
-                    ProductName = x.Product.Name,
-                    ProductPrice = x.ProductPrice,
-                    ProductImage = _mediaService.GetThumbnailUrl(x.Product.ThumbnailImage),
-                    Quantity = x.Quantity,
-                    VariationOptions = OrderItemVm.GetVariationOption(x.Product)
-                }).ToList()
-            };
-
-            return Json(model);
-        }
-
         [HttpPut("change-order-status")]
         public async Task<IActionResult> ChangeStatus(OrderUpdateVm order)
         {

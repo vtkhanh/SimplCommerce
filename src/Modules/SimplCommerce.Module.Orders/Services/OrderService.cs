@@ -60,7 +60,7 @@ namespace SimplCommerce.Module.Orders.Services
             _mediaService = mediaService;
         }
 
-        public async Task<(OrderFormVm, string)> GetOrderAsync(long orderId)
+        public async Task<(GetOrderVm, string)> GetOrderAsync(long orderId)
         {
             var order = await _orderRepository.Query()
                 .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
@@ -68,12 +68,13 @@ namespace SimplCommerce.Module.Orders.Services
 
             if (order == null) return (null, $"Cannot find order with id {orderId}");
 
-            var result = new OrderFormVm
+            var result = new GetOrderVm
             {
                 OrderStatus = order.OrderStatus,
                 OrderStatusDisplay = order.OrderStatus.ToString(),
                 CustomerId = order.CustomerId,
                 SubTotal = order.SubTotal,
+                SubTotalCost = order.OrderItems.Sum(item => item.Quantity * item.Product.Cost),
                 ShippingAmount = order.ShippingAmount,
                 ShippingCost = order.ShippingCost,
                 Discount = order.Discount,
@@ -88,6 +89,7 @@ namespace SimplCommerce.Module.Orders.Services
                         ProductName = item.Product.Name,
                         ProductSku = item.Product.Sku,
                         ProductCost = item.Product.Cost,
+                        OriginalPrice = item.Product.Price,
                         ProductPrice = item.ProductPrice,
                         Stock = item.Product.Stock,
                         ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
@@ -261,7 +263,6 @@ namespace SimplCommerce.Module.Orders.Services
             order.ShippingMethod = shippingMethod.Name;
             order.TaxAmount = order.OrderItems.Sum(x => x.TaxAmount);
             order.SubTotal = order.OrderItems.Sum(x => x.ProductPrice * x.Quantity);
-            order.SubTotalWithDiscount = order.SubTotal - discount;
             order.OrderTotal = order.SubTotal + order.TaxAmount + order.ShippingAmount - order.Discount;
             _orderRepository.Add(order);
 
@@ -409,15 +410,15 @@ namespace SimplCommerce.Module.Orders.Services
         private void UpdateOrderGeneralInfo(Order order, OrderFormVm orderRequest)
         {
             order.CustomerId = orderRequest.CustomerId;
-            order.SubTotal = orderRequest.SubTotal;
             order.ShippingAmount = orderRequest.ShippingAmount;
             order.ShippingCost = orderRequest.ShippingCost;
             order.Discount = orderRequest.Discount;
-            order.SubTotalWithDiscount = orderRequest.SubTotal - orderRequest.Discount;
-            order.OrderTotal = orderRequest.OrderTotal;
-            order.OrderTotalCost = orderRequest.OrderTotalCost;
             order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
+
+            order.SubTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
+            order.OrderTotal = order.SubTotal + order.ShippingAmount - order.Discount;
+            order.OrderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
         }
 
         private async Task AddNewOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
