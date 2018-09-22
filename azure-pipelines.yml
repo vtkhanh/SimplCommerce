@@ -12,7 +12,6 @@ variables:
 
 trigger: 
 - master
-- develop
 
 steps:
 - task: DotNetCoreInstaller@0
