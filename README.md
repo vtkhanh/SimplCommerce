@@ -1,15 +1,11 @@
 # A simple, cross platform, modularized ecommerce system built on .NET Core
 
-[![Join the chat at https://gitter.im/simplcommerce/SimplCommerce](https://badges.gitter.im/simplcommerce/SimplCommerce.svg)](https://gitter.im/simplcommerce/SimplCommerce?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+A customized project which derives from the [Original repo](https://github.com/simplcommerce/SimplCommerce) for personal need. All issues/requests/questions should go to the Original. Credits come to there, of course.
 
 ## Build Status
-| Build server| Platform       | Status      |
-|-------------|----------------|-------------|
-| AppVeyor    | Windows        |[![Build status](https://ci.appveyor.com/api/projects/status/cq61prgs6ta8e9hi/branch/master?svg=true)](https://ci.appveyor.com/project/thiennn/simplcommerce/branch/master) |
-|Travis       | Linux / MacOS  |[![Build Status](https://travis-ci.org/simplcommerce/SimplCommerce.svg?branch=master)](https://travis-ci.org/simplcommerce/SimplCommerce) |
-
-## Online demo (Azure Website)
-http://demo.simplcommerce.com
+| Build server | Platform                | Status      |
+|--------------|-------------------------|-------------|
+| Azure DevOps | Windows / Linux / MacOS | [![Build Status](https://dev.azure.com/khanhthevu/kkcosmetics/_apis/build/status/vtkhanh.SimplCommerce)](https://dev.azure.com/khanhthevu/kkcosmetics/_build/latest?definitionId=**1**)
 
 ## Docker
 - First run the database: `docker run --name simpldb -d postgres`
@@ -50,30 +46,6 @@ http://demo.simplcommerce.com
 - Execute src/Database/StaticData_Postgres.sql on the created database to insert seed data.
 - In the terminal, navigate to the "src/SimplCommerce.WebHost" type "dotnet run" and hit "Enter".
 - Open browser, open http://localhost:5000. The back-office can access via /Admin using the pre-created account: admin@simplcommerce.com, 1qazZAQ!
-
-## Technologies and frameworks used:
-- ASP.NET MVC Core 2.0.0 on .NET Core 2.0.0 
-- Entity Framework Core 2.0.0
-- ASP.NET Identity Core 2.0.0
-- Autofac 4.2.0
-- Angular 1.6.3
-- MediatR 3.0.1 for domain event
-
-## Docs
-
-http://docs.simplcommerce.com
-
-## Roadmap
-
-https://github.com/simplcommerce/SimplCommerce/wiki/Roadmap
-
-## How to contribute
-
-- Report bugs or suggest features by create new issues or add comments to issues
-- Submit pull requests
-- If SimplCommerce has been helpful to you, then you might want to buy us a beer
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JWYGHJQSYLVVQ)
 
 ## License
 
