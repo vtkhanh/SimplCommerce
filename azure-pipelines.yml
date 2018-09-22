@@ -10,11 +10,17 @@ variables:
     buildConfiguration: 'Release'
     imageVersion: latest
 
+trigger: 
+- master
+
 steps:
 - task: DotNetCoreInstaller@0
   displayName: Use .NET SDK 2.1.301
   inputs:
     version: '2.1.301'
+
+- script: dotnet restore
+  displayName: dotnet restore
 
 - task: DotNetCoreCLI@2
   displayName: dotnet test
@@ -24,6 +30,12 @@ steps:
     arguments: '--configuration $(buildConfiguration) --no-restore'
 
 - script: |
-    docker build -t $(Docker.UserId)/$(Docker.Image):$(imageVersion) .
-    docker login -u $(Docker.UserId) -p $(Docker.Password)
-    docker push $(Docker.UserId)/$(Docker.Image):$(imageVersion)
+    docker login -u $userId -p $pwd
+    docker build -t $userId/$image:$version .
+    docker push $userId/$image:$version
+  displayName: docker build & push
+  env:
+    userId: $(Docker.UserId)
+    image: $(Docker.Image)
+    pwd: $(Docker.Password)
+    version: $(imageVersion)
