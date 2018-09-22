@@ -19,6 +19,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public string ProductImage { get; set; }
 
+        public decimal OriginalPrice { get; set; }
+
         public decimal ProductPrice { get; set; }
 
         public decimal ProductCost { get; set; }

@@ -86,6 +86,7 @@
                                                         <th class="col-sm-1">{{::vm.translate.get('Sku')}}</th>
                                                         <th class="col-sm-2">{{::vm.translate.get('Name')}}</th>
                                                         <th class="col-sm-1 text-center">{{::vm.translate.get('Price')}}</th>
+                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Final Price')}}</th>
                                                         <th class="col-sm-1 text-center">{{::vm.translate.get('Stock')}}</th>
                                                         <th class="col-sm-1 text-center">{{::vm.translate.get('Quantity')}}</th>
                                                         <th class="col-sm-1 text-center">{{::vm.translate.get('Subtotal')}}</th>
@@ -106,7 +107,13 @@
                                                                 {{item.productName}}
                                                             </a>
                                                         </td>
-                                                        <td class="col-sm-1 text-center">{{item.productPrice.toCurrency()}}</td>
+                                                        <td class="col-sm-1 text-center">{{item.originalPrice.toCurrency()}}</td>
+                                                        <td class="col-sm-1 text-center">
+                                                            <md-input-container class="no-margin-bottom no-margin-top hide-validation">
+                                                                <input type="number" class="text-center" required
+                                                                    ng-model="item.productPrice" min="0" ng-change="vm.updateSubtotal(item)"/>
+                                                            </md-input-container>
+                                                        </td>
                                                         <td class="col-sm-1 text-center">{{item.stock}}</td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
@@ -130,6 +137,7 @@
                                                         <td class="col-sm-2"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Subtotal")}}:</td>
                                                         <td class="col-sm-1 text-center">{{vm.orderSubTotal.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">{{vm.orderSubTotalCost.toCurrency()}}</td>
@@ -139,6 +147,7 @@
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-2"></td>
+                                                        <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Discount")}}:</td>
@@ -156,6 +165,7 @@
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-2"></td>
+                                                        <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
@@ -179,6 +189,7 @@
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-2"></td>
+                                                        <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1"></td>
                                                         <td class="col-sm-1 text-center"><b>{{::vm.translate.get("Total")}}:</b></td>
@@ -259,8 +270,7 @@
                                                 </tbody>
                                                 <tbody ng-show="!vm.orderItems.length">
                                                     <tr>
-                                                        <td colspan="10" class="text-center">{{::vm.translate.get("No
-                                                            product")}}</td>
+                                                        <td colspan="10" class="text-center">{{::vm.translate.get("No product")}}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

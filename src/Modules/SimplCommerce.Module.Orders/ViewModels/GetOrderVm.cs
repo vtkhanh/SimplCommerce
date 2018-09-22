@@ -8,12 +8,10 @@ using SimplCommerce.Module.Orders.Models;
 
 namespace SimplCommerce.Module.Orders.ViewModels
 {
-    public class OrderFormVm
+    public class GetOrderVm
     {
         public long OrderId { get; set; }
 
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Customer is required")]
         public long CustomerId { get; set; }
 
         public OrderStatus OrderStatus { get; set; }
@@ -29,8 +27,6 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public string OrderStatusDisplay { get; set; }
 
-        [Required]
-        [AtLeastItems(1, ErrorMessage = "Must select at least one product")]
         public IList<OrderItemVm> OrderItems { get; set; }
 
         public decimal ShippingAmount { get; set; }
@@ -40,5 +36,13 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public decimal Discount { get; set; }
 
         public string TrackingNumber { get; set; }
+
+        public decimal SubTotal { get; set; }
+
+        public decimal SubTotalCost { get; set; }
+
+        public decimal OrderTotal { get; set; }
+
+        public decimal OrderTotalCost { get; set; }
     }
 }

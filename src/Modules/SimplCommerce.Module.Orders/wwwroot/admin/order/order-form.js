@@ -40,6 +40,7 @@
                     productId: product.id,
                     productName: product.name,
                     productSku: product.sku,
+                    originalPrice: product.price,
                     productPrice: product.price,
                     productCost: product.cost,
                     productStock: product.stock,
@@ -116,9 +117,9 @@
                 shippingAmount: vm.shippingAmount,
                 shippingCost: vm.shippingCost,
                 discount: vm.discount,
-                subTotal: vm.orderSubTotal,
-                orderTotal: vm.orderTotal,
-                orderTotalCost: vm.orderTotalCost,
+                // subTotal: vm.orderSubTotal,
+                // orderTotal: vm.orderTotal,
+                // orderTotalCost: vm.orderTotalCost,
                 orderStatus: vm.orderStatus || 0, // Default: Pending
                 orderItems: vm.orderItems
             };
