@@ -1,0 +1,29 @@
+# ASP.NET Core
+# Build and test ASP.NET Core web applications targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/vsts/pipelines/languages/dotnet-core
+
+pool:
+    vmImage: 'Ubuntu 16.04'
+
+variables:
+    buildConfiguration: 'Release'
+    imageVersion: latest
+
+steps:
+- task: DotNetCoreInstaller@0
+  displayName: Use .NET SDK 2.1.301
+  inputs:
+    version: '2.1.301'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet test
+  inputs:
+    command: test
+    projects: '**/*Tests.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
+
+- script: |
+    docker build -t $(Docker.UserId)/$(Docker.Image):$(imageVersion) .
+    docker login -u $(Docker.UserId) -p $(Docker.Password)
+    docker push $(Docker.UserId)/$(Docker.Image):$(imageVersion)
