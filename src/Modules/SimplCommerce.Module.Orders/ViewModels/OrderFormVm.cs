@@ -27,8 +27,6 @@ namespace SimplCommerce.Module.Orders.ViewModels
                    Text = t.ToString()
                }).ToList();
 
-        public string OrderStatusDisplay { get; set; }
-
         [Required]
         [AtLeastItems(1, ErrorMessage = "Must select at least one product")]
         public IList<OrderItemVm> OrderItems { get; set; }
