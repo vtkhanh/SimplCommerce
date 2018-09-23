@@ -1,6 +1,6 @@
 # A simple, cross platform, modularized ecommerce system built on .NET Core
 
-A customized project which derives from the [Original repo](https://github.com/simplcommerce/SimplCommerce) for personal need. All issues/requests/questions should go to the Original. Credits come to there, of course.
+**NOTE:** This repo is customized for personal need. All issues/requests/questions should go to the  [Original repo](https://github.com/simplcommerce/SimplCommerce). Credits come to there, of course.
 
 ## Build Status
 | Build server | Platform                | Status      |
