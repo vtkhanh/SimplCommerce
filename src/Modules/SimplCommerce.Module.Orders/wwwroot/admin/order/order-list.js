@@ -35,9 +35,15 @@
         vm.changeOrderStatus = function (orderId, statusId) {
             return orderService
                 .changeOrderStatus(orderId, statusId)
-                .then(() => {
-                    const order = _.find(vm.orders, item => item.id === orderId);
-                    updateCssClassPerOrder(order);
+                .then((result) => {
+                    const updatedOrder = result.data;
+                    const orderListItem = _.find(vm.orders, item => item.id === orderId);
+
+                    orderListItem.total = updatedOrder.orderTotal;
+                    orderListItem.cost = updatedOrder.orderTotalCost;
+
+                    updateCssClassPerOrder(orderListItem);
+
                     toastr.success("Saved successfully.");
                 })
                 .catch((response) => toastr.error(response.data.error));

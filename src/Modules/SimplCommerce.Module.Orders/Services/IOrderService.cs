@@ -34,7 +34,7 @@ namespace SimplCommerce.Module.Orders.Services
         /// <param name="orderId"></param>
         /// <param name="statusId"></param>
         /// <returns></returns>
-        Task<(bool, string)> UpdateStatusAsync(long orderId, OrderStatus status);
+        Task<(GetOrderVm, string)> UpdateStatusAsync(long orderId, OrderStatus status);
 
         /// <summary>
         /// Get order detail for editting

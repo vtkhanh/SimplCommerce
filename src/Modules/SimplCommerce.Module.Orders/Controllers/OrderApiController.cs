@@ -143,8 +143,8 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPut("change-order-status")]
         public async Task<IActionResult> ChangeStatus(OrderUpdateVm order)
         {
-            var (ok, error) = await _orderService.UpdateStatusAsync(order.OrderId, order.Status);
-            return ok ? Ok() : (IActionResult) BadRequest(new { Error = error });
+            var (result, error) = await _orderService.UpdateStatusAsync(order.OrderId, order.Status);
+            return result != null ? Ok(result) : (IActionResult) BadRequest(new { Error = error });
         }
 
         [HttpGet("order-status")]

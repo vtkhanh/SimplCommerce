@@ -355,7 +355,7 @@ namespace SimplCommerce.Module.Orders.Services
             return (true, null);
         }
 
-        public async Task<(bool, string)> UpdateStatusAsync(long orderId, OrderStatus status)
+        public async Task<(GetOrderVm, string)> UpdateStatusAsync(long orderId, OrderStatus status)
         {
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
@@ -363,7 +363,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             if (order == null)
             {
-                return (false, $"Cannot find order with Id: {orderId}");
+                return (null, $"Cannot find order with Id: {orderId}");
             }
 
             order.OrderStatus = status;
@@ -373,7 +373,15 @@ namespace SimplCommerce.Module.Orders.Services
 
             await _orderRepository.SaveChangesAsync();
 
-            return (true, null);
+            var result = new GetOrderVm {
+                OrderId = order.Id,
+                SubTotal = order.SubTotal,
+                OrderTotal = order.OrderTotal,
+                OrderTotalCost = order.OrderTotalCost,
+                OrderStatus = order.OrderStatus
+            };
+
+            return (result, null);
         }
 
         private async Task<decimal> ApplyDiscount(User user, Cart cart)

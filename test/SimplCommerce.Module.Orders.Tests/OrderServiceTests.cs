@@ -67,75 +67,58 @@ namespace SimplCommerce.Module.Orders.Tests
             public async Task CanUpdateOrderStatus(OrderStatus status)
             {
                 // Arrange
-                long orderId;
+                Order order;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var order = await orderRepo.QueryAsNoTracking().FirstAsync();
-                    orderId = order.Id;
+                    order = await orderRepo.QueryAsNoTracking().FirstAsync();
                 }
 
                 // Action
-                bool ok;
+                GetOrderVm updatedOrder;
                 string error;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
-                    (ok, error) = await orderService.UpdateStatusAsync(orderId, status);
-                }
-
-                Order updated;
-                using (var context = new SimplDbContext(_options))
-                {
-                    var orderRepo = new Repository<Order>(context);
-                    updated = await orderRepo.QueryAsNoTracking().FirstAsync(item => item.Id == orderId);
+                    (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, status);
                 }
 
                 // Assert
-                Assert.True(ok);
+                Assert.NotNull(updatedOrder);
                 Assert.True(error.IsNullOrEmpty());
-                Assert.Equal(status, updated.OrderStatus);
-
+                Assert.Equal(status, updatedOrder.OrderStatus);
             }
 
             [Fact]
             public async Task WithCancelledStatus_ShouldResetQuantities()
             {
                 // Arrange
-                long orderId;
+                Order order;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var order = await orderRepo.QueryAsNoTracking().FirstAsync();
-                    orderId = order.Id;
+                    order = await orderRepo.QueryAsNoTracking().FirstAsync();
                 }
 
                 // Action
-                bool ok;
+                GetOrderVm updatedOrder;
                 string error;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
-                    (ok, error) = await orderService.UpdateStatusAsync(orderId, OrderStatus.Cancelled);
-                }
-
-                Order updatedOrder;
-                using (var context = new SimplDbContext(_options))
-                {
-                    var orderRepo = new Repository<Order>(context);
-                    updatedOrder = await orderRepo.QueryAsNoTracking().FirstAsync(item => item.Id == orderId);
+                    (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Cancelled);
                 }
 
                 // Assert
-                Assert.True(ok);
+                Assert.NotNull(updatedOrder);
                 Assert.True(error.IsNullOrEmpty());
                 Assert.Equal(OrderStatus.Cancelled, updatedOrder.OrderStatus);
 
                 Assert.Equal(0, updatedOrder.SubTotal);
-                Assert.Equal(updatedOrder.ShippingAmount, updatedOrder.OrderTotal);
-                Assert.Equal(updatedOrder.ShippingCost, updatedOrder.OrderTotalCost);
+                Assert.Equal(order.ShippingAmount, updatedOrder.OrderTotal);
+                Assert.Equal(order.ShippingCost, updatedOrder.OrderTotalCost);
             }
 
             [Fact]
@@ -150,17 +133,17 @@ namespace SimplCommerce.Module.Orders.Tests
                 }
 
                 // Action
-                bool ok;
+                GetOrderVm updatedOrder;
                 string error;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
-                    (ok, error) = await orderService.UpdateStatusAsync(order.Id + 1, OrderStatus.Complete);
+                    (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id + 1, OrderStatus.Complete);
                 }
 
                 // Assert
-                Assert.False(ok);
+                Assert.Null(updatedOrder);
                 Assert.True(error.HasValue());
             }
         }
