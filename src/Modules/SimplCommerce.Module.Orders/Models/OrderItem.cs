@@ -1,4 +1,5 @@
-﻿using SimplCommerce.Infrastructure.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Catalog.Models;
 
 namespace SimplCommerce.Module.Orders.Models
@@ -18,5 +19,11 @@ namespace SimplCommerce.Module.Orders.Models
         public decimal TaxAmount { get; set; }
 
         public decimal TaxPercent { get; set; }
+
+        [NotMapped]
+        public decimal SubTotal => Quantity * ProductPrice;
+
+        [NotMapped]
+        public decimal SubTotalCost => Quantity * Product.Cost;
     }
 }

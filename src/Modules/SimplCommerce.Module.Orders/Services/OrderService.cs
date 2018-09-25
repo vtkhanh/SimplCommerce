@@ -357,13 +357,20 @@ namespace SimplCommerce.Module.Orders.Services
 
         public async Task<(bool, string)> UpdateStatusAsync(long orderId, OrderStatus status)
         {
-            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+            var order = await _orderRepository.Query()
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                .FirstOrDefaultAsync(item => item.Id == orderId);
+
             if (order == null)
             {
                 return (false, $"Cannot find order with Id: {orderId}");
             }
 
             order.OrderStatus = status;
+            if (status == OrderStatus.Cancelled) {
+                ResetOrderItemQuantities(order);
+            }
+
             await _orderRepository.SaveChangesAsync();
 
             return (true, null);
@@ -421,9 +428,30 @@ namespace SimplCommerce.Module.Orders.Services
             order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
 
-            order.SubTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
+            CalculateOrderTotal(order);
+
+            // Reset all order item's quantities when order is cancelled
+            if (order.OrderStatus == OrderStatus.Cancelled) {
+                ResetOrderItemQuantities(order);
+            }
+        }
+
+        private void ResetOrderItemQuantities(Order order)
+        {
+            foreach (var orderItem in order.OrderItems)
+            {
+                orderItem.Quantity = 0;
+            }
+            order.Discount = 0;
+
+            CalculateOrderTotal(order);
+        }
+
+        private void CalculateOrderTotal(Order order)
+        {
+            order.SubTotal = order.OrderItems.Sum(item => item.SubTotal);
             order.OrderTotal = order.SubTotal + order.ShippingAmount - order.Discount;
-            order.OrderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
+            order.OrderTotalCost = order.OrderItems.Sum(item => item.SubTotalCost) + order.ShippingCost;
         }
 
         private async Task AddNewOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
@@ -448,7 +476,7 @@ namespace SimplCommerce.Module.Orders.Services
 
                 var orderItem = new OrderItem
                 {
-                    ProductId = item.ProductId,
+                    Product = product,
                     ProductPrice = item.ProductPrice,
                     Quantity = item.Quantity
                 };

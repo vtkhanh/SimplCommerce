@@ -46,7 +46,7 @@
                             <label>{{::vm.translate.get('Order status')}}</label>
                             <md-select placeholder="{{::vm.translate.get('Select a status')}}" ng-model="vm.orderStatus"
                                 style="min-width: 200px;" aria-label="Order status">
-                                <md-option ng-repeat="status in vm.orderStatusList" value="{{status.value}}">{{status.text}}</md-option>
+                                <md-option ng-repeat="status in vm.orderStatusList" ng-value="status.value">{{status.text}}</md-option>
                             </md-select>
                         </md-input-container>
                     </div>

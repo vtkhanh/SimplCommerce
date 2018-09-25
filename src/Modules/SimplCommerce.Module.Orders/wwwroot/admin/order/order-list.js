@@ -36,8 +36,9 @@
             return orderService
                 .changeOrderStatus(orderId, statusId)
                 .then(() => {
-                    updateCssClass(vm.orders);
-                    toastr.success("Saved successfully."); 
+                    const order = _.find(vm.orders, item => item.id === orderId);
+                    updateCssClassPerOrder(order);
+                    toastr.success("Saved successfully.");
                 })
                 .catch((response) => toastr.error(response.data.error));
         }
@@ -51,18 +52,23 @@
 
         function updateCssClass(orders) {
             for (let order of orders) {
-                switch (order.statusId) {
-                    case 6: // Complete
-                        order.cssClass = 'success';
-                        break;
-                    case 8: // Cancelled
-                        order.cssClass = 'danger';
-                        break;
-                    default:
-                        order.cssClass = '';
-                        break;
-                }
+                updateCssClassPerOrder(order);
             }
+        }
+
+        function updateCssClassPerOrder(order) {
+            switch (order.statusId) {
+                case 6: // Complete
+                    order.cssClass = 'success';
+                    break;
+                case 8: // Cancelled
+                    order.cssClass = 'danger';
+                    break;
+                default:
+                    order.cssClass = '';
+                    break;
+            }
+
         }
 
     }

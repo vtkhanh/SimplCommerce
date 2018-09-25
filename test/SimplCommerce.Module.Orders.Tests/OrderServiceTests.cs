@@ -29,13 +29,29 @@ namespace SimplCommerce.Module.Orders.Tests
                     .UseInMemoryDatabase(databaseName: nameof(UpdateStatusAsync))
                     .Options;
 
+
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var order = orderRepo.Query().FirstOrDefault();
                     if (order == null)
                     {
-                        order = new Order() { OrderStatus = OrderStatus.Pending };
+                        var products = new List<Product>{
+                            new Product() { Stock = 10, Price = 11000, Cost = 10000 },
+                            new Product() { Stock = 20, Price = 15400, Cost = 14000 },
+                        };
+                        order = new Order()
+                        {
+                            OrderStatus = OrderStatus.Pending,
+                            CustomerId = 10,
+                            ShippingAmount = 10000,
+                            ShippingCost = 5000,
+                            Discount = 2000,
+                            OrderItems = new List<OrderItem> {
+                                new OrderItem { Product = products[0], Quantity = 5, ProductPrice = products[0].Price },
+                                new OrderItem { Product = products[1], Quantity = 3, ProductPrice = products[1].Price },
+                            }
+                        };
                         orderRepo.Add(order);
                         orderRepo.SaveChanges();
                     }
@@ -81,6 +97,45 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.True(error.IsNullOrEmpty());
                 Assert.Equal(status, updated.OrderStatus);
 
+            }
+
+            [Fact]
+            public async Task WithCancelledStatus_ShouldResetQuantities()
+            {
+                // Arrange
+                long orderId;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var order = await orderRepo.QueryAsNoTracking().FirstAsync();
+                    orderId = order.Id;
+                }
+
+                // Action
+                bool ok;
+                string error;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+                    (ok, error) = await orderService.UpdateStatusAsync(orderId, OrderStatus.Cancelled);
+                }
+
+                Order updatedOrder;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    updatedOrder = await orderRepo.QueryAsNoTracking().FirstAsync(item => item.Id == orderId);
+                }
+
+                // Assert
+                Assert.True(ok);
+                Assert.True(error.IsNullOrEmpty());
+                Assert.Equal(OrderStatus.Cancelled, updatedOrder.OrderStatus);
+
+                Assert.Equal(0, updatedOrder.SubTotal);
+                Assert.Equal(updatedOrder.ShippingAmount, updatedOrder.OrderTotal);
+                Assert.Equal(updatedOrder.ShippingCost, updatedOrder.OrderTotalCost);
             }
 
             [Fact]
@@ -202,29 +257,34 @@ namespace SimplCommerce.Module.Orders.Tests
 
             private DbContextOptions<SimplDbContext> _options;
 
-            private void Init(string dbName)
+            private IList<Product> Init(string dbName)
             {
                 _options = new DbContextOptionsBuilder<SimplDbContext>()
                     .UseInMemoryDatabase(databaseName: dbName)
                     .Options;
 
+                IList<Product> addedProducts;
                 using (var context = new SimplDbContext(_options))
                 {
                     var products = new List<Product>{
-                        new Product() { Stock = 10 },
-                        new Product() { Stock = 20 },
+                        new Product() { Stock = 10, Price = 11000, Cost = 10000 },
+                        new Product() { Stock = 20, Price = 15400, Cost = 14000 },
                     };
                     var productRepo = new Repository<Product>(context);
                     productRepo.AddRange(products);
                     productRepo.SaveChanges();
+
+                    addedProducts = productRepo.Query().ToList();
                 }
+
+                return addedProducts;
             }
 
             [Fact]
             public async Task CanCreateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost()
             {
                 // Arrange
-                Init(nameof(CanCreateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost));
+                var products = Init(nameof(CanCreateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost));
 
                 var workContextMock = new Mock<IWorkContext>();
                 var userId = 123;
@@ -239,8 +299,8 @@ namespace SimplCommerce.Module.Orders.Tests
                     Discount = 2000,
                     TrackingNumber = "VAN",
                     OrderItems = new List<OrderItemVm> {
-                        new OrderItemVm { ProductId = 1, Quantity = 5, ProductPrice = 11000 },
-                        new OrderItemVm { ProductId = 2, Quantity = 3, ProductPrice = 15400 },
+                        new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
+                        new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
                     }
                 };
 
@@ -271,11 +331,66 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
 
-                var subTotal =orderRequest.OrderItems.Sum(item => item.SubTotal); 
+                var subTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
                 var orderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
                 Assert.Equal(subTotal, createdOrder.SubTotal);
                 Assert.Equal(subTotal + orderRequest.ShippingAmount - orderRequest.Discount, createdOrder.OrderTotal);
                 Assert.Equal(orderTotalCost, createdOrder.OrderTotalCost);
+            }
+
+            [Fact]
+            public async Task WithCanceledStatus_ShouldResetOrderItemQuantities()
+            {
+                // Arrange
+                var products = Init(nameof(WithCanceledStatus_ShouldResetOrderItemQuantities));
+
+                var workContextMock = new Mock<IWorkContext>();
+                var userId = 123;
+                workContextMock.Setup(x => x.GetCurrentUser()).ReturnsAsync(new User() { Id = userId });
+
+                var orderRequest = new OrderFormVm()
+                {
+                    OrderStatus = OrderStatus.Cancelled,
+                    CustomerId = 10,
+                    ShippingAmount = 10000,
+                    ShippingCost = 5000,
+                    Discount = 2000,
+                    TrackingNumber = "VAN",
+                    OrderItems = new List<OrderItemVm> {
+                        new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
+                        new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
+                    }
+                };
+
+                // Action
+                string error;
+                long orderId;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var productRepo = new Repository<Product>(context);
+                    var workContext = workContextMock.Object;
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, workContext);
+
+                    (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
+                }
+
+                Order createdOrder;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    createdOrder = await orderRepo.Query().FirstOrDefaultAsync(i => i.Id == orderId);
+                }
+
+                // Assert
+                Assert.Null(error);
+                Assert.NotNull(createdOrder);
+                Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
+                Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
+
+                Assert.Equal(0, createdOrder.SubTotal);
+                Assert.Equal(orderRequest.ShippingAmount, createdOrder.OrderTotal);
+                Assert.Equal(orderRequest.ShippingCost, createdOrder.OrderTotalCost);
             }
 
             [Fact]
@@ -302,7 +417,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 // Arrange
                 var orderRequest = new OrderFormVm()
                 {
-                    OrderItems = new List<OrderItemVm> {}
+                    OrderItems = new List<OrderItemVm> { }
                 };
 
                 // Action
@@ -320,24 +435,27 @@ namespace SimplCommerce.Module.Orders.Tests
 
             private DbContextOptions<SimplDbContext> _options;
 
-            private long Init(string dbName)
+            private (long, IList<Product>) Init(string dbName)
             {
                 _options = new DbContextOptionsBuilder<SimplDbContext>()
                     .UseInMemoryDatabase(databaseName: dbName)
                     .Options;
 
                 long orderId;
+                IList<Product> addedProducts;
                 using (var context = new SimplDbContext(_options))
                 {
                     var products = new List<Product>{
-                        new Product() { Stock = 10 },
-                        new Product() { Stock = 20 },
+                        new Product() { Stock = 10, Price = 11000, Cost = 10000 },
+                        new Product() { Stock = 20, Price = 15400, Cost = 14000 },
                     };
                     var productRepo = new Repository<Product>(context);
                     productRepo.AddRange(products);
                     productRepo.SaveChanges();
+                    addedProducts = productRepo.Query().ToList();
 
-                    var order = new Order {
+                    var order = new Order
+                    {
                         OrderItems = new List<OrderItem> {
                             new OrderItem { Product = products[0] },
                             new OrderItem { Product = products[1] }
@@ -350,14 +468,14 @@ namespace SimplCommerce.Module.Orders.Tests
                     orderId = orderRepo.Query().First().Id;
                 }
 
-                return orderId;
+                return (orderId, addedProducts);
             }
 
             [Fact]
             public async Task CanUpdateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost()
             {
                 // Arrange
-                var orderId = Init(nameof(CanUpdateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost));
+                var (orderId, products) = Init(nameof(CanUpdateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost));
 
                 var orderRequest = new OrderFormVm()
                 {
@@ -369,8 +487,8 @@ namespace SimplCommerce.Module.Orders.Tests
                     Discount = 2000,
                     TrackingNumber = "VAN",
                     OrderItems = new List<OrderItemVm> {
-                        new OrderItemVm { ProductId = 1, Quantity = 5, ProductPrice = 11000 },
-                        new OrderItemVm { ProductId = 2, Quantity = 3, ProductPrice = 15400 },
+                        new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
+                        new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
                     }
                 };
 
@@ -400,11 +518,63 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
 
-                var subTotal =orderRequest.OrderItems.Sum(item => item.SubTotal); 
+                var subTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
                 var orderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
                 Assert.Equal(subTotal, updatedOrder.SubTotal);
                 Assert.Equal(subTotal + orderRequest.ShippingAmount - orderRequest.Discount, updatedOrder.OrderTotal);
                 Assert.Equal(orderTotalCost, updatedOrder.OrderTotalCost);
+            }
+
+            [Fact]
+            public async Task WithCanceledStatus_ShouldResetOrderItemQuantities()
+            {
+                // Arrange
+                var (orderId, products) = Init(nameof(WithCanceledStatus_ShouldResetOrderItemQuantities));
+
+                var orderRequest = new OrderFormVm()
+                {
+                    OrderId = orderId,
+                    OrderStatus = OrderStatus.Cancelled,
+                    CustomerId = 10,
+                    ShippingAmount = 10000,
+                    ShippingCost = 5000,
+                    Discount = 2000,
+                    TrackingNumber = "VAN",
+                    OrderItems = new List<OrderItemVm> {
+                        new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
+                        new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
+                    }
+                };
+
+                // Action
+                string error;
+                bool success;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var productRepo = new Repository<Product>(context);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, null);
+
+                    (success, error) = await orderService.UpdateOrderAsync(orderRequest);
+                }
+
+                Order updatedOrder;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    updatedOrder = await orderRepo.Query().FirstOrDefaultAsync(i => i.Id == orderId);
+                }
+
+                // Assert
+                Assert.True(success);
+                Assert.Null(error);
+                Assert.NotNull(updatedOrder);
+                Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
+                Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
+
+                Assert.Equal(0, updatedOrder.SubTotal);
+                Assert.Equal(orderRequest.ShippingAmount, updatedOrder.OrderTotal);
+                Assert.Equal(orderRequest.ShippingCost, updatedOrder.OrderTotalCost);
             }
 
             [Fact]
@@ -431,7 +601,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 // Arrange
                 var orderRequest = new OrderFormVm()
                 {
-                    OrderItems = new List<OrderItemVm> {}
+                    OrderItems = new List<OrderItemVm> { }
                 };
 
                 // Action
