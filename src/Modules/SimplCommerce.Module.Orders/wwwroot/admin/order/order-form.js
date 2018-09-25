@@ -13,25 +13,27 @@
 
         vm.searchCustomers = (query = '') =>
             userService
-                .searchCustomers(query)
-                .then((result) => {
-                    // vm.customers = result.data;
-                    return result.data;
-                })
-                .catch((response) => toastr.error(response.data.error));
+            .searchCustomers(query)
+            .then((result) => {
+                // vm.customers = result.data;
+                return result.data;
+            })
+            .catch((response) => toastr.error(response.data.error));
 
         vm.searchProducts = (query) =>
             productService
-                .searchProducts(query)
-                .then((result) => {
-                    return result.data;
-                })
-                .catch((response) => toastr.error(response.data.error));
+            .searchProducts(query)
+            .then((result) => {
+                return result.data;
+            })
+            .catch((response) => toastr.error(response.data.error));
 
         vm.addToCart = (product) => {
             if (!product) return;
 
-            const addedItem = _.find(vm.orderItems, { productId: product.id });
+            const addedItem = _.find(vm.orderItems, {
+                productId: product.id
+            });
             if (addedItem) {
                 addedItem.quantity = (addedItem.quantity || 0) + 1;
                 vm.updateSubtotal(addedItem);
@@ -117,23 +119,28 @@
                 shippingAmount: vm.shippingAmount,
                 shippingCost: vm.shippingCost,
                 discount: vm.discount,
-                // subTotal: vm.orderSubTotal,
-                // orderTotal: vm.orderTotal,
-                // orderTotalCost: vm.orderTotalCost,
                 orderStatus: vm.orderStatus || 0, // Default: Pending
                 orderItems: vm.orderItems
             };
             if (vm.orderId === 0) {
                 orderService.createOrder(params)
                     .then((result) => {
-                        $state.go('order-edit', { id: result.data.id });
+                        $state.go('order-edit', {
+                            id: result.data.id
+                        });
                         toastr.success("Saved successfully.");
                     })
                     .catch((response) => processError(response.data));
             } else {
                 params.orderId = vm.orderId;
                 orderService.updateOrder(params)
-                    .then((result) => toastr.success("Saved successfully."))
+                    .then(() => {
+                        // Order is Cancelled
+                        if (parseInt(params.orderStatus) === 8) {
+                            $state.reload();
+                        }
+                        toastr.success("Saved successfully.");
+                    })
                     .catch((response) => processError(response.data));
             }
         };
@@ -161,7 +168,7 @@
 
                         vm.searchCustomers()
                             .then((data) => {
-                               vm.customer = _.find(data, item => item.id === order.customerId);
+                                vm.customer = _.find(data, item => item.id === order.customerId);
                             });
 
                         vm.selectedProduct = null;

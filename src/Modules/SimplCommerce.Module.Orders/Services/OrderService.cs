@@ -33,9 +33,10 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IWorkContext _workContext;
         private readonly IMediaService _mediaService;
 
-        public OrderService(IRepository<Order> orderRepository,
-            IRepository<OrderItem> orderItemRepo,
+        public OrderService(
+            IRepository<Order> orderRepository,
             IRepository<Product> productRepo,
+            IRepository<OrderItem> orderItemRepo,
             IRepository<Cart> cartRepository,
             ICouponService couponService,
             IRepository<CartItem> cartItemRepository,
@@ -43,8 +44,9 @@ namespace SimplCommerce.Module.Orders.Services
             IShippingPriceService shippingPriceService,
             IRepository<UserAddress> userAddressRepository,
             IOrderEmailService orderEmailService,
-            IWorkContext workContext,
-            IMediaService mediaService)
+            IMediaService mediaService,
+            IWorkContext workContext
+            )
         {
             _orderRepository = orderRepository;
             _orderItemRepo = orderItemRepo;
@@ -110,10 +112,10 @@ namespace SimplCommerce.Module.Orders.Services
             var user = await _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
 
-            UpdateOrderGeneralInfo(order, orderRequest);
-            await AddNewOrderItemsAsync(order, orderRequest.OrderItems);
+            await UpdateOrderValueAsync(order, orderRequest);
 
             _orderRepository.Add(order);
+
             await _orderRepository.SaveChangesAsync();
 
             return (order.Id, null);
@@ -126,17 +128,18 @@ namespace SimplCommerce.Module.Orders.Services
                 return (false, "Shopping cart cannot be empty");
             }
 
-            var user = await _workContext.GetCurrentUser();
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
 
-            if (order == null) return (false, $"Cannot find order with id {orderRequest.OrderId}");
+            if (order == null) 
+            {
+                return (false, $"Cannot find order with id {orderRequest.OrderId}");
+            }
+
+            await UpdateOrderValueAsync(order, orderRequest);
 
             order.UpdatedOn = DateTimeOffset.Now;
-            UpdateOrderGeneralInfo(order, orderRequest);
-
-            await AddNewOrderItemsAsync(order, orderRequest.OrderItems);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -354,13 +357,20 @@ namespace SimplCommerce.Module.Orders.Services
 
         public async Task<(bool, string)> UpdateStatusAsync(long orderId, OrderStatus status)
         {
-            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+            var order = await _orderRepository.Query()
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                .FirstOrDefaultAsync(item => item.Id == orderId);
+
             if (order == null)
             {
                 return (false, $"Cannot find order with Id: {orderId}");
             }
 
             order.OrderStatus = status;
+            if (status == OrderStatus.Cancelled) {
+                ResetOrderItemQuantities(order);
+            }
+
             await _orderRepository.SaveChangesAsync();
 
             return (true, null);
@@ -407,8 +417,10 @@ namespace SimplCommerce.Module.Orders.Services
             return shippingMethod;
         }
 
-        private void UpdateOrderGeneralInfo(Order order, OrderFormVm orderRequest)
+        private async Task UpdateOrderValueAsync(Order order, OrderFormVm orderRequest)
         {
+            await AddNewOrderItemsAsync(order, orderRequest.OrderItems);
+
             order.CustomerId = orderRequest.CustomerId;
             order.ShippingAmount = orderRequest.ShippingAmount;
             order.ShippingCost = orderRequest.ShippingCost;
@@ -416,9 +428,30 @@ namespace SimplCommerce.Module.Orders.Services
             order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
 
-            order.SubTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
+            CalculateOrderTotal(order);
+
+            // Reset all order item's quantities when order is cancelled
+            if (order.OrderStatus == OrderStatus.Cancelled) {
+                ResetOrderItemQuantities(order);
+            }
+        }
+
+        private void ResetOrderItemQuantities(Order order)
+        {
+            foreach (var orderItem in order.OrderItems)
+            {
+                orderItem.Quantity = 0;
+            }
+            order.Discount = 0;
+
+            CalculateOrderTotal(order);
+        }
+
+        private void CalculateOrderTotal(Order order)
+        {
+            order.SubTotal = order.OrderItems.Sum(item => item.SubTotal);
             order.OrderTotal = order.SubTotal + order.ShippingAmount - order.Discount;
-            order.OrderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
+            order.OrderTotalCost = order.OrderItems.Sum(item => item.SubTotalCost) + order.ShippingCost;
         }
 
         private async Task AddNewOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
@@ -443,7 +476,7 @@ namespace SimplCommerce.Module.Orders.Services
 
                 var orderItem = new OrderItem
                 {
-                    ProductId = item.ProductId,
+                    Product = product,
                     ProductPrice = item.ProductPrice,
                     Quantity = item.Quantity
                 };
