@@ -5,7 +5,7 @@
 ## Build Status
 | Build server | Platform                | Status      |
 |--------------|-------------------------|-------------|
-| Azure DevOps | Windows / Linux / MacOS | [![Build Status](https://dev.azure.com/khanhthevu/kkcosmetics/_apis/build/status/vtkhanh.SimplCommerce)](https://dev.azure.com/khanhthevu/kkcosmetics/_build/latest?definitionId=**1**)
+| Azure DevOps | Linux / MacOS           | [![Build Status](https://dev.azure.com/khanhthevu/kkcosmetics/_apis/build/status/vtkhanh.SimplCommerce)](https://dev.azure.com/khanhthevu/kkcosmetics/_build/latest?definitionId=**1**)
 
 ## Docker
 - First run the database: `docker run --name simpldb -d postgres`
