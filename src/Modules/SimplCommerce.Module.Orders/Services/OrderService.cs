@@ -112,7 +112,7 @@ namespace SimplCommerce.Module.Orders.Services
             var user = await _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
 
-            await UpdateOrderValueAsync(order, orderRequest);
+            await UpdateOrderPropertiesAsync(order, orderRequest);
 
             _orderRepository.Add(order);
 
@@ -137,7 +137,7 @@ namespace SimplCommerce.Module.Orders.Services
                 return (false, $"Cannot find order with id {orderRequest.OrderId}");
             }
 
-            await UpdateOrderValueAsync(order, orderRequest);
+            await UpdateOrderPropertiesAsync(order, orderRequest);
 
             order.UpdatedOn = DateTimeOffset.Now;
 
@@ -369,6 +369,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.OrderStatus = status;
             if (status == OrderStatus.Cancelled) {
                 ResetOrderItemQuantities(order);
+                CalculateOrderTotal(order);
             }
 
             await _orderRepository.SaveChangesAsync();
@@ -425,10 +426,8 @@ namespace SimplCommerce.Module.Orders.Services
             return shippingMethod;
         }
 
-        private async Task UpdateOrderValueAsync(Order order, OrderFormVm orderRequest)
+        private async Task UpdateOrderPropertiesAsync(Order order, OrderFormVm orderRequest)
         {
-            await AddNewOrderItemsAsync(order, orderRequest.OrderItems);
-
             order.CustomerId = orderRequest.CustomerId;
             order.ShippingAmount = orderRequest.ShippingAmount;
             order.ShippingCost = orderRequest.ShippingCost;
@@ -436,23 +435,24 @@ namespace SimplCommerce.Module.Orders.Services
             order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
 
-            CalculateOrderTotal(order);
+            await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
             // Reset all order item's quantities when order is cancelled
             if (order.OrderStatus == OrderStatus.Cancelled) {
                 ResetOrderItemQuantities(order);
             }
+
+            CalculateOrderTotal(order);
         }
 
         private void ResetOrderItemQuantities(Order order)
         {
             foreach (var orderItem in order.OrderItems)
             {
+                orderItem.Product.Stock += orderItem.Quantity;
                 orderItem.Quantity = 0;
             }
             order.Discount = 0;
-
-            CalculateOrderTotal(order);
         }
 
         private void CalculateOrderTotal(Order order)
@@ -462,7 +462,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.OrderTotalCost = order.OrderItems.Sum(item => item.SubTotalCost) + order.ShippingCost;
         }
 
-        private async Task AddNewOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
+        private async Task UpdateOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)
         {
             if (order.OrderItems.Any())
             {
