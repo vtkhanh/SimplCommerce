@@ -98,17 +98,23 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    order = await orderRepo.QueryAsNoTracking().FirstAsync();
+                    order = await orderRepo.QueryAsNoTracking()
+                        .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                        .FirstAsync();
                 }
 
                 // Action
-                GetOrderVm updatedOrder;
+                Order updatedOrder;
                 string error;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
-                    (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Cancelled);
+                    (_, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Cancelled);
+
+                    updatedOrder = await orderRepo.QueryAsNoTracking()
+                        .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                        .FirstAsync(item => item.Id == order.Id);
                 }
 
                 // Assert
@@ -119,6 +125,8 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(0, updatedOrder.SubTotal);
                 Assert.Equal(order.ShippingAmount, updatedOrder.OrderTotal);
                 Assert.Equal(order.ShippingCost, updatedOrder.OrderTotalCost);
+                Assert.Equal(order.OrderItems[0].Product.Stock + order.OrderItems[0].Quantity, updatedOrder.OrderItems[0].Product.Stock);
+                Assert.Equal(order.OrderItems[1].Product.Stock + order.OrderItems[1].Quantity, updatedOrder.OrderItems[1].Product.Stock);
             }
 
             [Fact]
@@ -264,10 +272,10 @@ namespace SimplCommerce.Module.Orders.Tests
             }
 
             [Fact]
-            public async Task CanCreateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost()
+            public async Task CanCreateOrder()
             {
                 // Arrange
-                var products = Init(nameof(CanCreateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost));
+                var products = Init(nameof(CanCreateOrder));
 
                 var workContextMock = new Mock<IWorkContext>();
                 var userId = 123;
@@ -304,7 +312,9 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    createdOrder = await orderRepo.Query().FirstOrDefaultAsync(i => i.Id == orderId);
+                    createdOrder = await orderRepo.QueryAsNoTracking()
+                        .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                        .FirstOrDefaultAsync(i => i.Id == orderId);
                 }
 
                 // Assert
@@ -319,6 +329,8 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(subTotal, createdOrder.SubTotal);
                 Assert.Equal(subTotal + orderRequest.ShippingAmount - orderRequest.Discount, createdOrder.OrderTotal);
                 Assert.Equal(orderTotalCost, createdOrder.OrderTotalCost);
+                Assert.Equal(products[0].Stock - orderRequest.OrderItems[0].Quantity, createdOrder.OrderItems[0].Product.Stock);
+                Assert.Equal(products[1].Stock - orderRequest.OrderItems[1].Quantity, createdOrder.OrderItems[1].Product.Stock);
             }
 
             [Fact]
@@ -362,7 +374,9 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    createdOrder = await orderRepo.Query().FirstOrDefaultAsync(i => i.Id == orderId);
+                    createdOrder = await orderRepo.QueryAsNoTracking()
+                        .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                        .FirstOrDefaultAsync(i => i.Id == orderId);
                 }
 
                 // Assert
@@ -374,6 +388,8 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(0, createdOrder.SubTotal);
                 Assert.Equal(orderRequest.ShippingAmount, createdOrder.OrderTotal);
                 Assert.Equal(orderRequest.ShippingCost, createdOrder.OrderTotalCost);
+                Assert.Equal(products[0].Stock, createdOrder.OrderItems[0].Product.Stock);
+                Assert.Equal(products[1].Stock, createdOrder.OrderItems[1].Product.Stock);
             }
 
             [Fact]
@@ -455,10 +471,10 @@ namespace SimplCommerce.Module.Orders.Tests
             }
 
             [Fact]
-            public async Task CanUpdateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost()
+            public async Task CanUpdateOrder()
             {
                 // Arrange
-                var (orderId, products) = Init(nameof(CanUpdateOrder_IncludingSubTotal_AndOrderTotal_AndOrderTotalCost));
+                var (orderId, products) = Init(nameof(CanUpdateOrder));
 
                 var orderRequest = new OrderFormVm()
                 {
@@ -491,7 +507,9 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    updatedOrder = await orderRepo.Query().FirstOrDefaultAsync(i => i.Id == orderId);
+                    updatedOrder = await orderRepo.QueryAsNoTracking()
+                        .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                        .FirstOrDefaultAsync(i => i.Id == orderId);
                 }
 
                 // Assert
@@ -506,6 +524,8 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(subTotal, updatedOrder.SubTotal);
                 Assert.Equal(subTotal + orderRequest.ShippingAmount - orderRequest.Discount, updatedOrder.OrderTotal);
                 Assert.Equal(orderTotalCost, updatedOrder.OrderTotalCost);
+                Assert.Equal(products[0].Stock - orderRequest.OrderItems[0].Quantity, updatedOrder.OrderItems[0].Product.Stock);
+                Assert.Equal(products[1].Stock - orderRequest.OrderItems[1].Quantity, updatedOrder.OrderItems[1].Product.Stock);
             }
 
             [Fact]
@@ -545,7 +565,9 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    updatedOrder = await orderRepo.Query().FirstOrDefaultAsync(i => i.Id == orderId);
+                    updatedOrder = await orderRepo.QueryAsNoTracking()
+                        .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                        .FirstOrDefaultAsync(i => i.Id == orderId);
                 }
 
                 // Assert
@@ -558,6 +580,9 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(0, updatedOrder.SubTotal);
                 Assert.Equal(orderRequest.ShippingAmount, updatedOrder.OrderTotal);
                 Assert.Equal(orderRequest.ShippingCost, updatedOrder.OrderTotalCost);
+
+                Assert.Equal(products[0].Stock, updatedOrder.OrderItems[0].Product.Stock);
+                Assert.Equal(products[1].Stock, updatedOrder.OrderItems[1].Product.Stock);
             }
 
             [Fact]
