@@ -43,12 +43,14 @@
         "$locationProvider",
         "cfpLoadingBarProvider",
         "$mdDateLocaleProvider",
+        "stConfig",
         function (
             $urlRouterProvider,
             $httpProvider,
             $locationProvider,
             cfpLoadingBarProvider,
             $mdDateLocaleProvider,
+            stConfig,
         ) {
             // Remove prefix '!' (Default)
             $locationProvider.hashPrefix("");
@@ -61,6 +63,9 @@
 
             // Format for md-datepicker
             $mdDateLocaleProvider.formatDate = (date) => date ? moment(date).format('ll') : '';
+
+            // smart-table config: custom pagination to override the default one
+            stConfig.pagination.template = 'modules/core/admin/common/pagination.custom.html';
 
             $httpProvider.interceptors.push(function () {
                 return {
