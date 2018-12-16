@@ -12,12 +12,15 @@ namespace SimplCommerce.Module.Orders.Models
 
         public Product Product { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ProductPrice { get; set; }
 
         public int Quantity { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal TaxAmount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal TaxPercent { get; set; }
 
         [NotMapped]

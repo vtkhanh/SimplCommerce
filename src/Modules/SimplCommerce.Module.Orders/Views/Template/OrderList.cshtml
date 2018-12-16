@@ -20,10 +20,10 @@
     <table class="table table-striped" st-pipe="vm.getOrders" st-table="vm.orders">
         <thead>
             <tr>
-                <!-- <th st-sort="Id" class=" sortable ">{{::vm.translate.get('OrderId')}}</th> -->
-                <th class="">{{::vm.translate.get('Status')}}</th>
-                <th class="">{{::vm.translate.get('Customer')}}</th>
-                <th class="">{{::vm.translate.get('Tracking Number')}}</th>
+                <th class="text-center">{{::vm.translate.get('Status')}}</th>
+                <th class="text-center">{{::vm.translate.get('Customer')}}</th>
+                <th class="text-center">{{::vm.translate.get('Tracking Number')}}</th>
+                <th class="text-center">{{::vm.translate.get('Created By')}}</th>
                 <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
                 <th st-sort="Cost" class="sortable">{{::vm.translate.get('Cost')}}</th>
                 <th st-sort="Total" class="sortable">{{::vm.translate.get('Total')}}</th>
@@ -48,6 +48,11 @@
                         <input class="form-control" st-search="TrackingNumber" />
                     </div>
                 </th>
+                <th class="">
+                    <div class="form-group no-margin-bottom">
+                        <input class="form-control" st-search="CreatedBy" />
+                    </div>
+                </th>
                 <th class="text-center hidden-xs">
                     <st-date-range predicate="CreatedOn" before="query.before" after="query.after"></st-date-range>
                 </th>
@@ -69,6 +74,7 @@
                         {{ order.trackingNumber || 'empty' }}
                     </a>
                 </td>
+                <td class="">{{ order.createdBy }}</td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
                 <td class="">{{order.cost.toCurrency()}}</td>
                 <td class="">{{order.total.toCurrency()}}</td>

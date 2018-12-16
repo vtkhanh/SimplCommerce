@@ -95,14 +95,17 @@ namespace SimplCommerce.Module.Orders.Controllers
                 var status = (OrderStatus?)search.Status;
                 var customerName = (string)search.CustomerName;
                 var trackingNumber = (string)search.TrackingNumber;
+                var createdBy = (string)search.CreatedBy;
                 var before = (DateTimeOffset?)search.CreatedOn?.before;
                 var after = (DateTimeOffset?)search.CreatedOn?.after;
                 query = query
                     .Include(i => i.Customer)
+                    .Include(i => i.CreatedBy)
                     .WhereIf(id.HasValue, i => i.Id == id.Value)
                     .WhereIf(status.HasValue, i => i.OrderStatus == status.Value)
                     .WhereIf(customerName.HasValue(), i => i.Customer.FullName.Contains(customerName))
                     .WhereIf(trackingNumber.HasValue(), i => i.TrackingNumber.Contains(trackingNumber))
+                    .WhereIf(createdBy.HasValue(), i => i.CreatedBy.FullName.Contains(createdBy))
                     .WhereIf(before.HasValue, x => x.CreatedOn <= before)
                     .WhereIf(after.HasValue, x => x.CreatedOn >= after)
                     ;
@@ -114,6 +117,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 {
                     order.Id,
                     CustomerName = order.Customer.FullName,
+                    CreatedBy = order.CreatedBy.FullName,
                     order.TrackingNumber,
                     Cost = order.OrderTotalCost,
                     Total = order.OrderTotal,

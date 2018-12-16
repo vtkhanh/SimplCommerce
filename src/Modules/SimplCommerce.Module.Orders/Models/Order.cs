@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
 
@@ -31,8 +32,10 @@ namespace SimplCommerce.Module.Orders.Models
 
         public string CouponRuleName { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Discount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal SubTotal { get; set; }
 
         public long? ShippingAddressId { get; set; }
@@ -53,14 +56,19 @@ namespace SimplCommerce.Module.Orders.Models
 
         public string ShippingMethod { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ShippingAmount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ShippingCost { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal TaxAmount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal OrderTotal { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal OrderTotalCost { get; set; }
 
         public string PaymentMethod { get; set; }

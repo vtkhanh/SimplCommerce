@@ -1,4 +1,5 @@
-﻿using SimplCommerce.Infrastructure.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
 
 namespace SimplCommerce.Module.ShippingTableRate.Models
@@ -15,8 +16,10 @@ namespace SimplCommerce.Module.ShippingTableRate.Models
 
         public string Note { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal MinOrderSubtotal { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ShippingPrice { get; set; }
     }
 }
