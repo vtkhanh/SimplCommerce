@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Tax.Models;
@@ -16,12 +17,16 @@ namespace SimplCommerce.Module.Catalog.Models
 
         public int Weight { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Cost { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? OldPrice { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? SpecialPrice { get; set; }
 
         public DateTimeOffset? SpecialPriceStart { get; set; }

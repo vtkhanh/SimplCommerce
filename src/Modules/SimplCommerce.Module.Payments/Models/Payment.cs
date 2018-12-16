@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Orders.Models;
 
@@ -14,6 +15,7 @@ namespace SimplCommerce.Module.Payments.Models
 
         public DateTimeOffset? UpdatedOn { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
         public string PaymentMethod { get; set; }
