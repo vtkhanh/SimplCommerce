@@ -6,7 +6,7 @@
 
     /* @ngInject */
     function productService($http, Upload) {
-        var service = {
+        const service = {
             getProducts: getProducts,
             createProduct: createProduct,
             editProduct: editProduct,

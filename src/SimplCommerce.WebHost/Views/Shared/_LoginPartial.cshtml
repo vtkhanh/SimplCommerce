@@ -1,15 +1,20 @@
 ﻿@using SimplCommerce.Module.Core.Models
 
+@using Microsoft.AspNetCore.Authorization
+@using SimplCommerce.Module.Core.Extensions.Constants
+@inject IAuthorizationService AuthorizationService
 @inject SignInManager<User> SignInManager
 @inject UserManager<User> UserManager
 
 @if (SignInManager.IsSignedIn(User))
 {
     <li>
-        @if (User.IsInRole("admin")) {
-            <a href="~/admin">@Localizer["Hello {0}!", UserManager.GetUserName(User)]</a>
+        @if ((await AuthorizationService.AuthorizeAsync(User, Policy.CanAccessDashboard)).Succeeded)
+        {
+            <a asp-controller="HomeAdmin" asp-action="Index" title="@Localizer["Admin"]">@Localizer["Hello {0}!", UserManager.GetUserName(User)]</a>
         }
-        else {
+        else
+        {
             <a asp-controller="Manage" asp-action="Index" title="@Localizer["Manage"]">@Localizer["Hello {0}!", UserManager.GetUserName(User)]</a>
         }
     </li>

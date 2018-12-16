@@ -14,6 +14,10 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public long CustomerId { get; set; }
 
+        public long CreatedById { get; set; }
+
+        public long? VendorId { get; set; }
+
         public OrderStatus OrderStatus { get; set; }
 
         public IList<SelectListItem> OrderStatusList =>

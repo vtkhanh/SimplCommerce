@@ -13,12 +13,10 @@ using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Orders.Services;
-using Microsoft.Extensions.Logging;
-using SimplCommerce.Infrastructure.Filters;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
-    [Authorize(Roles = "admin, vendor")]
+    [Authorize(Roles = "admin, vendor, seller")]
     [Route("api/orders")]
     [ApiController]
     public class OrderApiController : Controller
@@ -27,14 +25,16 @@ namespace SimplCommerce.Module.Orders.Controllers
         private readonly IOrderService _orderService;
         private readonly IRepository<Order> _orderRepository;
         private readonly IWorkContext _workContext;
+        private readonly IAuthorizationService _authorizationService;
 
         public OrderApiController(IOrderService orderService, IRepository<Order> orderRepository,
-            IMediaService mediaService, IWorkContext workContext)
+            IMediaService mediaService, IWorkContext workContext, IAuthorizationService authorizationService)
         {
             _orderService = orderService;
             _orderRepository = orderRepository;
             _mediaService = mediaService;
             _workContext = workContext;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet]
@@ -85,7 +85,8 @@ namespace SimplCommerce.Module.Orders.Controllers
             IQueryable<Order> query = _orderRepository.Query();
 
             var currentUser = await _workContext.GetCurrentUser();
-            query = query.WhereIf(!User.IsInRole(RoleName.Admin), i => i.VendorId == currentUser.VendorId);
+            var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
+            query = query.WhereIf(!canManageOrder, i => i.VendorId == currentUser.VendorId);
 
             if (param.Search.PredicateObject != null)
             {
@@ -93,7 +94,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 var id = (long?)search.Id;
                 var status = (OrderStatus?)search.Status;
                 var customerName = (string)search.CustomerName;
-                var trackingNumber = (string) search.TrackingNumber;
+                var trackingNumber = (string)search.TrackingNumber;
                 var before = (DateTimeOffset?)search.CreatedOn?.before;
                 var after = (DateTimeOffset?)search.CreatedOn?.after;
                 query = query
@@ -113,12 +114,13 @@ namespace SimplCommerce.Module.Orders.Controllers
                 {
                     order.Id,
                     CustomerName = order.Customer.FullName,
-                    TrackingNumber = order.TrackingNumber,
+                    order.TrackingNumber,
                     Cost = order.OrderTotalCost,
                     Total = order.OrderTotal,
                     StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),
-                    order.CreatedOn
+                    order.CreatedOn,
+                    CanEdit = CanEditOrder(currentUser, order.CreatedById, order.VendorId)
                 });
 
             return Json(orders);
@@ -128,6 +130,12 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<IActionResult> Edit(long id)
         {
             var (order, errorMessage) = await _orderService.GetOrderAsync(id);
+            var currentUser = await _workContext.GetCurrentUser();
+
+            if (!CanEditOrder(currentUser, order.CreatedById, order.VendorId))
+            {
+                errorMessage = "You don't have permission!";
+            }
 
             return errorMessage.HasValue()
                 ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
@@ -136,7 +144,16 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPut]
         public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
         {
+            var (order, _) = await _orderService.GetOrderAsync(orderForm.OrderId);
+            var currentUser = await _workContext.GetCurrentUser();
+
+            if (!CanEditOrder(currentUser, order.CreatedById, order.VendorId))
+            {
+                return BadRequest("You don't have permission!");
+            }
+
             var (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+
             return ok ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
         }
 
@@ -160,6 +177,9 @@ namespace SimplCommerce.Module.Orders.Controllers
             var (ok, error) = await _orderService.UpdateTrackingNumberAsync(order.OrderId, order.TrackingNumber);
             return ok ? Ok() : (IActionResult) BadRequest(new { Error = error });
         }
+
+        private bool CanEditOrder(Core.Models.User currentUser, long createdById, long? vendorId) => 
+            User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
     }
 }
