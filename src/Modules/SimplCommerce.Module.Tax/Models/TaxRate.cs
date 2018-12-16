@@ -1,4 +1,5 @@
-﻿using SimplCommerce.Infrastructure.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
 
 namespace SimplCommerce.Module.Tax.Models
@@ -19,6 +20,7 @@ namespace SimplCommerce.Module.Tax.Models
 
         public StateOrProvince StateOrProvince { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Rate { get; set; }
     }
 }

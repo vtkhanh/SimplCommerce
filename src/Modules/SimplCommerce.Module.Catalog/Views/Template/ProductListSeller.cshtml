@@ -1,16 +1,11 @@
-﻿<div class="page-header">
+﻿@{ 
+    Layout = null;
+}
+
+<div class="page-header">
     <div class="row">
         <div class="col-xs-9">
             <h2>{{::vm.translate.get('Products')}}</h2>
-        </div>
-        <div class="col-xs-3">
-            <div layout-gt-xs="row">
-                <md-input-container class="hide-validation no-margin-bottom" flex-gt-xs>
-                    <label>Code</label>
-                    <input ng-model="vm.barcode" ng-keypress="($event.charCode==13) ? vm.addStock() : return">
-                </md-input-container>
-                <md-button ui-sref="product-create" class="md-raised md-primary"><span class="fa fa-plus">&nbsp;</span>{{::vm.translate.get('Create')}}</md-button>
-            </div>
         </div>
     </div>
 </div>
@@ -20,17 +15,15 @@
     <table class="table table-striped container-fluid" st-pipe="vm.getProducts" st-table="vm.products">
         <thead>
             <tr class="row">
-                <th st-sort="Name" class="text-center sortable col-xs-4">{{::vm.translate.get('Name')}}</th>
+                <th st-sort="Name" class="text-center sortable col-xs-6">{{::vm.translate.get('Name')}}</th>
                 <th class="text-center col-xs-2">{{::vm.translate.get('Sku')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Has Options')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Stock')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Weight')}}</th>
-                <th class="text-center col-xs-1" ng-if="vm.canEdit">{{::vm.translate.get('Cost')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Price')}}</th>
-                <th class="text-center col-xs-1" ng-if="vm.canEdit">{{::vm.translate.get('Actions')}}</th>
             </tr>
             <tr class="row">
-                <th class="col-xs-4">
+                <th class="col-xs-6">
                     <div class="form-group no-margin-bottom">
                         <input class="form-control" st-search="Name" />
                     </div>
@@ -51,30 +44,19 @@
                 </th>
                 <th class="col-xs-1"></th>
                 <th class="col-xs-1"></th>
-                <th class="col-xs-1" ng-if="vm.canEdit"></th>
                 <th class="col-xs-1"></th>
-                <th class="col-xs-1" ng-if="vm.canEdit"></th>
             </tr>
         </thead>
         <tbody ng-show="!vm.isLoading">
             <tr ng-repeat="product in vm.products" class="row">
-                <td class="col-xs-4">{{product.name}} </td>
+                <td class="col-xs-6">{{product.name}} </td>
                 <td class="col-xs-2 text-center">{{product.sku}} </td>
                 <td class="text-center col-xs-1">
                     <i ng-attr-class="{{product.hasOptions && 'fa fa-circle' || 'fa fa-circle-o'}}"></i>
                 </td>
                 <td class="text-center col-xs-1">{{product.stock}}</td>
                 <td class="text-center col-xs-1">{{product.weight}}</td>
-                <td class="text-center col-xs-1" ng-if="vm.canEdit">{{product.cost.toCurrency()}}</td>
                 <td class="text-center col-xs-1">{{product.price.toCurrency()}}</td>
-                <td class="text-center col-xs-1" ng-if="vm.canEdit">
-                    <a ui-sref="product-edit({id: product.id})" title="Edit" class="btn btn-primary btn-xs">
-                        <span class="fa fa-edit"></span>
-                    </a>
-                    <button ng-click="vm.deleteProduct(product)" title="Delete" class="btn btn-danger btn-xs delete">
-                        <span class="fa fa-trash"></span>
-                    </button>
-                </td>
             </tr>
         </tbody>
         <tbody ng-show="vm.isLoading">

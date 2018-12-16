@@ -83,6 +83,8 @@ namespace SimplCommerce.Module.Orders.Services
                 OrderTotal = order.OrderTotal,
                 OrderTotalCost = order.OrderTotalCost,
                 TrackingNumber = order.TrackingNumber,
+                CreatedById = order.CreatedById,
+                VendorId = order.VendorId,
                 OrderItems = order.OrderItems.Select(item =>
                     new OrderItemVm
                     {

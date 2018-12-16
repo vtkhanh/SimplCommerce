@@ -199,7 +199,7 @@
             vm.validationErrors = [];
             if (error && angular.isObject(error)) {
                 for (let key in error) {
-                    vm.validationErrors.push(error[key][0]);
+                    vm.validationErrors.push(error[key]);
                 }
             } else {
                 vm.validationErrors.push('Could not add product.');
