@@ -42,6 +42,7 @@ namespace SimplCommerce.Module.Core
                 option.AddPolicy(Policy.CanEditProduct, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Vendor));
                 option.AddPolicy(Policy.CanAccessDashboard, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Seller, RoleName.Vendor));
                 option.AddPolicy(Policy.CanManageOrder, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Seller));
+                option.AddPolicy(Policy.CanManageUser, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Seller));
             });
         }
 

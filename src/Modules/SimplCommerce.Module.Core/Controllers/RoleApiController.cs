@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Core.Models;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Infrastructure;
 
 namespace SimplCommerce.Module.Core.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize(Policy = Policy.CanManageUser)]
     [Route("api/roles")]
     public class RoleApiController : Controller
     {
@@ -21,11 +23,14 @@ namespace SimplCommerce.Module.Core.Controllers
 
         public async Task<IActionResult> Get()
         {
-            var roles = await _roleRepository.Query().Select(x => new
-            {
-                x.Id,
-                x.Name
-            }).ToListAsync();
+            var roles = await _roleRepository
+                .Query()
+                .WhereIf(!User.IsInRole(RoleName.Admin), role => role.Name != RoleName.Admin && role.Name != RoleName.SuperAdmin && role.Name != RoleName.Vendor)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.Name
+                }).ToListAsync();
 
             return Json(roles);
         }

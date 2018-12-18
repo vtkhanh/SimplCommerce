@@ -74,7 +74,7 @@
                         {{ order.trackingNumber || 'empty' }}
                     </a>
                 </td>
-                <td class="">{{ order.createdBy }}</td>
+                <td class="text-center">{{ order.createdBy }}</td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
                 <td class="">{{order.cost.toCurrency()}}</td>
                 <td class="">{{order.total.toCurrency()}}</td>
