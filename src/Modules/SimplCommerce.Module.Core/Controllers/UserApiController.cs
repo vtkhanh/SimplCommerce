@@ -9,13 +9,14 @@ using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Core.ViewModels;
-using SimplCommerce.Infrastructure;
 using SimplCommerce.Module.Core.Services;
 using AutoMapper;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Infrastructure;
 
 namespace SimplCommerce.Module.Core.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize(Policy = Policy.CanManageUser)]
     [Route("api/users")]
     public class UserApiController : Controller
     {
@@ -43,64 +44,33 @@ namespace SimplCommerce.Module.Core.Controllers
             if (param.Search.PredicateObject != null)
             {
                 dynamic search = param.Search.PredicateObject;
-
-                if (search.PhoneNumber != null)
-                {
-                    string phoneNumber = search.PhoneNumber;
-                    query = query.Where(x => x.PhoneNumber.Contains(phoneNumber));
-                }
-
-                if (search.FullName != null)
-                {
-                    string fullName = search.FullName;
-                    query = query.Where(x => x.FullName.Contains(fullName));
-                }
-
-                if (search.Role != null)
-                {
-                    string roleName = search.Role;
-                    query = ((from i in query
-                              from p in i.Roles
-                              where p.Role.Name.Contains(roleName)
-                              select i) as IQueryable<User>);
-                }
-
-                if (search.CustomerGroup != null)
-                {
-                    string customerGroupName = search.CustomerGroup;
-                    query = ((from i in query
-                              from p in i.CustomerGroups
-                              where p.CustomerGroup.Name.Contains(customerGroupName)
-                              select i) as IQueryable<User>);
-                }
-
-                if (search.CreatedOn != null)
-                {
-                    if (search.CreatedOn.before != null)
-                    {
-                        DateTimeOffset before = search.CreatedOn.before;
-                        query = query.Where(x => x.CreatedOn <= before);
-                    }
-
-                    if (search.CreatedOn.after != null)
-                    {
-                        DateTimeOffset after = search.CreatedOn.after;
-                        query = query.Where(x => x.CreatedOn >= after);
-                    }
-                }
+                string phoneNumber = search.PhoneNumber;
+                string fullName = search.FullName;
+                string roleName = search.Role;
+                string customerGroupName = search.CustomerGroup;
+                DateTimeOffset? before = search.CreatedOn?.before;
+                DateTimeOffset? after = search.CreatedOn?.after;
+                query = query
+                    .WhereIf(phoneNumber.HasValue(), item => item.PhoneNumber.Contains(phoneNumber))
+                    .WhereIf(fullName.HasValue(), item => item.FullName.Contains(fullName))
+                    .WhereIf(roleName.HasValue(), item => item.Roles.Any(role => role.Role.Name.Contains(roleName)))
+                    .WhereIf(customerGroupName.HasValue(), item => item.CustomerGroups.Any(cg => cg.CustomerGroup.Name.Contains(customerGroupName)))
+                    .WhereIf(before.HasValue, item => item.CreatedOn <= before)
+                    .WhereIf(after.HasValue, item => item.CreatedOn >= after);
             }
 
             var users = query.ToSmartTableResult(
                 param,
                 user => new
                 {
-                    Id = user.Id,
-                    Email = user.Email,
-                    FullName = user.FullName,
-                    PhoneNumber = user.PhoneNumber,
-                    CreatedOn = user.CreatedOn,
+                    user.Id,
+                    user.Email,
+                    user.FullName,
+                    user.PhoneNumber,
+                    user.CreatedOn,
                     Roles = string.Join(", ", user.Roles.Select(x => x.Role.Name)),
-                    CustomerGroups = string.Join(", ", user.CustomerGroups.Select(x => x.CustomerGroup.Name))
+                    CustomerGroups = string.Join(", ", user.CustomerGroups.Select(x => x.CustomerGroup.Name)),
+                    CanEdit = CanEditUser(user)
                 });
 
             return Json(users);
@@ -121,18 +91,6 @@ namespace SimplCommerce.Module.Core.Controllers
             }
 
             var model = _mapper.Map<UserForm>(user);
-            // var model = new UserForm
-            // {
-            //     Id = user.Id,
-            //     FullName = user.FullName,
-            //     Email = user.Email,
-            //     PhoneNumber = user.PhoneNumber,
-            //     Address = user.DefaultShippingAddressId.HasValue ? user.DefaultShippingAddress.AddressLine1 : "",
-            //     Link = user.Link,
-            //     VendorId = user.VendorId,
-            //     RoleIds = user.Roles.Select(x => x.RoleId).ToList(),
-            //     CustomerGroupIds = user.CustomerGroups.Select(x => x.CustomerGroupId).ToList()
-            // };
 
             return Json(model);
         }
@@ -194,5 +152,7 @@ namespace SimplCommerce.Module.Core.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
+        private bool CanEditUser(User user) => User.IsInRole(RoleName.Admin) || !user.Roles.Any(item => item.Role.Name == RoleName.Admin);
     }
 }

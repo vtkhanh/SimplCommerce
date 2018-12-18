@@ -5,5 +5,6 @@
         public const string CanEditProduct = "CanEditProduct";
         public const string CanAccessDashboard = "CanAccessDashboard";
         public const string CanManageOrder = "CanManageOrder";
+        public const string CanManageUser = "CanManageUser";
     }
 }
