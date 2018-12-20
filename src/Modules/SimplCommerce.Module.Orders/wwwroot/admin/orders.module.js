@@ -19,7 +19,9 @@
                     })
                     .state('order-edit', {
                         url: '/order/edit/:id',
-                        templateUrl: 'template/orders/order-form',
+                        templateUrl: function (params) {
+                            return `template/orders/order-form/${params.id}`;
+                        },
                         controller: 'OrderFormCtrl as vm'
                     })
                     .state('order-detail', {

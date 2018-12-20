@@ -387,6 +387,15 @@ namespace SimplCommerce.Module.Orders.Services
             return (result, null);
         }
 
+        public async Task<long> GetOrderOwnerIdAsync(long orderId)
+        {
+            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+
+            if (order == null) return default(long);
+
+            return order.CreatedById;
+        }
+
         private async Task<decimal> ApplyDiscount(User user, Cart cart)
         {
             decimal discount = 0;
