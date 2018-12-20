@@ -20,7 +20,7 @@
                     .state('order-edit', {
                         url: '/order/edit/:id',
                         templateUrl: function (params) {
-                            return `template/orders/order-form/${params.id}`;
+                            return `template/orders/order-edit/${params.id}`;
                         },
                         controller: 'OrderFormCtrl as vm'
                     })

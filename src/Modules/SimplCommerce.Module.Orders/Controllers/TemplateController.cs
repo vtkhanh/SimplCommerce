@@ -22,8 +22,11 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("order-list")]
         public IActionResult OrderList() => User.IsInRole(RoleName.Seller) ? View("OrderListSeller") : View();
 
-        [HttpGet("order-form/{id}")]
-        public async Task<IActionResult> OrderForm(int id)
+        [HttpGet("order-form")]
+        public IActionResult OrderForm() => User.IsInRole(RoleName.Seller) ? View("OrderFormSeller") : View();
+
+        [HttpGet("order-edit/{id}")]
+        public async Task<IActionResult> OrderFormEdit(int id)
         {
             if (User.IsInRole(RoleName.Admin))
             {
