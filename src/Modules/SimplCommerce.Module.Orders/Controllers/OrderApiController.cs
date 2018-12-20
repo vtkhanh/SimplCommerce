@@ -135,14 +135,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         {
             var (order, errorMessage) = await _orderService.GetOrderAsync(id);
             var currentUser = await _workContext.GetCurrentUser();
-
-            if (!CanEditOrder(currentUser, order.CreatedById, order.VendorId))
-            {
-                errorMessage = "You don't have permission!";
-            }
-
-            return errorMessage.HasValue()
-                ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
+            return errorMessage.HasValue() ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
         }
 
         [HttpPut]

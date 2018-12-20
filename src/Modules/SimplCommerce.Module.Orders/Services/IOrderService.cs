@@ -53,5 +53,7 @@ namespace SimplCommerce.Module.Orders.Services
         Task<Order> CreateOrder(User user, string paymentMethod, string shippingMethod, Address billingAddress, Address shippingAddress);
 
         Task<decimal> GetTax(long cartOwnerUserId, long countryId, long stateOrProvinceId);
+
+        Task<long> GetOrderOwnerIdAsync(long orderId);
     }
 }
