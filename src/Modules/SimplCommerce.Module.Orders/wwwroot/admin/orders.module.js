@@ -14,7 +14,7 @@
                     })
                     .state('order-create', {
                         url: '/order/create',
-                        templateUrl: 'template/orders/order-form',
+                        templateUrl: 'template/orders/order-create',
                         controller: 'OrderFormCtrl as vm'
                     })
                     .state('order-edit', {

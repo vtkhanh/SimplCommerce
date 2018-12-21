@@ -124,7 +124,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                     StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),
                     order.CreatedOn,
-                    CanEdit = CanEditOrder(currentUser, order.CreatedById, order.VendorId)
+                    CanEdit = CanEditFullOrder(currentUser, order.CreatedById, order.VendorId)
                 });
 
             return Json(orders);
@@ -141,17 +141,31 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPut]
         public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
         {
-            var (order, _) = await _orderService.GetOrderAsync(orderForm.OrderId);
-            var currentUser = await _workContext.GetCurrentUser();
-
-            if (!CanEditOrder(currentUser, order.CreatedById, order.VendorId))
+            var (order, errorMessage) = await _orderService.GetOrderAsync(orderForm.OrderId);
+            if (order == null)
             {
-                return BadRequest("You don't have permission!");
+                return BadRequest(new { Error = errorMessage });
             }
 
-            var (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+            var currentUser = await _workContext.GetCurrentUser();
 
-            return ok ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
+            if (!CanEditFullOrder(currentUser, order.CreatedById, order.VendorId))
+            {
+                if (order.OrderStatus != orderForm.OrderStatus)
+                {
+                    (_, errorMessage) = await _orderService.UpdateStatusAsync(orderForm.OrderId, orderForm.OrderStatus);
+                }
+                if (!errorMessage.HasValue() && order.TrackingNumber != orderForm.TrackingNumber)
+                {
+                    (_, errorMessage) = await _orderService.UpdateTrackingNumberAsync(orderForm.OrderId, orderForm.TrackingNumber);
+                }
+            }
+            else
+            {
+                (_, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+            }
+
+            return !errorMessage.HasValue() ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
         }
 
         [HttpPut("change-order-status")]
@@ -175,7 +189,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             return ok ? Ok() : (IActionResult) BadRequest(new { Error = error });
         }
 
-        private bool CanEditOrder(Core.Models.User currentUser, long createdById, long? vendorId) => 
+        private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) => 
             User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
     }

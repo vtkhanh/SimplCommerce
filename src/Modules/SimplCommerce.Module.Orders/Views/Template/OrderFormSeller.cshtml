@@ -10,71 +10,11 @@
         <form name="orderForm" class="form-horizontal">
             <my-validation errors="vm.validationErrors"></my-validation>
             <div>
-                <div class="form-group">
-                    <!-- Select customer -->
-                    <div class="col-sm-6 col-xs-8">
-                        <md-autocomplete required="required" md-input-name="customer" md-no-cache="false" md-autoselect="true"
-                                         md-selected-item="vm.customer" md-search-text="vm.customerQuery" md-items="item in vm.searchCustomers(vm.customerQuery)"
-                                         md-item-text="item.display" md-min-length="0" md-floating-label="{{::vm.translate.get('Search customers')}}">
-                            <md-item-template>
-                                <span md-highlight-text="vm.customerQuery" md-highlight-flags="gi">{{item.display}}</span>
-                            </md-item-template>
-                            <div ng-messages="orderForm.customer.$error" class="md-block">
-                                <div ng-message="required">Customer is required</div>
-                            </div>
-                            <md-not-found>
-                                No customer "{{vm.customerQuery}}" were found.
-                            </md-not-found>
-                        </md-autocomplete>
-                    </div>
-                    <div class="col-sm-6 col-xs-8">
-                        <md-autocomplete style="min-width: 0;"
-                                         md-autofocus md-no-cache="false" md-autoselect="true"
-                                         md-selected-item="vm.selectedProduct" md-selected-item-change="vm.addToCart(vm.selectedProduct)"
-                                         md-search-text="vm.productQuery" md-select-on-match="true" md-items="item in vm.searchProducts(vm.productQuery)"
-                                         md-item-text="item.display" md-min-length="0" md-floating-label="{{::vm.translate.get('Search products')}}"
-                                         ng-keypress="($event.charCode==13) ? vm.addToCart(vm.selectedProduct) : return">
-                            <md-item-template>
-                                <span md-highlight-text="vm.productQuery" md-highlight-flags="gi">{{item.display}}</span>
-                            </md-item-template>
-                            <md-not-found>
-                                No product "{{vm.productQuery}}" were found.
-                            </md-not-found>
-                        </md-autocomplete>
-                    </div>
-                </div>
+                <partial name="_SelectCustomerAndProduct"/>
 
-                <div class="form-group" ng-if="vm.orderId">
-                    <div class="col-sm-3">
-                        <md-input-container class="md-block" flex-gt-xs>
-                            <label>{{::vm.translate.get('Order status')}}</label>
-                            <md-select placeholder="{{::vm.translate.get('Select a status')}}" ng-model="vm.orderStatus"
-                                       style="min-width: 200px;" aria-label="Order status">
-                                <md-option ng-repeat="status in vm.orderStatusList" ng-value="status.value">{{status.text}}</md-option>
-                            </md-select>
-                        </md-input-container>
-                    </div>
-                    <div class="col-sm-3">
-                        <md-input-container class="md-block" flex-gt-xs>
-                            <label>{{::vm.translate.get('Tracking number')}}</label>
-                            <input ng-model="vm.trackingNumber">
-                        </md-input-container>
-                    </div>
-                </div>
+                <partial name="_OrderStatusAndTracking"/>
 
-                <div class="form-group">
-                    <div class="col-sm-12" ng-if="vm.customer">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <i class="fa fa-user">&nbsp;</i>{{vm.customer.display}}
-                                <span ng-show="vm.customer.link"><a ng-href="{{vm.customer.link}}" target="_blank">(Link)</a></span>
-                            </div>
-                            <div class="col-sm-8">
-                                <span ng-show="vm.customer.address"><i class="fa fa-map-marker">&nbsp;</i>{{vm.customer.address}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <partial name="_CustomerInfo"/>
 
                 <div class="form-group">
                     <md-content>
@@ -201,82 +141,15 @@
                                     </div>
                                 </md-content>
                             </md-tab>
-                            <md-tab label="Invoice">
-                                <md-content class="md-padding">
-                                    <div id="invoice-tab" class="col-sm-12">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped table-condensed vertical-align-middle">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="col-sm-1">{{::vm.translate.get('Image')}}</th>
-                                                        <th class="col-sm-2">{{::vm.translate.get('Name')}}</th>
-                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Price')}}</th>
-                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Quantity')}}</th>
-                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Subtotal')}}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody ng-show="vm.orderItems.length" class="cart-list">
-                                                    <tr ng-repeat="item in vm.orderItems">
-                                                        <td class="col-sm-1">
-                                                            <img ng-src="{{item.productImage}}" alt="{{item.productName}}"
-                                                                 width="50">
-                                                        </td>
-                                                        <td class="col-sm-2">
-                                                            <a ui-sref="product-edit({id: item.productId})" target="_blank"
-                                                               title="{{item.productName}}">
-                                                                {{item.productName}}
-                                                            </a>
-                                                        </td>
-                                                        <td class="col-sm-1 text-center">{{item.productPrice.toCurrency()}}</td>
-                                                        <td class="col-sm-1 text-center">{{item.quantity}}</td>
-                                                        <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>
-                                                    </tr>
-                                                    <tr class="order-summary active">
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-2"></td>
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-1 text-center">{{::vm.translate.get("Subtotal")}}:</td>
-                                                        <td class="col-sm-1 text-center">{{vm.orderSubTotal.toCurrency()}}</td>
-                                                    </tr>
-                                                    <tr class="active">
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-2"></td>
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-1 text-center">{{::vm.translate.get("Discount")}}:</td>
-                                                        <td class="col-sm-1 text-center">{{vm.discount.toCurrency()}}</td>
-                                                    </tr>
-                                                    <tr class="active">
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-2"></td>
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
-                                                        <td class="col-sm-1 text-center">{{vm.shippingAmount.toCurrency()}}</td>
-                                                    </tr>
-                                                    <tr class="success">
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-2"></td>
-                                                        <td class="col-sm-1"></td>
-                                                        <td class="col-sm-1 text-center"><b>{{::vm.translate.get("Total")}}:</b></td>
-                                                        <td class="col-sm-1 text-center"><b>{{vm.orderTotal.toCurrency()}}</b></td>
-                                                    </tr>
-                                                </tbody>
-                                                <tbody ng-show="!vm.orderItems.length">
-                                                    <tr>
-                                                        <td colspan="10" class="text-center">{{::vm.translate.get("No product")}}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </md-content>
-                            </md-tab>
+
+                            <partial name="_InvoiceTabSeller"/>
                         </md-tabs>
                     </md-content>
 
                 </div>
                 <div class="form-group">
                     <div class="col-sm-12">
-                        <button type="button" class="btn btn-primary" ng-disabled="orderForm.$invalid" ng-click="vm.save()">
+                        <button type="button" class="btn btn-primary" ng-disabled="orderForm.$invalid || orderForm.$pristine" ng-click="vm.save()">
                             <i class="fa fa-check">&nbsp;</i>{{::vm.translate.get('Save')}}
                         </button>
                         <button type="button" ui-sref="order" class="btn btn-default">{{::vm.translate.get('Cancel')}}</button>

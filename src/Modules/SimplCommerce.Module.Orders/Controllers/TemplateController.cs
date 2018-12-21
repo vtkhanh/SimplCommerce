@@ -12,31 +12,35 @@ namespace SimplCommerce.Module.Orders.Controllers
     [ApiController]
     public class TemplateController : Controller
     {
-        private readonly IAuthorizationService _authorizationService;
+        private const string OrderListSellerView = "OrderListSeller";
+        private const string OrderFormView = "OrderForm";
+        private const string OrderFormSellerView = "OrderFormSeller";
+        private const string OrderFormRestrictedView = "OrderFormRestricted";
+
         private readonly IWorkContext _workContext;
         private readonly IOrderService _orderService;
 
-        public TemplateController(IAuthorizationService authorizationService, IWorkContext workContext, IOrderService orderService) =>
-            (_authorizationService, _workContext, _orderService) = (authorizationService, workContext, orderService);
+        public TemplateController(IWorkContext workContext, IOrderService orderService) =>
+            (_workContext, _orderService) = (workContext, orderService);
 
         [HttpGet("order-list")]
-        public IActionResult OrderList() => User.IsInRole(RoleName.Seller) ? View("OrderListSeller") : View();
+        public IActionResult OrderList() => User.IsInRole(RoleName.Seller) ? View(OrderListSellerView) : View();
 
-        [HttpGet("order-form")]
-        public IActionResult OrderForm() => User.IsInRole(RoleName.Seller) ? View("OrderFormSeller") : View();
+        [HttpGet("order-create")]
+        public IActionResult OrderFormCreate() => User.IsInRole(RoleName.Seller) ? View(OrderFormSellerView) : View(OrderFormView);
 
         [HttpGet("order-edit/{id}")]
         public async Task<IActionResult> OrderFormEdit(int id)
         {
             if (User.IsInRole(RoleName.Admin))
             {
-                return View();
+                return View(OrderFormView);
             }
 
             var currentUser = await _workContext.GetCurrentUser();
             var orderCreatedById = await _orderService.GetOrderOwnerIdAsync(id);
 
-            return currentUser.Id == orderCreatedById ? View("OrderFormSeller") : View("OrderFormReadOnly");
+            return currentUser.Id == orderCreatedById ? View(OrderFormSellerView) : View(OrderFormRestrictedView);
         }
     }
 }
