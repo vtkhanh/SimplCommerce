@@ -12,6 +12,7 @@ namespace SimplCommerce.Module.Orders.Controllers
     [ApiController]
     public class TemplateController : Controller
     {
+        private const string OrderListView = "OrderList";
         private const string OrderListSellerView = "OrderListSeller";
         private const string OrderFormView = "OrderForm";
         private const string OrderFormSellerView = "OrderFormSeller";
@@ -24,13 +25,13 @@ namespace SimplCommerce.Module.Orders.Controllers
             (_workContext, _orderService) = (workContext, orderService);
 
         [HttpGet("order-list")]
-        public IActionResult OrderList() => User.IsInRole(RoleName.Seller) ? View(OrderListSellerView) : View();
+        public IActionResult GetOrderList() => User.IsInRole(RoleName.Admin) ? View(OrderListView) : View(OrderListSellerView);
 
         [HttpGet("order-create")]
-        public IActionResult OrderFormCreate() => User.IsInRole(RoleName.Seller) ? View(OrderFormSellerView) : View(OrderFormView);
+        public IActionResult GetOrderFormCreate() => User.IsInRole(RoleName.Admin) ? View(OrderFormView) : View(OrderFormSellerView);
 
         [HttpGet("order-edit/{id}")]
-        public async Task<IActionResult> OrderFormEdit(int id)
+        public async Task<IActionResult> GetOrderFormEdit(int id)
         {
             if (User.IsInRole(RoleName.Admin))
             {

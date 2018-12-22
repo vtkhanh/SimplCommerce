@@ -14,7 +14,7 @@ using SimplCommerce.Module.Orders.Services;
 using SimplCommerce.Module.Orders.ViewModels;
 using Xunit;
 
-namespace SimplCommerce.Module.Orders.Tests
+namespace SimplCommerce.Module.Orders.Tests.Services
 {
     public class OrderServiceTests
     {
