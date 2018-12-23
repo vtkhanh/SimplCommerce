@@ -29,7 +29,6 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     .UseInMemoryDatabase(databaseName: nameof(UpdateStatusAsync))
                     .Options;
 
-
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
@@ -155,6 +154,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.True(error.HasValue());
             }
         }
+
         public class UpdateTrackingNumberAsync
         {
 
@@ -619,6 +619,81 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 // Assert
                 Assert.False(success);
                 Assert.NotNull(error);
+            }
+        }
+
+        public class GetOrderOwnerIdAsync
+        {
+            public GetOrderOwnerIdAsync()
+            {
+            }
+
+            [Fact]
+            public async Task CanReturnOwnerId()
+            {
+                // Arrange
+                const long CreatedById = 10;
+                long ownerId;
+                long orderId;
+                var options = new DbContextOptionsBuilder<SimplDbContext>()
+                    .UseInMemoryDatabase(databaseName: nameof(CanReturnOwnerId))
+                    .Options;
+
+                using (var context = new SimplDbContext(options))
+                {
+                    var order = new Order { CreatedById = CreatedById };
+                    var orderRepo = new Repository<Order>(context);
+                    orderRepo.Add(order);
+                    orderRepo.SaveChanges();
+
+                    orderId = orderRepo.Query().First().Id;
+                }
+
+                // Action
+                using (var context = new SimplDbContext(options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+
+                    ownerId = await orderService.GetOrderOwnerIdAsync(orderId);
+                }
+
+                // Assert
+                Assert.Equal(CreatedById, ownerId);
+            }
+
+            [Fact]
+            public async Task WithOrderNotFound_ShouldReturnDefault()
+            {
+                // Arrange
+                const long CreatedById = 10;
+                long ownerId;
+                long orderId;
+                var options = new DbContextOptionsBuilder<SimplDbContext>()
+                    .UseInMemoryDatabase(databaseName: nameof(WithOrderNotFound_ShouldReturnDefault))
+                    .Options;
+
+                using (var context = new SimplDbContext(options))
+                {
+                    var order = new Order { CreatedById = CreatedById };
+                    var orderRepo = new Repository<Order>(context);
+                    orderRepo.Add(order);
+                    orderRepo.SaveChanges();
+
+                    orderId = orderRepo.Query().First().Id;
+                }
+
+                // Action
+                using (var context = new SimplDbContext(options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+
+                    ownerId = await orderService.GetOrderOwnerIdAsync(orderId + 1);
+                }
+
+                // Assert
+                Assert.Equal(default(long), ownerId);
             }
         }
     }

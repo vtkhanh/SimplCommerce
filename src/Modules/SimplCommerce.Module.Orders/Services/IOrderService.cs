@@ -54,6 +54,11 @@ namespace SimplCommerce.Module.Orders.Services
 
         Task<decimal> GetTax(long cartOwnerUserId, long countryId, long stateOrProvinceId);
 
+        /// <summary>
+        /// Get User Id of the owner of an order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
         Task<long> GetOrderOwnerIdAsync(long orderId);
     }
 }
