@@ -130,6 +130,7 @@ namespace SimplCommerce.Module.Orders.Tests.Controllers
             Assert.Equal(OrderFormSellerView, viewResult.ViewName);
         }
 
+        [Fact]
         public async void GetOrderFormEdit_WithSellerUser_AndNotOrderOwner_ShouldReturnView()
         {
             // Arrange
