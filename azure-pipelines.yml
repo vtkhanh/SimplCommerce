@@ -11,7 +11,10 @@ variables:
     imageVersion: latest
 
 trigger: 
-- master
+  batch: true
+  branches:
+    include:
+    - master
 
 steps:
 - task: DotNetCoreInstaller@0
