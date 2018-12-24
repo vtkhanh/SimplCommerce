@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimplCommerce.Module.Core.Extensions.Constants;
 
@@ -10,11 +9,10 @@ namespace SimplCommerce.Module.Catalog.Controllers
     [ApiController]
     public class TemplateController : Controller
     {
-        private readonly IAuthorizationService _authorizationService;
-
-        public TemplateController(IAuthorizationService authorizationService) => _authorizationService = authorizationService;
+        private const string ProductListView = "ProductList";
+        private const string ProductListSellerView = "ProductListSeller";
 
         [HttpGet("product-list")]
-        public IActionResult ProductList() => User.IsInRole(RoleName.Seller) ? View("ProductListSeller") : View();
+        public IActionResult GetProductList() => User.IsInRole(RoleName.Admin) ? View(ProductListView) : View(ProductListSellerView);
     }
 }
