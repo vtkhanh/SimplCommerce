@@ -73,9 +73,11 @@ SET IDENTITY_INSERT [dbo].[Catalog_ProductOption] OFF
 GO
 
 SET IDENTITY_INSERT [dbo].[Payments_PaymentProvider] ON 
-INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name]) VALUES (1, NULL, NULL, 1, N'CoDLanding', N'Cash On Delivery')
-INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name]) VALUES (2, N'{"IsSandbox":true,"ClientId":"","ClientSecret":""}', N'payments-paypalExpress-config', 1, N'PaypalExpressLanding', N'Paypal Express')
-INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name]) VALUES (3, N'{"PublicKey": "pk_test_6pRNASCoBOKtIshFeQd4XMUh", "PrivateKey" : "sk_test_BQokikJOvBiI2HlWgH4olfQ2"}', N'payments-stripe-config', 1, N'StripeLanding', N'Stripe')
+INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name], [Description]) VALUES (1, NULL, NULL, 1, N'CoDLanding', N'Cash On Delivery', N'Thu ho')
+INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name], [Description]) VALUES (2, N'{"IsSandbox":true,"ClientId":"","ClientSecret":""}', N'payments-paypalExpress-config', 1, N'PaypalExpressLanding', N'Paypal Express', N'Paypal Express')
+INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name], [Description]) VALUES (3, N'{"PublicKey": "pk_test_6pRNASCoBOKtIshFeQd4XMUh", "PrivateKey" : "sk_test_BQokikJOvBiI2HlWgH4olfQ2"}', N'payments-stripe-config', 1, N'StripeLanding', N'Stripe', N'Stripe')
+INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name], [Description]) VALUES (4, NULL, NULL, 1, N'', N'Bank Transfer', N'Chuyen khoan')
+INSERT [dbo].[Payments_PaymentProvider] ([Id], [AdditionalSettings], [ConfigureUrl], [IsEnabled], [LandingViewComponentName], [Name], [Description]) VALUES (5, NULL, NULL, 1, N'', N'Direct Cash', N'Tien mat')
 SET IDENTITY_INSERT [dbo].[Payments_PaymentProvider] OFF
 
 SET IDENTITY_INSERT [dbo].[Core_Country] ON 

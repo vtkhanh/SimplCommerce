@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
+using SimplCommerce.Module.Payments.Models;
 
 namespace SimplCommerce.Module.Orders.Models
 {
@@ -70,6 +71,11 @@ namespace SimplCommerce.Module.Orders.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal OrderTotalCost { get; set; }
+
+        public long? PaymentProviderId { get; set; }
+
+        [ForeignKey("PaymentProviderId")]
+        public PaymentProvider PaymentProvider { get; set; }
 
         public string PaymentMethod { get; set; }
 

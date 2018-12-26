@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Payments.Models;
+using SimplCommerce.Module.Payments.Services;
 
 namespace SimplCommerce.Module.Payments.Controllers
 {
@@ -13,24 +14,19 @@ namespace SimplCommerce.Module.Payments.Controllers
     public class PaymentProviderApiController : Controller
     {
         private readonly IRepository<PaymentProvider> _paymentProviderRepository;
+        private readonly IPaymentProviderService _paymentProviderService;
 
-        public PaymentProviderApiController(IRepository<PaymentProvider> paymentProviderRepositor)
+        public PaymentProviderApiController(IRepository<PaymentProvider> paymentProviderRepositor,
+            IPaymentProviderService paymentProviderService)
         {
             _paymentProviderRepository = paymentProviderRepositor;
+            _paymentProviderService = paymentProviderService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var providers = await _paymentProviderRepository.Query()
-                .Select(x => new
-                {
-                    x.Id,
-                    x.Name,
-                    x.IsEnabled,
-                    x.ConfigureUrl
-                }).ToListAsync();
-
+            var providers = await _paymentProviderService.GetListAsync();
             return Json(providers);
         }
 

@@ -29,8 +29,6 @@ namespace SimplCommerce.Module.Orders.ViewModels
                    Text = t.ToString()
                }).ToList();
 
-        public string OrderStatusDisplay { get; set; }
-
         public IList<OrderItemVm> OrderItems { get; set; }
 
         public decimal ShippingAmount { get; set; }
@@ -40,6 +38,10 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public decimal Discount { get; set; }
 
         public string TrackingNumber { get; set; }
+
+        public long? PaymentProviderId { get; set; }
+
+        public IList<SelectListItem> PaymentProviderList { get; set; }
 
         public decimal SubTotal { get; set; }
 

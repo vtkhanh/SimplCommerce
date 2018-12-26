@@ -24,22 +24,22 @@ namespace SimplCommerce.Module.Orders.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<Order>(u =>
+            modelBuilder.Entity<Order>(order =>
             {
-                u.HasOne(x => x.ShippingAddress)
-                 .WithMany()
-                 .HasForeignKey(x => x.ShippingAddressId)
-                 .OnDelete(DeleteBehavior.Restrict);
+                order.HasOne(x => x.ShippingAddress)
+                    .WithMany()
+                    .HasForeignKey(x => x.ShippingAddressId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                u.HasOne(x => x.BillingAddress)
-                 .WithMany()
-                 .HasForeignKey(x => x.BillingAddressId)
-                 .OnDelete(DeleteBehavior.Restrict);
+                order.HasOne(x => x.BillingAddress)
+                    .WithMany()
+                    .HasForeignKey(x => x.BillingAddressId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                u.HasOne(i => i.Customer)
-                 .WithMany()
-                 .HasForeignKey(i => i.CustomerId)
-                 .OnDelete(DeleteBehavior.Restrict);
+                order.HasOne(i => i.Customer)
+                    .WithMany()
+                    .HasForeignKey(i => i.CustomerId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

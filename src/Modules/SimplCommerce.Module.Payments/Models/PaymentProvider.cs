@@ -6,6 +6,8 @@ namespace SimplCommerce.Module.Payments.Models
     {
         public string Name { get; set; }
 
+        public string Description { get; set; }
+
         public bool IsEnabled { get; set; }
 
         public string ConfigureUrl { get; set; }

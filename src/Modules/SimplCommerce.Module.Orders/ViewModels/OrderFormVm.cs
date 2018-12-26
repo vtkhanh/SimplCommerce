@@ -38,5 +38,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public decimal Discount { get; set; }
 
         public string TrackingNumber { get; set; }
+
+        public long? PaymentProviderId { get; set; }
     }
 }

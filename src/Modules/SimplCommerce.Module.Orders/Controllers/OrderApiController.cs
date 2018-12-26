@@ -134,7 +134,6 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<IActionResult> Edit(long id)
         {
             var (order, errorMessage) = await _orderService.GetOrderAsync(id);
-            var currentUser = await _workContext.GetCurrentUser();
             return errorMessage.HasValue() ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
         }
 
@@ -149,23 +148,22 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             var currentUser = await _workContext.GetCurrentUser();
 
+            bool ok = false;
             if (!CanEditFullOrder(currentUser, order.CreatedById, order.VendorId))
             {
-                if (order.OrderStatus != orderForm.OrderStatus)
+                if (order.OrderStatus != orderForm.OrderStatus || 
+                    order.TrackingNumber != orderForm.TrackingNumber || 
+                    order.PaymentProviderId != orderForm.PaymentProviderId)
                 {
-                    (_, errorMessage) = await _orderService.UpdateStatusAsync(orderForm.OrderId, orderForm.OrderStatus);
-                }
-                if (!errorMessage.HasValue() && order.TrackingNumber != orderForm.TrackingNumber)
-                {
-                    (_, errorMessage) = await _orderService.UpdateTrackingNumberAsync(orderForm.OrderId, orderForm.TrackingNumber);
+                    (ok, errorMessage) = await _orderService.UpdateOrderStateAsync(orderForm);
                 }
             }
             else
             {
-                (_, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+                (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
             }
 
-            return !errorMessage.HasValue() ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
+            return ok ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
         }
 
         [HttpPut("change-order-status")]

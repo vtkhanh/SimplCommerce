@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
-using SimplCommerce.Module.Orders.Models;
+//using SimplCommerce.Module.Orders.Models;
 
 namespace SimplCommerce.Module.Payments.Models
 {
@@ -9,7 +9,7 @@ namespace SimplCommerce.Module.Payments.Models
     {
         public long OrderId { get; set; }
 
-        public Order Order { get; set; }
+        //public Order Order { get; set; }
 
         public DateTimeOffset CreatedOn { get; set; }
 
