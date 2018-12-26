@@ -9,5 +9,7 @@ namespace SimplCommerce.Module.Payments.Services
         Task<IEnumerable<PaymentProviderVm>> GetListAsync(bool? isEnabled = null);
 
         Task<PaymentProviderVm> GetByIdAsync(long id);
+
+        Task<(bool, string)> ToggleAsync(long id, bool isEnabled);
     }
 }

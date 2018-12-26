@@ -49,5 +49,20 @@ namespace SimplCommerce.Module.Payments.Services
 
             return providers;
         }
+
+        public async Task<(bool, string)> ToggleAsync(long id, bool isEnabled)
+        {
+            var provider = await _paymentProviderRepo.Query().FirstOrDefaultAsync(item => item.Id == id);
+            if (provider == null)
+            {
+                return (false, $"Cannot find order with id {id}");
+            }
+
+            provider.IsEnabled = isEnabled;
+
+            await _paymentProviderRepo.SaveChangesAsync();
+
+            return (true, null);
+        }
     }
 }

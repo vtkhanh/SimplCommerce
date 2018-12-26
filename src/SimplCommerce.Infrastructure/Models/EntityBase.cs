@@ -10,5 +10,7 @@
     /// </summary>
     public abstract class EntityBase : EntityBaseWithTypedId<long>
     {
+        protected EntityBase() { }
+        protected EntityBase(long id) : base(id) { }
     }
 }
