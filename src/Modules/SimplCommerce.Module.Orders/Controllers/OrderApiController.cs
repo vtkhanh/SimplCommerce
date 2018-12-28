@@ -21,6 +21,8 @@ namespace SimplCommerce.Module.Orders.Controllers
     [ApiController]
     public class OrderApiController : Controller
     {
+        private const int DashboardRecordNumber = 10;
+
         private readonly IMediaService _mediaService;
         private readonly IOrderService _orderService;
         private readonly IRepository<Order> _orderRepository;
@@ -43,25 +45,21 @@ namespace SimplCommerce.Module.Orders.Controllers
             var orderStatus = (OrderStatus)status;
             if ((numRecords <= 0) || (numRecords > 100))
             {
-                numRecords = 5;
+                numRecords = DashboardRecordNumber;
             }
 
-            var query = _orderRepository
-                .Query()
+            var query = _orderRepository.QueryAsNoTracking()
+                .Include(item => item.Customer)
+                .Include(item => item.CreatedBy)
                 .Where(x => x.OrderStatus == orderStatus);
-
-            var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin"))
-            {
-                query = query.Where(x => x.VendorId == currentUser.VendorId);
-            }
 
             var model = query.OrderByDescending(x => x.CreatedOn)
                 .Take(numRecords)
                 .Select(x => new
                 {
                     x.Id,
-                    CustomerName = x.CreatedBy.FullName,
+                    CustomerName = x.Customer.FullName,
+                    CreatedBy = x.CreatedBy.FullName,
                     x.SubTotal,
                     OrderStatus = x.OrderStatus.ToString(),
                     x.CreatedOn
