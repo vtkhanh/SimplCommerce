@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 
 namespace SimplCommerce.Module.Pricing.Models
@@ -20,8 +21,10 @@ namespace SimplCommerce.Module.Pricing.Models
 
         public string RuleToApply { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal DiscountAmount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? MaxDiscountAmount { get; set; }
 
         public int? DiscountStep { get; set; }

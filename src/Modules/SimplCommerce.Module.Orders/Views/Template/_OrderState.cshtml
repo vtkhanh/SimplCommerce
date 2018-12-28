@@ -1,0 +1,26 @@
+﻿<div class="form-group" ng-if="vm.orderId">
+    <div class="col-sm-3">
+        <md-input-container class="md-block" flex-gt-xs>
+            <label>{{::vm.translate.get('Order status')}}</label>
+            <md-select placeholder="{{::vm.translate.get('Select a status')}}" ng-model="vm.orderStatus"
+                       style="min-width: 200px;" aria-label="Order status">
+                <md-option ng-repeat="status in vm.orderStatusList" ng-value="status.value">{{status.text}}</md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+    <div class="col-sm-3">
+        <md-input-container class="md-block" flex-gt-xs>
+            <label>{{::vm.translate.get('Tracking number')}}</label>
+            <input ng-model="vm.trackingNumber">
+        </md-input-container>
+    </div>
+    <div class="col-sm-3">
+        <md-input-container class="md-block" flex-gt-xs>
+            <label>{{::vm.translate.get('Select payment')}}</label>
+            <md-select placeholder="{{::vm.translate.get('Select payment')}}" ng-model="vm.paymentProviderId"
+                       style="min-width: 200px;" aria-label="Order payment">
+                <md-option ng-repeat="payment in vm.paymentProviderList" ng-value="payment.value">{{payment.text}}</md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+</div>

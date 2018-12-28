@@ -8,6 +8,8 @@
     function OrderFormCtrl($state, $stateParams, translateService,
         orderService, userService, productService) {
 
+        const OrderPendingStatus = 0;
+
         const vm = this;
         vm.translate = translateService;
 
@@ -15,7 +17,6 @@
             userService
             .searchCustomers(query)
             .then((result) => {
-                // vm.customers = result.data;
                 return result.data;
             })
             .catch((response) => toastr.error(response.data.error));
@@ -119,7 +120,8 @@
                 shippingAmount: vm.shippingAmount,
                 shippingCost: vm.shippingCost,
                 discount: vm.discount,
-                orderStatus: vm.orderStatus || 0, // Default: Pending
+                orderStatus: vm.orderStatus || OrderPendingStatus,
+                paymentProviderId: vm.paymentProviderId,
                 orderItems: vm.orderItems
             };
             if (vm.orderId === 0) {
@@ -158,7 +160,7 @@
                 vm.shippingCost = 0;
                 vm.discount = 0;
                 vm.orderTotal = 0;
-                vm.orderStatus = 0; // Pending
+                vm.orderStatus = OrderPendingStatus;
 
                 vm.pageTitle = "Create order";
             } else {
@@ -183,6 +185,8 @@
                         vm.orderTotalCost = order.orderTotalCost;
                         vm.orderStatus = order.orderStatus;
                         vm.orderStatusList = order.orderStatusList;
+                        vm.paymentProviderId = order.paymentProviderId;
+                        vm.paymentProviderList = order.paymentProviderList;
                         vm.orderItems = order.orderItems;
                         vm.orderItems.forEach(element => {
                             element.productStock = element.stock;
@@ -199,7 +203,7 @@
             vm.validationErrors = [];
             if (error && angular.isObject(error)) {
                 for (let key in error) {
-                    vm.validationErrors.push(error[key][0]);
+                    vm.validationErrors.push(error[key]);
                 }
             } else {
                 vm.validationErrors.push('Could not add product.');

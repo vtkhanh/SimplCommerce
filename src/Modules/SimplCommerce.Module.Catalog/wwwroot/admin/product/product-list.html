@@ -23,16 +23,11 @@
                 <th st-sort="Name" class="text-center sortable col-xs-4">{{::vm.translate.get('Name')}}</th>
                 <th class="text-center col-xs-2">{{::vm.translate.get('Sku')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Has Options')}}</th>
-                <!-- <th class="text-center">{{::vm.translate.get('Is Visible Individually')}}</th> -->
-                <!-- <th class="text-center">{{::vm.translate.get('Is Featured')}}</th> -->
-                <!-- <th class="text-center">{{::vm.translate.get('Is Allowed To Order')}}</th> -->
-                <!-- <th class="text-center">{{::vm.translate.get('Is Called For Pricing')}}</th> -->
-                <!-- <th st-sort="IsPublished" class="text-center sortable col-xs-1">{{::vm.translate.get('Is Published')}}</th> -->
                 <th class="text-center col-xs-1">{{::vm.translate.get('Stock')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Weight')}}</th>
-                <th class="text-center col-xs-1">{{::vm.translate.get('Cost')}}</th>
+                <th class="text-center col-xs-1" ng-if="vm.canEdit">{{::vm.translate.get('Cost')}}</th>
                 <th class="text-center col-xs-1">{{::vm.translate.get('Price')}}</th>
-                <th class="text-center col-xs-1">{{::vm.translate.get('Actions')}}</th>
+                <th class="text-center col-xs-1" ng-if="vm.canEdit">{{::vm.translate.get('Actions')}}</th>
             </tr>
             <tr class="row">
                 <th class="col-xs-4">
@@ -54,58 +49,25 @@
                         </select>
                     </div>
                 </th>
-                <!-- <th>
-                <div class="form-group">
-                    <select class="form-control" st-search="IsVisibleIndividually">
-                        <option value="">{{::vm.translate.get('All')}}</option>
-                        <option value="true">{{::vm.translate.get('Yes')}}</option>
-                        <option value="false">{{::vm.translate.get('No')}}</option>
-                    </select>
-                </div>
-            </th>
-            <th></th>
-            <th></th>
-            <th></th> 
-            <th class="col-xs-1">
-                <div class="input-group centered">
-                    <select class="form-control" st-search="IsPublished">
-                        <option value="">{{::vm.translate.get('All')}}</option>
-                        <option value="true">{{::vm.translate.get('Yes')}}</option>
-                        <option value="false">{{::vm.translate.get('No')}}</option>
-                    </select>
-                </div>
-            </th> -->
                 <th class="col-xs-1"></th>
                 <th class="col-xs-1"></th>
+                <th class="col-xs-1" ng-if="vm.canEdit"></th>
                 <th class="col-xs-1"></th>
-                <th class="col-xs-1"></th>
-                <th class="col-xs-1"></th>
+                <th class="col-xs-1" ng-if="vm.canEdit"></th>
             </tr>
         </thead>
         <tbody ng-show="!vm.isLoading">
             <tr ng-repeat="product in vm.products" class="row">
-                <td class="col-xs-3">{{product.name}} </td>
+                <td class="col-xs-4">{{product.name}} </td>
                 <td class="col-xs-2 text-center">{{product.sku}} </td>
                 <td class="text-center col-xs-1">
                     <i ng-attr-class="{{product.hasOptions && 'fa fa-circle' || 'fa fa-circle-o'}}"></i>
                 </td>
-                <!-- <td class="text-center"><i ng-attr-class="{{product.isVisibleIndividually && 'fa fa-circle' || 'fa fa-circle-o'}}"></i></td> -->
-                <!-- <td class="text-center"><i ng-attr-class="{{product.isFeatured && 'fa fa-circle' || 'fa fa-circle-o'}}"></i></td> -->
-                <!-- <td class="text-center"><i ng-attr-class="{{product.isAllowToOrder && 'fa fa-circle' || 'fa fa-circle-o'}}"></i></td> -->
-                <!-- <td class="text-center"><i ng-attr-class="{{product.isCallForPricing && 'fa fa-circle' || 'fa fa-circle-o'}}"></i></td> -->
-                <!-- <td class="text-center col-xs-1"><i ng-attr-class="{{product.isPublished && 'fa fa-circle' || 'fa fa-circle-o'}}"></i></td> -->
                 <td class="text-center col-xs-1">{{product.stock}}</td>
                 <td class="text-center col-xs-1">{{product.weight}}</td>
-                <td class="text-center col-xs-1">{{product.cost.toCurrency()}}</td>
+                <td class="text-center col-xs-1" ng-if="vm.canEdit">{{product.cost.toCurrency()}}</td>
                 <td class="text-center col-xs-1">{{product.price.toCurrency()}}</td>
-                <td class="text-center col-xs-1">
-                    <!-- TODO: Temporarily disable
-                    <button ng-if="product.isPublished" title="Un Publish" ng-click="vm.changeStatus(product)" class="btn btn-primary btn-xs">
-                        <span class="fa fa-pause"></span>
-                    </button>
-                    <button ng-if="!product.isPublished" title="Publish" ng-click="vm.changeStatus(product)" class="btn btn-primary btn-xs">
-                        <span class="fa fa-play"></span>
-                    </button> -->
+                <td class="text-center col-xs-1" ng-if="vm.canEdit">
                     <a ui-sref="product-edit({id: product.id})" title="Edit" class="btn btn-primary btn-xs">
                         <span class="fa fa-edit"></span>
                     </a>

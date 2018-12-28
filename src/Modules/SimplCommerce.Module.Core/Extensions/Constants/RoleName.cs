@@ -11,5 +11,7 @@ namespace SimplCommerce.Module.Core.Extensions.Constants
         public const string Guest = "guest";
 
         public const string Vendor = "vendor";
+
+        public const string Seller = "seller";
     }
 }

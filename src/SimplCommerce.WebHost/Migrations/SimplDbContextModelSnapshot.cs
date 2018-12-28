@@ -15,7 +15,7 @@ namespace SimplCommerce.WebHost.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
+                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -189,7 +189,8 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<long?>("BrandId");
 
-                    b.Property<decimal>("Cost");
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("CreatedById");
 
@@ -225,9 +226,11 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<string>("NormalizedName");
 
-                    b.Property<decimal?>("OldPrice");
+                    b.Property<decimal?>("OldPrice")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("Price");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset?>("PublishedOn");
 
@@ -241,7 +244,8 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<string>("Sku");
 
-                    b.Property<decimal?>("SpecialPrice");
+                    b.Property<decimal?>("SpecialPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset?>("SpecialPriceEnd");
 
@@ -1246,29 +1250,38 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<long>("CustomerId");
 
-                    b.Property<decimal>("Discount");
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("OrderStatus");
 
-                    b.Property<decimal>("OrderTotal");
+                    b.Property<decimal>("OrderTotal")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("OrderTotalCost");
+                    b.Property<decimal>("OrderTotalCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("ParentId");
 
                     b.Property<string>("PaymentMethod");
 
+                    b.Property<long?>("PaymentProviderId");
+
                     b.Property<long?>("ShippingAddressId");
 
-                    b.Property<decimal>("ShippingAmount");
+                    b.Property<decimal>("ShippingAmount")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("ShippingCost");
+                    b.Property<decimal>("ShippingCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ShippingMethod");
 
-                    b.Property<decimal>("SubTotal");
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("TaxAmount");
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("TrackingNumber");
 
@@ -1285,6 +1298,8 @@ namespace SimplCommerce.WebHost.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("PaymentProviderId");
 
                     b.HasIndex("ShippingAddressId");
 
@@ -1336,13 +1351,16 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<long>("ProductId");
 
-                    b.Property<decimal>("ProductPrice");
+                    b.Property<decimal>("ProductPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity");
 
-                    b.Property<decimal>("TaxAmount");
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("TaxPercent");
+                    b.Property<decimal>("TaxPercent")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -1359,7 +1377,8 @@ namespace SimplCommerce.WebHost.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<decimal>("Amount");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset>("CreatedOn");
 
@@ -1373,8 +1392,6 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
-
                     b.ToTable("Payments_Payment");
                 });
 
@@ -1387,6 +1404,8 @@ namespace SimplCommerce.WebHost.Migrations
                     b.Property<string>("AdditionalSettings");
 
                     b.Property<string>("ConfigureUrl");
+
+                    b.Property<string>("Description");
 
                     b.Property<bool>("IsEnabled");
 
@@ -1407,7 +1426,8 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<decimal>("DiscountAmount");
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("DiscountStep");
 
@@ -1417,7 +1437,8 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<bool>("IsCouponRequired");
 
-                    b.Property<decimal?>("MaxDiscountAmount");
+                    b.Property<decimal?>("MaxDiscountAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name");
 
@@ -1504,13 +1525,15 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<decimal>("DiscountAmount");
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset?>("EndOn");
 
                     b.Property<bool>("IsActive");
 
-                    b.Property<decimal?>("MaxDiscountAmount");
+                    b.Property<decimal?>("MaxDiscountAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name");
 
@@ -1741,11 +1764,13 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<long?>("CountryId");
 
-                    b.Property<decimal>("MinOrderSubtotal");
+                    b.Property<decimal>("MinOrderSubtotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Note");
 
-                    b.Property<decimal>("ShippingPrice");
+                    b.Property<decimal>("ShippingPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("StateOrProvinceId");
 
@@ -1772,13 +1797,15 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<bool>("IsActive");
 
-                    b.Property<decimal?>("ShippingAmount");
+                    b.Property<decimal?>("ShippingAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ShippingData");
 
                     b.Property<string>("ShippingMethod");
 
-                    b.Property<decimal?>("TaxAmount");
+                    b.Property<decimal?>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset?>("UpdatedOn");
 
@@ -1837,7 +1864,8 @@ namespace SimplCommerce.WebHost.Migrations
 
                     b.Property<string>("Name");
 
-                    b.Property<decimal>("Rate");
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<long?>("StateOrProvinceId");
 
@@ -2237,6 +2265,10 @@ namespace SimplCommerce.WebHost.Migrations
                         .WithMany("Children")
                         .HasForeignKey("ParentId");
 
+                    b.HasOne("SimplCommerce.Module.Payments.Models.PaymentProvider", "PaymentProvider")
+                        .WithMany()
+                        .HasForeignKey("PaymentProviderId");
+
                     b.HasOne("SimplCommerce.Module.Orders.Models.OrderAddress", "ShippingAddress")
                         .WithMany()
                         .HasForeignKey("ShippingAddressId")
@@ -2270,14 +2302,6 @@ namespace SimplCommerce.WebHost.Migrations
                     b.HasOne("SimplCommerce.Module.Catalog.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("SimplCommerce.Module.Payments.Models.Payment", b =>
-                {
-                    b.HasOne("SimplCommerce.Module.Orders.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

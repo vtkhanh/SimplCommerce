@@ -82,7 +82,9 @@
         }
     ]);
 
-    adminApp.run(['editableOptions', function (editableOptions) {
+    adminApp.run(['$rootScope', 'editableOptions', function ($rootScope, editableOptions) {
         editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+
+        $rootScope.goBack = () => window.history.back();
     }]);
 })();

@@ -178,7 +178,7 @@ src/**/Logs/
 src/SimplCommerce.WebHost/wwwroot/lib/
 
 # appsettings with docker
-appsettings.docker.json
+appsettings.Docker.json
 appsettings.Production.json
 appsettings.Staging.json
 appsettings.Development.json

@@ -4,7 +4,11 @@ namespace SimplCommerce.Module.Payments.Models
 {
     public class PaymentProvider : EntityBase
     {
+        public PaymentProvider(long id) : base(id) { }
+
         public string Name { get; set; }
+
+        public string Description { get; set; }
 
         public bool IsEnabled { get; set; }
 

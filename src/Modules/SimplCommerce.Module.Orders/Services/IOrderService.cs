@@ -22,11 +22,26 @@ namespace SimplCommerce.Module.Orders.Services
         Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest);
 
         /// <summary>
+        /// Update order status, tracking number, and payment provider
+        /// </summary>
+        /// <param name="orderRequest"></param>
+        /// <returns></returns>
+        Task<(bool, string)> UpdateOrderStateAsync(OrderFormVm orderRequest);
+
+        /// <summary>
         /// Update order tracking number
         /// </summary>
         /// <param name="trackingNumber"></param>
         /// <returns></returns>
         Task<(bool, string)> UpdateTrackingNumberAsync(long orderId, string trackingNumber);
+
+        /// <summary>
+        /// Update order payment provider
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="paymentProviderId"></param>
+        /// <returns></returns>
+        Task<(bool, string)> UpdatePaymentProviderAsync(long orderId, long paymentProviderId);
 
         /// <summary>
         /// Update order status
@@ -53,5 +68,12 @@ namespace SimplCommerce.Module.Orders.Services
         Task<Order> CreateOrder(User user, string paymentMethod, string shippingMethod, Address billingAddress, Address shippingAddress);
 
         Task<decimal> GetTax(long cartOwnerUserId, long countryId, long stateOrProvinceId);
+
+        /// <summary>
+        /// Get User Id of the owner of an order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        Task<long> GetOrderOwnerIdAsync(long orderId);
     }
 }

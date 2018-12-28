@@ -15,6 +15,8 @@ using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Services;
 using System.Collections.Generic;
 using SimplCommerce.Module.Catalog.Models;
+using SimplCommerce.Module.Payments.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -22,34 +24,30 @@ namespace SimplCommerce.Module.Orders.Services
     {
         private readonly IRepository<Cart> _cartRepository;
         private readonly IRepository<Order> _orderRepository;
-        private readonly IRepository<OrderItem> _orderItemRepo;
         private readonly IRepository<Product> _productRepo;
         private readonly ICouponService _couponService;
         private readonly IRepository<CartItem> _cartItemRepository;
         private readonly ITaxService _taxService;
         private readonly IShippingPriceService _shippingPriceService;
         private readonly IRepository<UserAddress> _userAddressRepository;
-        private readonly IOrderEmailService _orderEmailService;
         private readonly IWorkContext _workContext;
         private readonly IMediaService _mediaService;
+        private readonly IPaymentProviderService _paymentProviderService;
 
         public OrderService(
             IRepository<Order> orderRepository,
             IRepository<Product> productRepo,
-            IRepository<OrderItem> orderItemRepo,
             IRepository<Cart> cartRepository,
             ICouponService couponService,
             IRepository<CartItem> cartItemRepository,
             ITaxService taxService,
             IShippingPriceService shippingPriceService,
             IRepository<UserAddress> userAddressRepository,
-            IOrderEmailService orderEmailService,
             IMediaService mediaService,
-            IWorkContext workContext
-            )
+            IWorkContext workContext,
+            IPaymentProviderService paymentProviderService)
         {
             _orderRepository = orderRepository;
-            _orderItemRepo = orderItemRepo;
             _productRepo = productRepo;
             _cartRepository = cartRepository;
             _couponService = couponService;
@@ -57,23 +55,23 @@ namespace SimplCommerce.Module.Orders.Services
             _taxService = taxService;
             _shippingPriceService = shippingPriceService;
             _userAddressRepository = userAddressRepository;
-            _orderEmailService = orderEmailService;
             _workContext = workContext;
             _mediaService = mediaService;
+            _paymentProviderService = paymentProviderService;
         }
 
         public async Task<(GetOrderVm, string)> GetOrderAsync(long orderId)
         {
             var order = await _orderRepository.Query()
-                .Include(x => x.OrderItems).ThenInclude(x => x.Product).ThenInclude(x => x.ThumbnailImage)
-                .FirstOrDefaultAsync(x => x.Id == orderId);
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product).ThenInclude(item => item.ThumbnailImage)
+                .FirstOrDefaultAsync(item => item.Id == orderId);
 
-            if (order == null) return (null, $"Cannot find order with id {orderId}");
+            if (order == null)
+                return (null, $"Cannot find order with id {orderId}");
 
             var result = new GetOrderVm
             {
                 OrderStatus = order.OrderStatus,
-                OrderStatusDisplay = order.OrderStatus.ToString(),
                 CustomerId = order.CustomerId,
                 SubTotal = order.SubTotal,
                 SubTotalCost = order.OrderItems.Sum(item => item.Quantity * item.Product.Cost),
@@ -83,8 +81,10 @@ namespace SimplCommerce.Module.Orders.Services
                 OrderTotal = order.OrderTotal,
                 OrderTotalCost = order.OrderTotalCost,
                 TrackingNumber = order.TrackingNumber,
-                OrderItems = order.OrderItems.Select(item =>
-                    new OrderItemVm
+                CreatedById = order.CreatedById,
+                VendorId = order.VendorId,
+                OrderItems = order.OrderItems
+                    .Select(item => new OrderItemVm
                     {
                         Id = item.Id,
                         ProductId = item.ProductId,
@@ -96,6 +96,13 @@ namespace SimplCommerce.Module.Orders.Services
                         Stock = item.Product.Stock,
                         ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
                         Quantity = item.Quantity
+                    }).ToList(),
+                PaymentProviderId = order.PaymentProviderId,
+                PaymentProviderList = (await _paymentProviderService.GetListAsync(true))
+                    .Select(item => new SelectListItem
+                    {
+                        Value = item.Id.ToString(),
+                        Text = item.Description
                     }).ToList()
             };
 
@@ -132,7 +139,7 @@ namespace SimplCommerce.Module.Orders.Services
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
 
-            if (order == null) 
+            if (order == null)
             {
                 return (false, $"Cannot find order with id {orderRequest.OrderId}");
             }
@@ -355,6 +362,20 @@ namespace SimplCommerce.Module.Orders.Services
             return (true, null);
         }
 
+        public async Task<(bool, string)> UpdatePaymentProviderAsync(long orderId, long paymentProviderId)
+        {
+            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+            if (order == null)
+            {
+                return (false, $"Cannot find order with Id: {orderId}");
+            }
+
+            order.PaymentProviderId = paymentProviderId;
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
+        }
+
         public async Task<(GetOrderVm, string)> UpdateStatusAsync(long orderId, OrderStatus status)
         {
             var order = await _orderRepository.Query()
@@ -366,15 +387,12 @@ namespace SimplCommerce.Module.Orders.Services
                 return (null, $"Cannot find order with Id: {orderId}");
             }
 
-            order.OrderStatus = status;
-            if (status == OrderStatus.Cancelled) {
-                ResetOrderItemQuantities(order);
-                CalculateOrderTotal(order);
-            }
+            UpdateStatus(order, status);
 
             await _orderRepository.SaveChangesAsync();
 
-            var result = new GetOrderVm {
+            var result = new GetOrderVm
+            {
                 OrderId = order.Id,
                 SubTotal = order.SubTotal,
                 OrderTotal = order.OrderTotal,
@@ -383,6 +401,33 @@ namespace SimplCommerce.Module.Orders.Services
             };
 
             return (result, null);
+        }
+
+        public async Task<(bool, string)> UpdateOrderStateAsync(OrderFormVm orderRequest)
+        {
+            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderRequest.OrderId);
+            if (order == null)
+            {
+                return (false, $"Cannot find order with Id: {orderRequest.OrderId}");
+            }
+
+            order.TrackingNumber = orderRequest.TrackingNumber;
+            order.PaymentProviderId = orderRequest.PaymentProviderId;
+            UpdateStatus(order, orderRequest.OrderStatus);
+
+            await _orderRepository.SaveChangesAsync();
+
+            return (true, null);
+        }
+
+        public async Task<long> GetOrderOwnerIdAsync(long orderId)
+        {
+            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+
+            if (order == null)
+                return default(long);
+
+            return order.CreatedById;
         }
 
         private async Task<decimal> ApplyDiscount(User user, Cart cart)
@@ -434,15 +479,27 @@ namespace SimplCommerce.Module.Orders.Services
             order.Discount = orderRequest.Discount;
             order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
+            order.PaymentProviderId = orderRequest.PaymentProviderId;
 
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
             // Reset all order item's quantities when order is cancelled
-            if (order.OrderStatus == OrderStatus.Cancelled) {
+            if (order.OrderStatus == OrderStatus.Cancelled)
+            {
                 ResetOrderItemQuantities(order);
             }
 
             CalculateOrderTotal(order);
+        }
+
+        private void UpdateStatus(Order order, OrderStatus status)
+        {
+            order.OrderStatus = status;
+            if (status == OrderStatus.Cancelled)
+            {
+                ResetOrderItemQuantities(order);
+                CalculateOrderTotal(order);
+            }
         }
 
         private void ResetOrderItemQuantities(Order order)

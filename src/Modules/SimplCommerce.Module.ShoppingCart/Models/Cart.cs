@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
 
@@ -29,8 +30,10 @@ namespace SimplCommerce.Module.ShoppingCart.Models
 
         public string ShippingMethod { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? ShippingAmount { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? TaxAmount { get; set; }
 
         public IList<CartItem> Items { get; set; } = new List<CartItem>();

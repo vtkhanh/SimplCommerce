@@ -1,0 +1,119 @@
+﻿@{
+    Layout = null;
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h2>{{::vm.translate.get(vm.pageTitle)}}</h2>
+    </div>
+    <div class="panel-body">
+        <form name="orderForm" class="form-horizontal">
+            <my-validation errors="vm.validationErrors"></my-validation>
+            <div>
+                <partial name="_OrderState"/>
+
+                <partial name="_CustomerInfo"/>
+
+                <div class="form-group">
+                    <md-content>
+                        <md-tabs md-dynamic-height md-border-bottom>
+                            <md-tab label="Order">
+                                <md-content class="md-padding">
+                                    <div id="order-tab" class="col-sm-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-condensed vertical-align-middle">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-sm-1">{{::vm.translate.get('Image')}}</th>
+                                                        <th class="col-sm-1">{{::vm.translate.get('Sku')}}</th>
+                                                        <th class="col-sm-3">{{::vm.translate.get('Name')}}</th>
+                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Price')}}</th>
+                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Final Price')}}</th>
+                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Stock')}}</th>
+                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Quantity')}}</th>
+                                                        <th class="col-sm-1 text-center">{{::vm.translate.get('Subtotal')}}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody ng-show="vm.orderItems.length" class="cart-list">
+                                                    <tr ng-repeat="item in vm.orderItems">
+                                                        <td class="col-sm-1">
+                                                            <img ng-src="{{item.productImage}}" alt="{{item.productName}}"
+                                                                 width="50">
+                                                        </td>
+                                                        <td class="col-sm-1">{{item.productSku}}</td>
+                                                        <td class="col-sm-3">
+                                                            <a ui-sref="product-edit({id: item.productId})" target="_blank"
+                                                               title="{{item.productName}}">
+                                                                {{item.productName}}
+                                                            </a>
+                                                        </td>
+                                                        <td class="col-sm-1 text-center">{{item.originalPrice.toCurrency()}}</td>
+                                                        <td class="col-sm-1 text-center">{{item.productPrice}}</td>
+                                                        <td class="col-sm-1 text-center">{{item.stock}}</td>
+                                                        <td class="col-sm-1 text-center">{{item.quantity}}</td>
+                                                        <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>
+                                                    </tr>
+                                                    <tr class="order-summary active">
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-3"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1 text-center">{{::vm.translate.get("Subtotal")}}:</td>
+                                                        <td class="col-sm-1 text-center">{{vm.orderSubTotal.toCurrency()}}</td>
+                                                    </tr>
+                                                    <tr class="active">
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-3"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1 text-center">{{::vm.translate.get("Discount")}}:</td>
+                                                        <td class="col-sm-1 text-center">{{vm.discount}}</td>
+                                                    </tr>
+                                                    <tr class="active">
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-3"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
+                                                        <td class="col-sm-1 text-center">{{vm.shippingAmount}}</td>
+                                                    </tr>
+                                                    <tr class="success">
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-3"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1"></td>
+                                                        <td class="col-sm-1 text-center"><b>{{::vm.translate.get("Total")}}:</b></td>
+                                                        <td class="col-sm-1 text-center"><b>{{vm.orderTotal.toCurrency()}}</b></td>
+                                                    </tr>
+                                                </tbody>
+                                                <tbody ng-show="!vm.orderItems.length">
+                                                    <tr>
+                                                        <td colspan="10" class="text-center">{{::vm.translate.get("No product")}}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </md-content>
+                            </md-tab>
+                            
+                            <partial name="_InvoiceTabSeller"/>
+                        </md-tabs>
+                    </md-content>
+
+                </div>
+
+                <partial name="_OrderFormActions"/>
+            </div>
+        </form>
+    </div>
+</div>

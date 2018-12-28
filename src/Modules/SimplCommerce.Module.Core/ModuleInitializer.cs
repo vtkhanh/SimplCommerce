@@ -11,6 +11,7 @@ using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Module.Core.Extensions.Constants;
 
 namespace SimplCommerce.Module.Core
 {
@@ -25,10 +26,25 @@ namespace SimplCommerce.Module.Core
             // Repositories
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped(typeof(IRepositoryWithTypedId<,>), typeof(RepositoryWithTypedId<,>));
+
+
+            ConfigurePolicies(services);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
         }
+
+        private void ConfigurePolicies(IServiceCollection services)
+        {
+            services.AddAuthorization(option =>
+            {
+                option.AddPolicy(Policy.CanEditProduct, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Vendor));
+                option.AddPolicy(Policy.CanAccessDashboard, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Seller, RoleName.Vendor));
+                option.AddPolicy(Policy.CanManageOrder, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Seller));
+                option.AddPolicy(Policy.CanManageUser, policyBuilder => policyBuilder.RequireRole(RoleName.Admin, RoleName.Seller));
+            });
+        }
+
     }
 }

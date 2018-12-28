@@ -20,12 +20,11 @@ using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using AutoMapper;
-using Microsoft.Extensions.Logging;
 using SimplCommerce.Module.Catalog.Services.Dtos;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
-    [Authorize(Roles = "admin, vendor")]
+    [Authorize(Policy.CanAccessDashboard)]
     [Route("api/products")]
     [ApiController]
     public class ProductApiController : Controller
@@ -39,6 +38,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         private readonly IRepository<Product> _productRepository;
         private readonly IProductService _productService;
         private readonly IWorkContext _workContext;
+        private readonly IAuthorizationService _authorizationService;
 
         public ProductApiController(
             IMapper mapper,
@@ -49,7 +49,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IRepository<ProductCategory> productCategoryRepository,
             IRepository<ProductOptionValue> productOptionValueRepository,
             IRepository<ProductAttributeValue> productAttributeValueRepository,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            IAuthorizationService authorizationService)
         {
             _mapper = mapper;
             _productRepository = productRepository;
@@ -60,6 +61,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             _productOptionValueRepository = productOptionValueRepository;
             _productAttributeValueRepository = productAttributeValueRepository;
             _workContext = workContext;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet("search")]
@@ -86,6 +88,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy.CanEditProduct)]
         public async Task<IActionResult> Get(long id)
         {
             var product = _productRepository.Query()
@@ -126,7 +129,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
         {
             var query = _productRepository.Query().Where(x => !x.IsDeleted);
             var currentUser = await _workContext.GetCurrentUser();
-            query = query.WhereIf(!User.IsInRole(RoleName.Admin), x => x.VendorId == currentUser.VendorId);
+            var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
+            query = query.WhereIf(!canManageOrder, x => x.VendorId == currentUser.VendorId);
 
             if (param.Search.PredicateObject != null)
             {
@@ -156,6 +160,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy.CanEditProduct)]
         public async Task<IActionResult> Post([FromForm] ProductForm model)
         {
             if (!ModelState.IsValid)
@@ -217,6 +222,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy.CanEditProduct)]
         public async Task<IActionResult> Put(long id, [FromForm] ProductForm model)
         {
             if (!ModelState.IsValid)
@@ -289,6 +295,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Policy.CanEditProduct)]
         public async Task<IActionResult> Delete(long id)
         {
             var product = _productRepository.Query().FirstOrDefault(x => x.Id == id);
@@ -298,7 +305,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole("admin") && product.VendorId != currentUser.VendorId)
+            if (!User.IsInRole(RoleName.Admin) && product.VendorId != currentUser.VendorId)
             {
                 return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
             }

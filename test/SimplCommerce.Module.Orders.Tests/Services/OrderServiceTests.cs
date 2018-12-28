@@ -14,7 +14,7 @@ using SimplCommerce.Module.Orders.Services;
 using SimplCommerce.Module.Orders.ViewModels;
 using Xunit;
 
-namespace SimplCommerce.Module.Orders.Tests
+namespace SimplCommerce.Module.Orders.Tests.Services
 {
     public class OrderServiceTests
     {
@@ -28,7 +28,6 @@ namespace SimplCommerce.Module.Orders.Tests
                 _options = new DbContextOptionsBuilder<SimplDbContext>()
                     .UseInMemoryDatabase(databaseName: nameof(UpdateStatusAsync))
                     .Options;
-
 
                 using (var context = new SimplDbContext(_options))
                 {
@@ -80,7 +79,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
                     (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, status);
                 }
 
@@ -109,7 +108,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
                     (_, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Cancelled);
 
                     updatedOrder = await orderRepo.QueryAsNoTracking()
@@ -146,7 +145,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
                     (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id + 1, OrderStatus.Complete);
                 }
 
@@ -155,6 +154,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.True(error.HasValue());
             }
         }
+
         public class UpdateTrackingNumberAsync
         {
 
@@ -198,7 +198,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
                     (ok, error) = await orderService.UpdateTrackingNumberAsync(orderId, trackingNumber);
                 }
 
@@ -233,7 +233,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
                     (ok, error) = await orderService.UpdateTrackingNumberAsync(order.Id + 1, trackingNumber);
                 }
 
@@ -289,6 +289,7 @@ namespace SimplCommerce.Module.Orders.Tests
                     ShippingCost = 5000,
                     Discount = 2000,
                     TrackingNumber = "VAN",
+                    PaymentProviderId = 1,
                     OrderItems = new List<OrderItemVm> {
                         new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
@@ -303,7 +304,7 @@ namespace SimplCommerce.Module.Orders.Tests
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
                     var workContext = workContextMock.Object;
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, workContext);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, workContext, null);
 
                     (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
                 }
@@ -323,6 +324,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.Equal(userId, createdOrder.CreatedById);
                 Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
+                Assert.Equal(orderRequest.PaymentProviderId, createdOrder.PaymentProviderId);
 
                 var subTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
                 var orderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
@@ -351,6 +353,7 @@ namespace SimplCommerce.Module.Orders.Tests
                     ShippingCost = 5000,
                     Discount = 2000,
                     TrackingNumber = "VAN",
+                    PaymentProviderId = 2,
                     OrderItems = new List<OrderItemVm> {
                         new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
@@ -365,7 +368,7 @@ namespace SimplCommerce.Module.Orders.Tests
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
                     var workContext = workContextMock.Object;
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, workContext);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, workContext, null);
 
                     (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
                 }
@@ -384,6 +387,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.NotNull(createdOrder);
                 Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
+                Assert.Equal(orderRequest.PaymentProviderId, createdOrder.PaymentProviderId);
 
                 Assert.Equal(0, createdOrder.SubTotal);
                 Assert.Equal(orderRequest.ShippingAmount, createdOrder.OrderTotal);
@@ -402,7 +406,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
                 var (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
 
                 // Assert
@@ -420,7 +424,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
                 var (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
 
                 // Assert
@@ -485,6 +489,7 @@ namespace SimplCommerce.Module.Orders.Tests
                     ShippingCost = 5000,
                     Discount = 2000,
                     TrackingNumber = "VAN",
+                    PaymentProviderId = 3,
                     OrderItems = new List<OrderItemVm> {
                         new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
@@ -498,7 +503,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 {
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null);
 
                     (success, error) = await orderService.UpdateOrderAsync(orderRequest);
                 }
@@ -518,6 +523,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.NotNull(updatedOrder);
                 Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
+                Assert.Equal(orderRequest.PaymentProviderId, updatedOrder.PaymentProviderId);
 
                 var subTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
                 var orderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
@@ -543,6 +549,7 @@ namespace SimplCommerce.Module.Orders.Tests
                     ShippingCost = 5000,
                     Discount = 2000,
                     TrackingNumber = "VAN",
+                    PaymentProviderId = 2,
                     OrderItems = new List<OrderItemVm> {
                         new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
@@ -556,7 +563,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 {
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null);
 
                     (success, error) = await orderService.UpdateOrderAsync(orderRequest);
                 }
@@ -576,6 +583,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 Assert.NotNull(updatedOrder);
                 Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
+                Assert.Equal(orderRequest.PaymentProviderId, updatedOrder.PaymentProviderId);
 
                 Assert.Equal(0, updatedOrder.SubTotal);
                 Assert.Equal(orderRequest.ShippingAmount, updatedOrder.OrderTotal);
@@ -595,7 +603,7 @@ namespace SimplCommerce.Module.Orders.Tests
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
                 var (success, error) = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
@@ -613,12 +621,87 @@ namespace SimplCommerce.Module.Orders.Tests
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
                 var (success, error) = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
                 Assert.False(success);
                 Assert.NotNull(error);
+            }
+        }
+
+        public class GetOrderOwnerIdAsync
+        {
+            public GetOrderOwnerIdAsync()
+            {
+            }
+
+            [Fact]
+            public async Task CanReturnOwnerId()
+            {
+                // Arrange
+                const long CreatedById = 10;
+                long ownerId;
+                long orderId;
+                var options = new DbContextOptionsBuilder<SimplDbContext>()
+                    .UseInMemoryDatabase(databaseName: nameof(CanReturnOwnerId))
+                    .Options;
+
+                using (var context = new SimplDbContext(options))
+                {
+                    var order = new Order { CreatedById = CreatedById };
+                    var orderRepo = new Repository<Order>(context);
+                    orderRepo.Add(order);
+                    orderRepo.SaveChanges();
+
+                    orderId = orderRepo.Query().First().Id;
+                }
+
+                // Action
+                using (var context = new SimplDbContext(options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+
+                    ownerId = await orderService.GetOrderOwnerIdAsync(orderId);
+                }
+
+                // Assert
+                Assert.Equal(CreatedById, ownerId);
+            }
+
+            [Fact]
+            public async Task WithOrderNotFound_ShouldReturnDefault()
+            {
+                // Arrange
+                const long CreatedById = 10;
+                long ownerId;
+                long orderId;
+                var options = new DbContextOptionsBuilder<SimplDbContext>()
+                    .UseInMemoryDatabase(databaseName: nameof(WithOrderNotFound_ShouldReturnDefault))
+                    .Options;
+
+                using (var context = new SimplDbContext(options))
+                {
+                    var order = new Order { CreatedById = CreatedById };
+                    var orderRepo = new Repository<Order>(context);
+                    orderRepo.Add(order);
+                    orderRepo.SaveChanges();
+
+                    orderId = orderRepo.Query().First().Id;
+                }
+
+                // Action
+                using (var context = new SimplDbContext(options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+
+                    ownerId = await orderService.GetOrderOwnerIdAsync(orderId + 1);
+                }
+
+                // Assert
+                Assert.Equal(default(long), ownerId);
             }
         }
     }

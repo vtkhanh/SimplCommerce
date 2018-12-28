@@ -97,7 +97,7 @@
                 })
                 .state('product', {
                     url: '/product',
-                    templateUrl: 'modules/catalog/admin/product/product-list.html',
+                    templateUrl: 'template/products/product-list',
                     controller: 'ProductListCtrl as vm'
                 })
                 .state('product-create', {

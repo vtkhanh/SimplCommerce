@@ -1,9 +1,9 @@
 ﻿<table class="table table-striped">
     <thead>
         <tr>
-            <th>{{::vm.translate.get('OrderId')}}</th>
             <th>{{::vm.translate.get('Order Status')}}</th>
             <th>{{::vm.translate.get('Customer')}}</th>
+            <th>{{::vm.translate.get('Created By')}}</th>
             <th>{{::vm.translate.get('Created On')}}</th>
             <th>{{::vm.translate.get('SubTotal')}}</th>
             <th>{{::vm.translate.get('Actions')}}</th>
@@ -11,12 +11,12 @@
     </thead>
     <tbody>
         <tr ng-repeat="order in vm.orders">
-            <td>{{order.id}}</td>
             <td>{{order.orderStatus}}</td>
             <td>{{order.customerName}}</td>
+            <td>{{order.createdBy}}</td>
             <td>{{order.createdOn | date:'medium'}}</td>
-            <td>{{order.subTotal | currency }}</td>
-            <td><a ui-sref="order-detail({id: order.id})" title="View" class="btn btn-primary btn-xs"> <span class="glyphicon glyphicon-eye-open"></span></a></td>
+            <td>{{order.subTotal.toCurrency() }}</td>
+            <td><a ui-sref="order-edit({id: order.id})" title="View" class="btn btn-primary btn-xs"> <span class="fa fa-eye"></span></a></td>
         </tr>
     </tbody>
 </table>

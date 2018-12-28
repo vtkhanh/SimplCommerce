@@ -1,4 +1,8 @@
-﻿<div class="page-header">
+﻿@{ 
+    Layout = null;
+}
+
+<div class="page-header">
     <div class="row">
         <div class="col-md-8">
             <h2>{{::vm.translate.get('Orders')}}</h2>
@@ -16,12 +20,11 @@
     <table class="table table-striped" st-pipe="vm.getOrders" st-table="vm.orders">
         <thead>
             <tr>
-                <!-- <th st-sort="Id" class=" sortable ">{{::vm.translate.get('OrderId')}}</th> -->
-                <th class="">{{::vm.translate.get('Status')}}</th>
-                <th class="">{{::vm.translate.get('Customer')}}</th>
-                <th class="">{{::vm.translate.get('Tracking Number')}}</th>
+                <th class="text-center">{{::vm.translate.get('Status')}}</th>
+                <th class="text-center">{{::vm.translate.get('Customer')}}</th>
+                <th class="text-center">{{::vm.translate.get('Tracking Number')}}</th>
+                <th class="text-center">{{::vm.translate.get('Created By')}}</th>
                 <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
-                <th st-sort="Cost" class="sortable">{{::vm.translate.get('Cost')}}</th>
                 <th st-sort="Total" class="sortable">{{::vm.translate.get('Total')}}</th>
                 <th class="">Actions</th>
             </tr>
@@ -44,10 +47,14 @@
                         <input class="form-control" st-search="TrackingNumber" />
                     </div>
                 </th>
+                <th class="">
+                    <div class="form-group no-margin-bottom">
+                        <input class="form-control" st-search="CreatedBy" />
+                    </div>
+                </th>
                 <th class="text-center hidden-xs">
                     <st-date-range predicate="CreatedOn" before="query.before" after="query.after"></st-date-range>
                 </th>
-                <th class=""></th>
                 <th class=""></th>
                 <th class=""></th>
             </tr>
@@ -65,12 +72,13 @@
                         {{ order.trackingNumber || 'empty' }}
                     </a>
                 </td>
+                <td class="text-center">{{order.createdBy}}</td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
-                <td class="">{{order.cost.toCurrency()}}</td>
                 <td class="">{{order.total.toCurrency()}}</td>
                 <td class="text-center">
                     <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
-                        <span class="fa fa-edit"></span>
+                        <span class="fa fa-edit" ng-if="order.canEdit"></span>
+                        <span class="fa fa-eye" ng-if="!order.canEdit"></span>
                     </a>
                 </td>
             </tr>

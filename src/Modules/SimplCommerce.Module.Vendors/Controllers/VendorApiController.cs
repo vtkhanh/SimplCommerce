@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Infrastructure.Web.SmartTable;
+using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Vendors.Services;
 using SimplCommerce.Module.Vendors.ViewModels;
 
 namespace SimplCommerce.Module.Vendors.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize(Policy = Policy.CanManageUser)]
     [Route("api/vendors")]
     public class VendorApiController : Controller
     {
