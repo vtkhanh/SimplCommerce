@@ -7,40 +7,44 @@ using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Infrastructure.Web.SmartTable;
-using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Orders.Services;
+using SimplCommerce.Module.Payments.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
-    [Authorize(Roles = "admin, vendor, seller")]
+    [Authorize(Policy = Policy.CanAccessDashboard)]
     [Route("api/orders")]
     [ApiController]
     public class OrderApiController : Controller
     {
         private const int DashboardRecordNumber = 10;
 
-        private readonly IMediaService _mediaService;
         private readonly IOrderService _orderService;
+        private readonly IPaymentProviderService _paymentProviderService;
         private readonly IRepository<Order> _orderRepository;
         private readonly IWorkContext _workContext;
         private readonly IAuthorizationService _authorizationService;
 
-        public OrderApiController(IOrderService orderService, IRepository<Order> orderRepository,
-            IMediaService mediaService, IWorkContext workContext, IAuthorizationService authorizationService)
+        public OrderApiController(IOrderService orderService,
+            IPaymentProviderService paymentProviderService,
+            IRepository<Order> orderRepository,
+            IWorkContext workContext,
+            IAuthorizationService authorizationService)
         {
             _orderService = orderService;
+            _paymentProviderService = paymentProviderService;
             _orderRepository = orderRepository;
-            _mediaService = mediaService;
             _workContext = workContext;
             _authorizationService = authorizationService;
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get(int status, int numRecords)
+        public IActionResult Get(int status, int numRecords)
         {
             var orderStatus = (OrderStatus)status;
             if ((numRecords <= 0) || (numRecords > 100))
@@ -149,8 +153,8 @@ namespace SimplCommerce.Module.Orders.Controllers
             bool ok = false;
             if (!CanEditFullOrder(currentUser, order.CreatedById, order.VendorId))
             {
-                if (order.OrderStatus != orderForm.OrderStatus || 
-                    order.TrackingNumber != orderForm.TrackingNumber || 
+                if (order.OrderStatus != orderForm.OrderStatus ||
+                    order.TrackingNumber != orderForm.TrackingNumber ||
                     order.PaymentProviderId != orderForm.PaymentProviderId)
                 {
                     (ok, errorMessage) = await _orderService.UpdateOrderStateAsync(orderForm);
@@ -168,7 +172,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<IActionResult> ChangeStatus(OrderUpdateVm order)
         {
             var (result, error) = await _orderService.UpdateStatusAsync(order.OrderId, order.Status);
-            return result != null ? Ok(result) : (IActionResult) BadRequest(new { Error = error });
+            return result != null ? Ok(result) : (IActionResult)BadRequest(new { Error = error });
         }
 
         [HttpGet("order-status")]
@@ -182,10 +186,36 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<IActionResult> ChangeTrackingNumber(OrderUpdateVm order)
         {
             var (ok, error) = await _orderService.UpdateTrackingNumberAsync(order.OrderId, order.TrackingNumber);
-            return ok ? Ok() : (IActionResult) BadRequest(new { Error = error });
+            return ok ? Ok() : (IActionResult)BadRequest(new { Error = error });
         }
 
-        private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) => 
+        [HttpGet("status-list")]
+        public IActionResult GetStatusList()
+        {
+            var selectList = Enum.GetValues(typeof(OrderStatus))
+               .Cast<OrderStatus>()
+               .Select(t => new SelectListItem
+               {
+                   Value = ((int)t).ToString(),
+                   Text = t.ToString()
+               }).ToList();
+
+            return Json(selectList);
+        }
+
+        [HttpGet("payment-list")]
+        public async Task<IActionResult> GetPaymentList()
+        {
+            var payments = await _paymentProviderService.GetListAsync(true);
+            var selectList = payments.Select(item => new SelectListItem
+            {
+                Value = item.Id.ToString(),
+                Text = item.Description
+            });
+            return Json(selectList);
+        }
+
+        private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) =>
             User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
     }

@@ -62,6 +62,7 @@ const bower = {
     "nouislider": "nouislider/distribute/*.{js,css}",
     "wnumb": "wnumb/wNumb.js",
     "moment": "moment/min/moment.min.js",
+    "highcharts-ng": "highcharts-ng/dist/*.{js,css}"
 };
 
 gulp.task('clean-modules', function () {

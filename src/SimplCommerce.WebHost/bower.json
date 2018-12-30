@@ -27,7 +27,8 @@
     "angular-i18n": "1.6.9",
     "moment": "^2.22.1",
     "bootstrap-star-rating": "^4.0.3",
-    "angular-xeditable": "^0.9.0"
+    "angular-xeditable": "^0.9.0",
+    "highcharts-ng": "^1.2.1"
   },
   "resolutions": {
     "angular": "1.6.3"

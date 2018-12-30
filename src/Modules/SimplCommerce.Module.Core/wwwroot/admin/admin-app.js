@@ -33,7 +33,8 @@
         "simplAdmin.shipping-tablerate",
         "simplAdmin.payments",
         "simplAdmin.paymentStripe",
-        "simplAdmin.paymentPaypalExpress"
+        "simplAdmin.paymentPaypalExpress",
+        "highcharts-ng"
     ]);
 
     toastr.options.closeButton = true;

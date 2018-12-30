@@ -151,6 +151,14 @@
             vm.orderId = $stateParams.id || 0;
 
             if (vm.orderId === 0) { // Create order
+                orderService.getStatusList()
+                    .then(result => vm.orderStatusList = result.data)
+                    .catch((response) => processError(response.data));
+
+                orderService.getPaymentList()
+                    .then(result => vm.paymentProviderList = result.data)
+                    .catch((response) => processError(response.data));
+
                 vm.customer = null;
                 vm.selectedProduct = null;
                 vm.trackingNumber = null;

@@ -43,5 +43,8 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             return currentUser.Id == orderCreatedById ? View(OrderFormSellerView) : View(OrderFormRestrictedView);
         }
+
+        [HttpGet("order-report")]
+        public IActionResult GetOrderReport() => View("OrderReport");
     }
 }
