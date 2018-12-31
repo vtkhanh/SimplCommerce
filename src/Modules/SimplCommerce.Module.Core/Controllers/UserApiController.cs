@@ -13,6 +13,8 @@ using SimplCommerce.Module.Core.Services;
 using AutoMapper;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Infrastructure;
+using SimplCommerce.Module.Core.Services.Dtos;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SimplCommerce.Module.Core.Controllers
 {
@@ -143,6 +145,15 @@ namespace SimplCommerce.Module.Core.Controllers
             user.IsDeleted = true;
             await _userRepository.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpGet("seller-list")]
+        public async Task<IActionResult> GetSellers()
+        {
+            var sellers = await _userService.GetSellersAsync();
+            var selectList = sellers.Select(item => new SelectListItem { Value = item.Id.ToString(), Text = item.FullName });
+            selectList = selectList.Prepend(new SelectListItem { Value = null, Text = "All" });
+            return Json(selectList);
         }
 
         private void AddErrors(IdentityResult result)

@@ -17,10 +17,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <base href="/admin"/> -->
     <title>Admin - KK-cosmetics</title>
 
-    @Html.Partial("_IndexStyles")
+    <partial name="_IndexStyles"/>
 
     <script>
         window.Global_AssetVersion = "@Config[AppSettingKey.AssetVersion]";
@@ -133,10 +132,9 @@
         <hr />
         <footer>
             <p class="pull-left">&copy; @DateTime.Now.Year - KK-Cosmetics</p>
-            <!-- <p class="pull-right">Powered by <a href="http://www.SimplCommerce.com"><strong>KK</strong></a></p> -->
         </footer>
     </div>
 
-    @Html.Partial("_IndexScripts")
+    <partial name="_IndexScripts"/>
 </body>
 </html>

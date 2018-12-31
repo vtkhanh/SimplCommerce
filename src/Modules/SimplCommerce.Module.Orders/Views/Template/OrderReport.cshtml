@@ -1,0 +1,16 @@
+﻿@{
+    Layout = null;
+}
+<div class="row">
+    <div class="col-sm-3">
+        <md-input-container class="md-block" flex-gt-xs>
+            <label>{{::vm.translate.get('Created by')}}</label>
+            <md-select placeholder="{{::vm.translate.get('Select a seller')}}" ng-model="vm.createdById" ng-change="vm.getReport(vm.createdById)">
+                <md-option ng-repeat="seller in vm.sellerList" ng-value="seller.value">{{seller.text}}</md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+</div>
+<div class="row">
+    <div id="order-report-chart" class="col-sm-12"></div>
+</div>

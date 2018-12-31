@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Models;
+using SimplCommerce.Module.Core.Services.Dtos;
 using SimplCommerce.Module.Core.ViewModels;
 
 namespace SimplCommerce.Module.Core.Services
@@ -55,6 +57,13 @@ namespace SimplCommerce.Module.Core.Services
 
             return result;
         }
+
+        public async Task<IList<UserDto>> GetSellersAsync() =>
+            await _userRepo.QueryAsNoTracking()
+                .Where(user => user.Roles.Any(userRole => userRole.RoleId == (long) RoleId.Seller))
+                .Select(item => new UserDto { Id = item.Id, FullName = item.FullName })
+                .ToListAsync();
+
 
         private void SetBasicInfo(User user, UserForm model)
         {

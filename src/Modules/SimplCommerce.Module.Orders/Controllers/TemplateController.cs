@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Orders.Services;
+using SimplCommerce.Module.Orders.ViewModels;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -17,6 +18,8 @@ namespace SimplCommerce.Module.Orders.Controllers
         private const string OrderFormView = "OrderForm";
         private const string OrderFormSellerView = "OrderFormSeller";
         private const string OrderFormRestrictedView = "OrderFormRestricted";
+        private const string OrderReportView = "OrderReport";
+        private const string OrderReportSellerView = "OrderReportSeller";
 
         private readonly IWorkContext _workContext;
         private readonly IOrderService _orderService;
@@ -42,6 +45,17 @@ namespace SimplCommerce.Module.Orders.Controllers
             var orderCreatedById = await _orderService.GetOrderOwnerIdAsync(id);
 
             return currentUser.Id == orderCreatedById ? View(OrderFormSellerView) : View(OrderFormRestrictedView);
+        }
+
+        [HttpGet("order-report")]
+        public async Task<IActionResult> GetOrderReport()
+        {
+            if (User.IsInRole(RoleName.Admin))
+            {
+                return View(OrderReportView);
+            }
+            var currentUser = await _workContext.GetCurrentUser();
+            return View(OrderReportSellerView, new OrderReportSellerVm { UserName = currentUser.FullName });
         }
     }
 }
