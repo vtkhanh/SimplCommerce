@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using SimplCommerce.Module.Core.Services.Dtos;
 using SimplCommerce.Module.Core.ViewModels;
 
 namespace SimplCommerce.Module.Core.Services
@@ -8,5 +10,6 @@ namespace SimplCommerce.Module.Core.Services
     {
         Task<(IdentityResult, long)> CreateUserAsync(UserForm model);
         Task<IdentityResult> UpdateUserAsync(long userId, UserForm model);
+        Task<IList<UserDto>> GetSellersAsync();
     }
 }

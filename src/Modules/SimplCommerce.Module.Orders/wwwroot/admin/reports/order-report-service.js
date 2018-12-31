@@ -8,12 +8,17 @@
     function orderReportService($http) {
         var service = {
             getRevenueReport: getRevenueReport,
+            getSellers: getSellers
         };
         return service;
 
-        function getRevenueReport(time) {
-            return $http.post('api/order-reports/revenue-report', time);
+        function getRevenueReport(createdById) {
+            const url = `api/order-reports/revenue-report?createdById=${createdById || 0}`;
+            return $http.get(url);
         }
-       }
+
+        function getSellers() {
+            return $http.get('api/users/seller-list');
+        }
     }
 })();

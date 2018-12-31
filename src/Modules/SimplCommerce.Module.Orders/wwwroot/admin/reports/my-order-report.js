@@ -17,39 +17,47 @@
     }
 
     /* @ngInject */
-    function OrderReportCtrl(orderService, translateService) {
+    function OrderReportCtrl(orderReportService, translateService) {
         const vm = this;
         vm.translate = translateService;
-        //vm.orders = [];
+        vm.createdById = null;
 
         vm.$onInit = function () {
-            orderService.getRevenueReport((result) => {
-                const data = result.data;
-                vm.chartConfig = {
-                    chart: {
-                        type: 'column'
-                    },
-                    title: {
-                        text: data.title                    },
-                    xAxis: {
-                        categories: data.months
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    series: [{
-                        name: 'John',
-                        data: [5, 3, 4, 7, 2]
-                    }, {
-                        name: 'Jane',
-                        data: [2, -2, -3, 2, 1]
-                    }, {
-                        name: 'Joe',
-                        data: [3, 4, 4, -2, 5]
-                    }]
-                };
+            orderReportService.getSellers()
+                .then((result) => vm.sellerList = result.data);
 
-            });
+            vm.getReport(vm.createdById);
         };
+
+        vm.getReport = function (createdById) {
+            orderReportService.getRevenueReport(createdById)
+                .then((result) => {
+                    const data = result.data;
+                    vm.chartConfig = {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: data.title
+                        },
+                        plotOptions: {
+                            column: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        },
+                        xAxis: {
+                            categories: data.months
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: data.series
+                    };
+
+                    Highcharts.chart('order-report-chart', vm.chartConfig);
+                });
+        }
     }
 })();

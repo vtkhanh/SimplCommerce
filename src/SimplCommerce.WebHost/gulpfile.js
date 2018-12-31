@@ -61,8 +61,7 @@ const bower = {
     "bootbox": "bootbox/bootbox*.{js,css}",
     "nouislider": "nouislider/distribute/*.{js,css}",
     "wnumb": "wnumb/wNumb.js",
-    "moment": "moment/min/moment.min.js",
-    "highcharts-ng": "highcharts-ng/dist/*.{js,css}"
+    "moment": "moment/min/moment.min.js"
 };
 
 gulp.task('clean-modules', function () {
