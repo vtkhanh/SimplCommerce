@@ -12,12 +12,13 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
 
         public RevenueReportDto(DateTime from, DateTime to) => (_from, _to) = (from, to);
 
+        public IList<decimal> SubTotals { get; } = new List<decimal>();
         public IList<decimal> Totals { get; } = new List<decimal>();
         public IList<decimal> Costs { get; } = new List<decimal>();
         public IList<decimal> Profits { get; } = new List<decimal>();
         public IList<string> Months { get; } = new List<string>();
 
-        public void AddTotals(IList<Order> orders)
+        public void AddSubTotals(IList<Order> orders)
         {
             Months.Clear();
             Totals.Clear();
@@ -30,13 +31,31 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
                     continue;
 
                 Months.Add(ordersInMonth.First().CreatedOn.ToString("MM/yyyy"));
+                SubTotals.Add(ordersInMonth.Sum(order => order.SubTotal));
+            }
+        }
+
+        public void AddTotals(IList<Order> orders)
+        {
+            if (!SubTotals.Any()) // SubTotals need to be added beborehand
+                return;
+
+            Totals.Clear();
+
+            for (var period = _from; period <= _to; period = period.AddMonths(1))
+            {
+                var ordersInMonth = orders.Where(order => order.CreatedOn.Month == period.Month);
+
+                if (!ordersInMonth.Any())
+                    continue;
+
                 Totals.Add(ordersInMonth.Sum(order => order.OrderTotal));
             }
         }
 
         public void AddCostsAndProfits(IList<Order> orders)
         {
-            if (!Totals.Any()) // Totals need to be added beborehand
+            if (!Totals.Any()) // SubTotals need to be added beborehand
                 return;
 
             Costs.Clear();
