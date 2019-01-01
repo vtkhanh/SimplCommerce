@@ -23,6 +23,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             List<Order> orders = await GetCompleteOrdersAsync(createdById, from, to);
             var report = new RevenueReportDto(from, to);
+            report.AddSubTotals(orders);
             report.AddTotals(orders);
             report.AddCostsAndProfits(orders);
 
@@ -36,7 +37,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             var orders = await GetCompleteOrdersAsync(sellerId, from, to);
             var report = new RevenueReportDto(from, to);
-            report.AddTotals(orders);
+            report.AddSubTotals(orders);
 
             return report;
         }

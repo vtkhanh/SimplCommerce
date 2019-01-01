@@ -32,6 +32,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 report = await _reportService.GetRevenueReportAsync(DateTime.Now, createdById);
                 series = new List<object>
                 {
+                    new { Name = "SubTotal", Data = report.SubTotals },
                     new { Name = "Total", Data = report.Totals },
                     new { Name = "Cost", Data = report.Costs },
                     new { Name = "Profit", Data = report.Profits }
@@ -43,7 +44,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 report = await _reportService.GetRevenueReportBySellerAsync(DateTime.Now, currentUser.Id);
                 series = new List<object>
                 {
-                    new { Name = "Total", Data = report.Totals }
+                    new { Name = "SubTotal", Data = report.SubTotals }
                 };
             }
 
