@@ -46,7 +46,7 @@ namespace SimplCommerce.Module.Orders.Services
         {
             return await _orderRepo.QueryAsNoTracking()
                 .WhereIf(createdById.HasValue && createdById > 0, order => order.CreatedById == createdById)
-                .Where(order => order.CreatedOn >= from && order.CreatedOn <= to)
+                .Where(order => order.CompletedOn >= from && order.CompletedOn <= to)
                 .Where(order => order.OrderStatus == OrderStatus.Complete)
                 .ToListAsync();
         }

@@ -19,6 +19,8 @@ namespace SimplCommerce.Module.Orders.Models
 
         public DateTimeOffset? UpdatedOn { get; set; }
 
+        public DateTimeOffset? CompletedOn { get; set; }
+
         public long CreatedById { get; set; }
 
         public User CreatedBy { get; set; }

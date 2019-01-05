@@ -146,8 +146,6 @@ namespace SimplCommerce.Module.Orders.Services
 
             await UpdateOrderPropertiesAsync(order, orderRequest);
 
-            order.UpdatedOn = DateTimeOffset.Now;
-
             await _orderRepository.SaveChangesAsync();
 
             return (true, null);
@@ -397,7 +395,8 @@ namespace SimplCommerce.Module.Orders.Services
                 SubTotal = order.SubTotal,
                 OrderTotal = order.OrderTotal,
                 OrderTotalCost = order.OrderTotalCost,
-                OrderStatus = order.OrderStatus
+                OrderStatus = order.OrderStatus,
+                CompletedOn = order.CompletedOn
             };
 
             return (result, null);
@@ -477,19 +476,20 @@ namespace SimplCommerce.Module.Orders.Services
             order.ShippingAmount = orderRequest.ShippingAmount;
             order.ShippingCost = orderRequest.ShippingCost;
             order.Discount = orderRequest.Discount;
-            order.OrderStatus = orderRequest.OrderStatus;
+            // order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
 
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
+            UpdateStatus(order, orderRequest.OrderStatus);
             // Reset all order item's quantities when order is cancelled
-            if (order.OrderStatus == OrderStatus.Cancelled)
-            {
-                ResetOrderItemQuantities(order);
-            }
+            // if (order.OrderStatus == OrderStatus.Cancelled)
+            // {
+            //     ResetOrderItemQuantities(order);
+            // }
 
-            CalculateOrderTotal(order);
+            // CalculateOrderTotal(order);
         }
 
         private void UpdateStatus(Order order, OrderStatus status)
@@ -498,8 +498,11 @@ namespace SimplCommerce.Module.Orders.Services
             if (status == OrderStatus.Cancelled)
             {
                 ResetOrderItemQuantities(order);
-                CalculateOrderTotal(order);
             }
+            if (status == OrderStatus.Complete) {
+                order.CompletedOn = DateTimeOffset.Now;
+            }
+            CalculateOrderTotal(order);
         }
 
         private void ResetOrderItemQuantities(Order order)

@@ -153,6 +153,33 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.Null(updatedOrder);
                 Assert.True(error.HasValue());
             }
+
+
+            [Fact]
+            public async Task WithCompleteStatus_ShouldUpdateCompletedOn()
+            {
+                // Arrange
+                Order order;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    order = await orderRepo.QueryAsNoTracking().FirstAsync();
+                }
+
+                // Action
+                GetOrderVm updatedOrder;
+                string error;
+                using (var context = new SimplDbContext(_options))
+                {
+                    var orderRepo = new Repository<Order>(context);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Complete);
+                }
+
+                // Assert
+                Assert.NotNull(updatedOrder);
+                Assert.True(updatedOrder.CompletedOn.HasValue);
+            }
         }
 
         public class UpdateTrackingNumberAsync

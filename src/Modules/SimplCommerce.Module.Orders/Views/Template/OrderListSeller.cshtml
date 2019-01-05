@@ -24,7 +24,8 @@
                 <th class="text-center">{{::vm.translate.get('Customer')}}</th>
                 <th class="text-center">{{::vm.translate.get('Tracking Number')}}</th>
                 <th class="text-center">{{::vm.translate.get('Created By')}}</th>
-                <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
+                <!-- <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th> -->
+                <th st-sort="CompletedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Completed On')}}</th>
                 <th st-sort="Total" class="sortable">{{::vm.translate.get('Total')}}</th>
                 <th class="">Actions</th>
             </tr>
@@ -52,8 +53,11 @@
                         <input class="form-control" st-search="CreatedBy" />
                     </div>
                 </th>
-                <th class="text-center hidden-xs">
+                <!-- <th class="text-center hidden-xs">
                     <st-date-range predicate="CreatedOn" before="query.before" after="query.after"></st-date-range>
+                </th> -->
+                <th class="text-center hidden-xs">
+                    <st-date-range predicate="CompletedOn" before="query.before" after="query.after"></st-date-range>
                 </th>
                 <th class=""></th>
                 <th class=""></th>
@@ -73,7 +77,8 @@
                     </a>
                 </td>
                 <td class="text-center">{{order.createdBy}}</td>
-                <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
+                <!-- <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td> -->
+                <td class=" text-center hidden-xs">{{order.completedOn | date:'medium'}}</td>
                 <td class="">{{order.total.toCurrency()}}</td>
                 <td class="text-center">
                     <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
