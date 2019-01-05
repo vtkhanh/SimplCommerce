@@ -98,8 +98,8 @@ namespace SimplCommerce.Module.Orders.Controllers
                 var customerName = (string)search.CustomerName;
                 var trackingNumber = (string)search.TrackingNumber;
                 var createdBy = (string)search.CreatedBy;
-                var before = (DateTimeOffset?)search.CreatedOn?.before;
-                var after = (DateTimeOffset?)search.CreatedOn?.after;
+                var before = (DateTimeOffset?)search.CompletedOn?.before;
+                var after = (DateTimeOffset?)search.CompletedOn?.after;
                 query = query
                     .Include(i => i.Customer)
                     .Include(i => i.CreatedBy)
@@ -108,8 +108,8 @@ namespace SimplCommerce.Module.Orders.Controllers
                     .WhereIf(customerName.HasValue(), i => i.Customer.FullName.Contains(customerName))
                     .WhereIf(trackingNumber.HasValue(), i => i.TrackingNumber.Contains(trackingNumber))
                     .WhereIf(createdBy.HasValue(), i => i.CreatedBy.FullName.Contains(createdBy))
-                    .WhereIf(before.HasValue, x => x.CreatedOn <= before)
-                    .WhereIf(after.HasValue, x => x.CreatedOn >= after)
+                    .WhereIf(before.HasValue, x => x.CompletedOn <= before)
+                    .WhereIf(after.HasValue, x => x.CompletedOn >= after)
                     ;
             }
 
@@ -125,7 +125,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                     Total = order.OrderTotal,
                     StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),
-                    order.CreatedOn,
+                    order.CompletedOn,
                     CanEdit = CanEditFullOrder(currentUser, order.CreatedById, order.VendorId)
                 });
 

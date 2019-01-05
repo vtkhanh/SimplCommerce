@@ -41,6 +41,7 @@
 
                     orderListItem.total = updatedOrder.orderTotal;
                     orderListItem.cost = updatedOrder.orderTotalCost;
+                    orderListItem.completedOn = updatedOrder.completedOn;
 
                     updateCssClassPerOrder(orderListItem);
 
