@@ -11,6 +11,10 @@ namespace SimplCommerce.WebHost.Migrations
                 name: "CompletedOn",
                 table: "Orders_Order",
                 nullable: true);
+
+            migrationBuilder.Sql(@"UPDATE dbo.Orders_Order
+SET CompletedOn = UpdatedOn
+WHERE OrderStatus = 6 -- Complete Status");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

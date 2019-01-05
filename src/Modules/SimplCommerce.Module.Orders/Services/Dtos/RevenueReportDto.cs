@@ -7,8 +7,10 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
 {
     public class RevenueReportDto
     {
-        private DateTime _from;
-        private DateTime _to;
+        private const string MonthFormat = "MM/yyyy";
+
+        private readonly DateTime _from;
+        private readonly DateTime _to;
 
         public RevenueReportDto(DateTime from, DateTime to) => (_from, _to) = (from, to);
 
@@ -25,26 +27,26 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
 
             for (var period = _from; period <= _to; period = period.AddMonths(1))
             {
-                var ordersInMonth = orders.Where(order => order.CreatedOn.Month == period.Month);
+                var ordersInMonth = orders.Where(IsInMonth(period));
 
                 if (!ordersInMonth.Any())
                     continue;
 
-                Months.Add(ordersInMonth.First().CreatedOn.ToString("MM/yyyy"));
+                Months.Add(ordersInMonth.First().CompletedOn?.ToString(MonthFormat));
                 SubTotals.Add(ordersInMonth.Sum(order => order.SubTotal));
             }
         }
 
         public void AddTotals(IList<Order> orders)
         {
-            if (!SubTotals.Any()) // SubTotals need to be added beborehand
+            if (!SubTotals.Any()) // SubTotals need to be added beforehand
                 return;
 
             Totals.Clear();
 
             for (var period = _from; period <= _to; period = period.AddMonths(1))
             {
-                var ordersInMonth = orders.Where(order => order.CreatedOn.Month == period.Month);
+                var ordersInMonth = orders.Where(IsInMonth(period));
 
                 if (!ordersInMonth.Any())
                     continue;
@@ -55,7 +57,7 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
 
         public void AddCostsAndProfits(IList<Order> orders)
         {
-            if (!Totals.Any()) // SubTotals need to be added beborehand
+            if (!Totals.Any()) // SubTotals need to be added beforehand
                 return;
 
             Costs.Clear();
@@ -64,7 +66,7 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
             var index = 0;
             for (var period = _from; period <= _to; period = period.AddMonths(1))
             {
-                var ordersInMonth = orders.Where(order => order.CreatedOn.Month == period.Month);
+                var ordersInMonth = orders.Where(IsInMonth(period));
 
                 if (!ordersInMonth.Any())
                     continue;
@@ -75,5 +77,9 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
                 index++;
             }
         }
+
+        private static Func<Order, bool> IsInMonth(DateTime period) => 
+            order => order.CompletedOn.HasValue && order.CompletedOn.Value.Month == period.Month;
+
     }
 }
