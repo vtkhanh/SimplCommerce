@@ -96,7 +96,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 SubTotal = 20,
                 OrderTotal = 18,
                 OrderTotalCost = 15,
-                CreatedOn = DateTimeOffset.Now,
+                CompletedOn = DateTimeOffset.Now,
                 OrderStatus = OrderStatus.Complete
             };
             var order2 = new Order
@@ -105,7 +105,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 SubTotal = 30,
                 OrderTotal = 28,
                 OrderTotalCost = 20,
-                CreatedOn = DateTimeOffset.Now,
+                CompletedOn = DateTimeOffset.Now,
                 OrderStatus = OrderStatus.Complete
             };
             var order3 = new Order
@@ -114,7 +114,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 SubTotal = 40,
                 OrderTotal = 35,
                 OrderTotalCost = 30,
-                CreatedOn = DateTimeOffset.Now,
+                CompletedOn = DateTimeOffset.Now,
                 OrderStatus = OrderStatus.Complete
             };
             return new List<Order> { order1, order2, order3 };
