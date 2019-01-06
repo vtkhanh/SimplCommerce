@@ -68,15 +68,21 @@
         <tbody ng-show="!vm.isLoading">
             <tr ng-repeat="order in vm.orders" class="{{order.cssClass}}">
                 <td class="">
-                    <a href="#" editable-select="order.statusId" e-ng-options="s.id as s.name for s in vm.orderStatus" onaftersave="vm.changeOrderStatus(order.id, $data)">
+                    <a ng-if="order.canEdit" href="#" editable-select="order.statusId" e-ng-options="s.id as s.name for s in vm.orderStatus" onaftersave="vm.changeOrderStatus(order.id, $data)">
                         {{ vm.showOrderStatus(order.statusId) }}
                     </a>
+                    <span ng-if="!order.canEdit">
+                        {{ vm.showOrderStatus(order.statusId) }}
+                    </span>
                 </td>
                 <td class="">{{order.customerName}}</td>
                 <td class="">
-                    <a href="#" editable-text="order.trackingNumber" onaftersave="vm.changeTrackingNumber(order.id, $data)">
+                    <a ng-if="order.canEdit" href="#" editable-text="order.trackingNumber" onaftersave="vm.changeTrackingNumber(order.id, $data)">
                         {{ order.trackingNumber || 'empty' }}
                     </a>
+                    <span ng-if="!order.canEdit">
+                        {{ order.trackingNumber }}
+                    </span>
                 </td>
                 <td class="text-center">{{ order.createdBy }}</td>
                 <!-- <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td> -->
@@ -85,7 +91,8 @@
                 <td class="">{{order.total.toCurrency()}}</td>
                 <td class="text-center">
                     <a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
-                        <span class="fa fa-edit"></span>
+                        <span class="fa fa-edit" ng-if="order.canEdit"></span>
+                        <span class="fa fa-eye" ng-if="!order.canEdit"></span>
                     </a>
                 </td>
             </tr>

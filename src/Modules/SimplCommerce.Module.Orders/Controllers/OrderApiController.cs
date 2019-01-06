@@ -126,7 +126,8 @@ namespace SimplCommerce.Module.Orders.Controllers
                     StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),
                     order.CompletedOn,
-                    CanEdit = CanEditFullOrder(currentUser, order.CreatedById, order.VendorId)
+                    IsRestricted = !CanEditFullOrder(currentUser, order.CreatedById, order.VendorId),
+                    CanEdit = order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1)
                 });
 
             return Json(orders);

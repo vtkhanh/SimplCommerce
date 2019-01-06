@@ -43,7 +43,8 @@
                         plotOptions: {
                             column: {
                                 dataLabels: {
-                                    enabled: true
+                                    enabled: true,
+                                    allowOverlap: true
                                 }
                             }
                         },

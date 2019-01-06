@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Controllers;
 using SimplCommerce.Module.Orders.Services;
+using SimplCommerce.Module.Orders.ViewModels;
 using Xunit;
 
 namespace SimplCommerce.Module.Orders.Tests.Controllers
@@ -107,50 +109,38 @@ namespace SimplCommerce.Module.Orders.Tests.Controllers
             Assert.Equal(OrderFormView, viewResult.ViewName);
         }
 
-        [Fact]
-        public async void GetOrderFormEdit_WithSellerUser_AndBeingOrderOwner_ShouldReturnView()
+        [Theory]
+        [InlineData(10, 10, true, OrderFormSellerView)] // Is owner, can edit
+        [InlineData(10, 10, false, OrderFormRestrictedView)] // Is owner, cannot edit
+        [InlineData(9, 10, true, OrderFormRestrictedView)] // Is not owner, can edit
+        [InlineData(9, 10, false, OrderFormRestrictedView)] // Is not owner, cannot edit
+        public async void GetOrderFormEdit_WithSellerUser_ShouldReturnView(long userId, long ownerId, 
+            bool canEditOrder, string expectedView)
         {
             // Arrange
             const int OrderId = 1;
-            const long CreatedById = 10;
             var mockUser = new Mock<ClaimsPrincipal>();
             mockUser.Setup(user => user.IsInRole(RoleName.Admin)).Returns(false);
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext { User = mockUser.Object }
             };
-            _mockWorkContext.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(new User { Id = CreatedById }));
-            _mockOrderService.Setup(service => service.GetOrderOwnerIdAsync(OrderId)).Returns(Task.FromResult(CreatedById));
+            _mockWorkContext.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(new User { Id = userId }));
 
-            // Action
-            var result = await _controller.GetOrderFormEdit(OrderId);
-
-            // Assert
-            var viewResult = Assert.IsType<ViewResult>(result);
-            Assert.Equal(OrderFormSellerView, viewResult.ViewName);
-        }
-
-        [Fact]
-        public async void GetOrderFormEdit_WithSellerUser_AndNotOrderOwner_ShouldReturnView()
-        {
-            // Arrange
-            const int OrderId = 1;
-            const long CreatedById = 10;
-            var mockUser = new Mock<ClaimsPrincipal>();
-            mockUser.Setup(user => user.IsInRole(RoleName.Admin)).Returns(false);
-            _controller.ControllerContext = new ControllerContext
+            var order = new GetOrderVm()
             {
-                HttpContext = new DefaultHttpContext { User = mockUser.Object }
+                CanEdit = canEditOrder,
+                CreatedById = ownerId
             };
-            _mockWorkContext.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(new User { Id = 2 }));
-            _mockOrderService.Setup(service => service.GetOrderOwnerIdAsync(OrderId)).Returns(Task.FromResult(CreatedById));
+            (GetOrderVm, string) orderResult = (order, null);
+            _mockOrderService.Setup(service => service.GetOrderAsync(OrderId)).Returns(Task.FromResult(orderResult));
 
             // Action
             var result = await _controller.GetOrderFormEdit(OrderId);
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
-            Assert.Equal(OrderFormRestrictedView, viewResult.ViewName);
+            Assert.Equal(expectedView, viewResult.ViewName);
         }
 
         [Fact]

@@ -159,6 +159,7 @@
                     .then(result => vm.paymentProviderList = result.data)
                     .catch((response) => processError(response.data));
 
+                vm.canEdit = true;
                 vm.customer = null;
                 vm.selectedProduct = null;
                 vm.trackingNumber = null;
@@ -183,6 +184,7 @@
 
                         vm.selectedProduct = null;
 
+                        vm.canEdit = order.canEdit;
                         vm.trackingNumber = order.trackingNumber;
                         vm.orderSubTotal = order.subTotal;
                         vm.orderSubTotalCost = order.subTotalCost;

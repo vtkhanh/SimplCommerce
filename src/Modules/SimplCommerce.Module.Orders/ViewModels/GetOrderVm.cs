@@ -52,5 +52,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public decimal OrderTotalCost { get; set; }
 
         public DateTimeOffset? CompletedOn { get; set; }
+
+        public bool CanEdit { get; set; }
     }
 }
