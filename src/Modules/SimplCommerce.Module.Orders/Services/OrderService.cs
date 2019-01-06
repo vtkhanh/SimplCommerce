@@ -104,7 +104,7 @@ namespace SimplCommerce.Module.Orders.Services
                         Value = item.Id.ToString(),
                         Text = item.Description
                     }).ToList(),
-                CanEdit = order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1)
+                CanEdit = CanEditOrder(order)
             };
 
             return (result, null);
@@ -143,6 +143,10 @@ namespace SimplCommerce.Module.Orders.Services
             if (order == null)
             {
                 return (false, $"Cannot find order with id {orderRequest.OrderId}");
+            }
+            if (!CanEditOrder(order))
+            {
+                return (false, $"Order has been completed already!");
             }
 
             await UpdateOrderPropertiesAsync(order, orderRequest);
@@ -354,6 +358,10 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 return (false, $"Cannot find order with Id: {orderId}");
             }
+            if (!CanEditOrder(order))
+            {
+                return (false, $"Order has been completed already!");
+            }
 
             order.TrackingNumber = trackingNumber;
             await _orderRepository.SaveChangesAsync();
@@ -385,6 +393,10 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 return (null, $"Cannot find order with Id: {orderId}");
             }
+            if (!CanEditOrder(order))
+            {
+                return (null, $"Order has been completed already!");
+            }
 
             UpdateStatus(order, status);
 
@@ -409,6 +421,10 @@ namespace SimplCommerce.Module.Orders.Services
             if (order == null)
             {
                 return (false, $"Cannot find order with Id: {orderRequest.OrderId}");
+            }
+            if (!CanEditOrder(order))
+            {
+                return (false, $"Order has been completed already!");
             }
 
             order.TrackingNumber = orderRequest.TrackingNumber;
@@ -553,5 +569,7 @@ namespace SimplCommerce.Module.Orders.Services
             }
         }
 
+        private static bool CanEditOrder(Order order) => 
+            order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1);
     }
 }

@@ -15,6 +15,8 @@ namespace SimplCommerce.Module.Orders.Models
             OrderStatus = OrderStatus.Pending;
         }
 
+        public Order(long id) : base(id) { }
+
         public DateTimeOffset CreatedOn { get; set; }
 
         public DateTimeOffset? UpdatedOn { get; set; }

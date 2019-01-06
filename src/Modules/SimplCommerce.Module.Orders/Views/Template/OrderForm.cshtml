@@ -4,7 +4,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h2>{{::vm.translate.get(vm.pageTitle)}}</h2>
+        <h2>{{::vm.translate.get(vm.pageTitle)}} <i ng-if="!vm.canEdit" class="fa fa-lock"></i></h2>
     </div>
     <div class="panel-body">
         <form name="orderForm" class="form-horizontal">
@@ -54,14 +54,16 @@
                                                         <td class="col-sm-1 text-center">{{item.originalPrice.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" required
+                                                                <input ng-disabled="!vm.canEdit"
+                                                                       type="number" class="text-center" required
                                                                        ng-model="item.productPrice" min="0" ng-change="vm.updateSubtotal(item)" />
                                                             </md-input-container>
                                                         </td>
                                                         <td class="col-sm-1 text-center">{{item.stock}}</td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" required
+                                                                <input ng-disabled="!vm.canEdit"
+                                                                       type="number" class="text-center" required
                                                                        ng-model="item.quantity" min="0" ng-change="vm.updateSubtotal(item)"
                                                                        aria-label="Quantity" />
                                                             </md-input-container>
@@ -69,8 +71,8 @@
                                                         <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">{{item.subTotalCost.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">
-                                                            <button ng-click="vm.removeFromCart(item)" type="button"
-                                                                    class="btn">
+                                                            <button ng-disabled="!vm.canEdit"
+                                                                    ng-click="vm.removeFromCart(item)" type="button" class="btn">
                                                                 <span class="fa fa-remove"></span>
                                                             </button>
                                                         </td>
@@ -97,7 +99,8 @@
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Discount")}}:</td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" ng-model="vm.discount"
+                                                                <input ng-disabled="!vm.canEdit"
+                                                                       type="number" class="text-center" ng-model="vm.discount"
                                                                        min="0" ng-change="vm.updateOrderTotal()"
                                                                        aria-label="Discount" />
                                                             </md-input-container>
@@ -115,14 +118,16 @@
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" ng-model="vm.shippingAmount"
+                                                                <input ng-disabled="!vm.canEdit"
+                                                                       type="number" class="text-center" ng-model="vm.shippingAmount"
                                                                        min="0" ng-change="vm.onShippingAmountUpdate()"
                                                                        aria-label="Shipping amount" />
                                                             </md-input-container>
                                                         </td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" ng-model="vm.shippingCost"
+                                                                <input 
+                                                                       type="number" class="text-center" ng-model="vm.shippingCost"
                                                                        min="0" ng-change="vm.onShippingCostUpdate()"
                                                                        aria-label="Actual shipping amount" />
                                                             </md-input-container>

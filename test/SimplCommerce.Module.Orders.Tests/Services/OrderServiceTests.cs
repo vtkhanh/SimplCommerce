@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using SimplCommerce.Infrastructure;
+using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Core.Extensions;
@@ -12,6 +13,7 @@ using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Services;
 using SimplCommerce.Module.Orders.ViewModels;
+using SimplCommerce.Test.Shared.MockQueryable;
 using Xunit;
 
 namespace SimplCommerce.Module.Orders.Tests.Services
@@ -20,7 +22,6 @@ namespace SimplCommerce.Module.Orders.Tests.Services
     {
         public class UpdateStatusAsync
         {
-
             private DbContextOptions<SimplDbContext> _options;
 
             public UpdateStatusAsync()
@@ -154,7 +155,6 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.True(error.HasValue());
             }
 
-
             [Fact]
             public async Task WithCompleteStatus_ShouldUpdateCompletedOn()
             {
@@ -180,11 +180,39 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.NotNull(updatedOrder);
                 Assert.True(updatedOrder.CompletedOn.HasValue);
             }
+
+            [Theory]
+            [InlineData(OrderStatus.Processing)]
+            [InlineData(OrderStatus.Shipped)]
+            [InlineData(OrderStatus.Paid)]
+            [InlineData(OrderStatus.Cancelled)]
+            public async Task WithBeingCompletedOverOneDay_ShouldReturnError(OrderStatus status)
+            {
+                // Arrange
+                const long TestOrderId = 10;
+                var mockOrderRepo = new Mock<IRepository<Order>>();
+                var order = new Order(TestOrderId)
+                {
+                    CompletedOn = DateTimeOffset.Now.AddDays(-2),
+                    OrderStatus = OrderStatus.Complete
+                };
+                var mockOrders = new Order[] { order }.AsQueryable().BuildMock();
+
+                mockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+
+                // Action
+                var orderService = new OrderService(mockOrderRepo.Object, null, null, null, null, null, null, null, null, null, null);
+                (GetOrderVm orderResult, string error) = await orderService.UpdateStatusAsync(TestOrderId, status);
+
+                // Assert
+                Assert.Null(orderResult);
+                Assert.NotNull(error);
+                Assert.NotEmpty(error);
+            }
         }
 
         public class UpdateTrackingNumberAsync
         {
-
             private DbContextOptions<SimplDbContext> _options;
 
             public UpdateTrackingNumberAsync()
@@ -268,11 +296,37 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.False(ok);
                 Assert.True(error.HasValue());
             }
+
+            [Fact]
+            public async Task WithBeingCompletedOverOneDay_ShouldReturnError()
+            {
+                // Arrange
+                const long TestOrderId = 10;
+                const string TestTrackingNumber = "aTrackingNumber123";
+                var mockOrderRepo = new Mock<IRepository<Order>>();
+                var order = new Order(TestOrderId)
+                {
+                    CompletedOn = DateTimeOffset.Now.AddDays(-2),
+                    OrderStatus = OrderStatus.Complete
+                };
+                var mockOrders = new Order[] { order }.AsQueryable().BuildMock();
+
+                mockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+
+                // Action
+                var orderService = new OrderService(mockOrderRepo.Object, null, null, null, null, null, null, null, null, null, null);
+                (bool success, string error) = await orderService.UpdateTrackingNumberAsync(TestOrderId, TestTrackingNumber);
+
+                // Assert
+                Assert.False(success);
+                Assert.NotNull(error);
+                Assert.NotEmpty(error);
+
+            }
         }
 
         public class CreateOrderAsync
         {
-
             private DbContextOptions<SimplDbContext> _options;
 
             private IList<Product> Init(string dbName)
@@ -462,7 +516,6 @@ namespace SimplCommerce.Module.Orders.Tests.Services
 
         public class UpdateOrderAsync
         {
-
             private DbContextOptions<SimplDbContext> _options;
 
             private (long, IList<Product>) Init(string dbName)
@@ -621,7 +674,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
             }
 
             [Fact]
-            public async Task ShouldFail_WhenShoppingCart_IsNull()
+            public async Task WhenShoppingCart_IsNull_ShouldFail()
             {
                 // Arrange
                 var orderRequest = new OrderFormVm()
@@ -639,7 +692,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
             }
 
             [Fact]
-            public async Task ShouldFail_WhenShoppingCart_IsEmpty()
+            public async Task WhenShoppingCart_IsEmpty_ShouldFail()
             {
                 // Arrange
                 var orderRequest = new OrderFormVm()
@@ -654,6 +707,32 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 // Assert
                 Assert.False(success);
                 Assert.NotNull(error);
+            }
+
+            [Fact]
+            public async Task WhenOrder_IsCompletedOverOneDay_ShouldFail()
+            {
+                // Arrange
+                const long TestOrderId = 10;
+                var orderRequest = new OrderFormVm() { OrderId = TestOrderId };
+                var mockOrderRepo = new Mock<IRepository<Order>>();
+                var order = new Order(TestOrderId)
+                {
+                    CompletedOn = DateTimeOffset.Now.AddDays(-2),
+                    OrderStatus = OrderStatus.Complete
+                };
+                var mockOrders = new Order[] { order }.AsQueryable().BuildMock();
+
+                mockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+
+                // Action
+                var orderService = new OrderService(mockOrderRepo.Object, null, null, null, null, null, null, null, null, null, null);
+                (bool success, string error) = await orderService.UpdateOrderAsync(orderRequest);
+
+                // Assert
+                Assert.False(success);
+                Assert.NotNull(error);
+                Assert.NotEmpty(error);
             }
         }
 
