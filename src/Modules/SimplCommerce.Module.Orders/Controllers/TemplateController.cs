@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Services;
 using SimplCommerce.Module.Orders.ViewModels;
 
@@ -42,9 +44,14 @@ namespace SimplCommerce.Module.Orders.Controllers
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            var orderCreatedById = await _orderService.GetOrderOwnerIdAsync(id);
+            var (order, message) = await _orderService.GetOrderAsync(id);
 
-            return currentUser.Id == orderCreatedById ? View(OrderFormSellerView) : View(OrderFormRestrictedView);
+            if (order == null)
+            {
+                return BadRequest(message);
+            }
+
+            return order.CanEdit && order.CreatedById == currentUser.Id ? View(OrderFormSellerView) : View(OrderFormRestrictedView);
         }
 
         [HttpGet("order-report")]

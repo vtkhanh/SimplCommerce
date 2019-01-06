@@ -62,7 +62,7 @@ namespace SimplCommerce.Module.Orders.Services
 
         public async Task<(GetOrderVm, string)> GetOrderAsync(long orderId)
         {
-            var order = await _orderRepository.Query()
+            var order = await _orderRepository.QueryAsNoTracking()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product).ThenInclude(item => item.ThumbnailImage)
                 .FirstOrDefaultAsync(item => item.Id == orderId);
 
@@ -103,7 +103,8 @@ namespace SimplCommerce.Module.Orders.Services
                     {
                         Value = item.Id.ToString(),
                         Text = item.Description
-                    }).ToList()
+                    }).ToList(),
+                CanEdit = order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1)
             };
 
             return (result, null);
