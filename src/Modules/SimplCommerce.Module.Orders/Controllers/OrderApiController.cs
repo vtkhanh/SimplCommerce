@@ -151,7 +151,7 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             var currentUser = await _workContext.GetCurrentUser();
 
-            bool ok = false;
+            bool ok = true;
             if (!CanEditFullOrder(currentUser, order.CreatedById, order.VendorId))
             {
                 if (order.OrderStatus != orderForm.OrderStatus ||
