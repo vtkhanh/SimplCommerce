@@ -122,7 +122,8 @@
                 discount: vm.discount,
                 orderStatus: vm.orderStatus || OrderPendingStatus,
                 paymentProviderId: vm.paymentProviderId,
-                orderItems: vm.orderItems
+                orderItems: vm.orderItems,
+                note: vm.note
             };
             if (vm.orderId === 0) {
                 orderService.createOrder(params)
@@ -163,6 +164,7 @@
                 vm.customer = null;
                 vm.selectedProduct = null;
                 vm.trackingNumber = null;
+                vm.note = null;
                 vm.orderItems = [];
                 vm.orderSubTotal = 0;
                 vm.shippingAmount = 0;
@@ -197,6 +199,7 @@
                         vm.orderStatusList = order.orderStatusList;
                         vm.paymentProviderId = order.paymentProviderId;
                         vm.paymentProviderList = order.paymentProviderList;
+                        vm.note = order.note;
                         vm.orderItems = order.orderItems;
                         vm.orderItems.forEach(element => {
                             element.productStock = element.stock;

@@ -199,3 +199,17 @@ table.vertical-align-middle tr td {
 .control-description {
     padding-top: 7px;
 }
+
+/* Orders */
+.order-note-btn {
+    font-size: 4rem;
+}
+
+.order-note-btn .empty {
+    color: grey;
+}
+
+#order-note-modal .note {
+    width: 100%;
+    height: 10rem;
+}

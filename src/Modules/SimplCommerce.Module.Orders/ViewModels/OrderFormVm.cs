@@ -40,5 +40,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public string TrackingNumber { get; set; }
 
         public long? PaymentProviderId { get; set; }
+
+        public string Note { get; set; }
     }
 }

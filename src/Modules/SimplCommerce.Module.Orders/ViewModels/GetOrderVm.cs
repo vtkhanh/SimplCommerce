@@ -54,5 +54,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public DateTimeOffset? CompletedOn { get; set; }
 
         public bool CanEdit { get; set; }
+
+        public string Note { get; set; }
     }
 }

@@ -85,6 +85,8 @@ namespace SimplCommerce.Module.Orders.Models
 
         public string TrackingNumber { get; set; }
 
+        public string Note { get; set; }
+
         public IList<Order> Children { get; protected set; } = new List<Order>();
 
         public void AddOrderItem(OrderItem item)

@@ -83,6 +83,7 @@ namespace SimplCommerce.Module.Orders.Services
                 TrackingNumber = order.TrackingNumber,
                 CreatedById = order.CreatedById,
                 VendorId = order.VendorId,
+                Note = order.Note,
                 OrderItems = order.OrderItems
                     .Select(item => new OrderItemVm
                     {
@@ -120,7 +121,7 @@ namespace SimplCommerce.Module.Orders.Services
             var user = await _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
 
-            await UpdateOrderPropertiesAsync(order, orderRequest);
+            await UpdateOrderDetailsAsync(order, orderRequest);
 
             _orderRepository.Add(order);
 
@@ -149,7 +150,7 @@ namespace SimplCommerce.Module.Orders.Services
                 return (false, $"Order has been completed already!");
             }
 
-            await UpdateOrderPropertiesAsync(order, orderRequest);
+            await UpdateOrderDetailsAsync(order, orderRequest);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -487,26 +488,19 @@ namespace SimplCommerce.Module.Orders.Services
             return shippingMethod;
         }
 
-        private async Task UpdateOrderPropertiesAsync(Order order, OrderFormVm orderRequest)
+        private async Task UpdateOrderDetailsAsync(Order order, OrderFormVm orderRequest)
         {
             order.CustomerId = orderRequest.CustomerId;
             order.ShippingAmount = orderRequest.ShippingAmount;
             order.ShippingCost = orderRequest.ShippingCost;
             order.Discount = orderRequest.Discount;
-            // order.OrderStatus = orderRequest.OrderStatus;
             order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
+            order.Note = orderRequest.Note;
 
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
             UpdateStatus(order, orderRequest.OrderStatus);
-            // Reset all order item's quantities when order is cancelled
-            // if (order.OrderStatus == OrderStatus.Cancelled)
-            // {
-            //     ResetOrderItemQuantities(order);
-            // }
-
-            // CalculateOrderTotal(order);
         }
 
         private void UpdateStatus(Order order, OrderStatus status)

@@ -371,6 +371,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     Discount = 2000,
                     TrackingNumber = "VAN",
                     PaymentProviderId = 1,
+                    Note = "some note here",
                     OrderItems = new List<OrderItemVm> {
                         new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
@@ -406,6 +407,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
                 Assert.Equal(orderRequest.PaymentProviderId, createdOrder.PaymentProviderId);
+                Assert.Equal(orderRequest.Note, createdOrder.Note);
 
                 var subTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
                 var orderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
@@ -570,6 +572,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     Discount = 2000,
                     TrackingNumber = "VAN",
                     PaymentProviderId = 3,
+                    Note = "some note here",
                     OrderItems = new List<OrderItemVm> {
                         new OrderItemVm { ProductId = products[0].Id, Quantity = 5, ProductPrice = products[0].Price, ProductCost = products[0].Cost },
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
@@ -604,6 +607,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
                 Assert.Equal(orderRequest.PaymentProviderId, updatedOrder.PaymentProviderId);
+                Assert.Equal(orderRequest.Note, updatedOrder.Note);
 
                 var subTotal = orderRequest.OrderItems.Sum(item => item.SubTotal);
                 var orderTotalCost = orderRequest.OrderItems.Sum(item => item.SubTotalCost) + orderRequest.ShippingCost;
