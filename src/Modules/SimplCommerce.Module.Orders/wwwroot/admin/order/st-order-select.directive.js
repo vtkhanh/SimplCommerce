@@ -1,9 +1,9 @@
-﻿(function() {
+(function () {
     angular
         .module('simplAdmin.orders')
-        .directive('orderWidget', orderWidget);
+        .directive('stOrderSelect', stOrderSelect);
 
-    function orderWidget() {
+    function stOrderSelect() {
         var directive = {
             restrict: 'E',
             templateUrl: 'modules/orders/admin/order/order-widget.directive.html',
@@ -11,7 +11,7 @@
                 status: '=',
                 numRecords: '='
             },
-            controller: OrderWidgetCtrl,
+            controller: StOrderSelectCtrl,
             controllerAs: 'vm',
             bindToController: true
         };
@@ -20,7 +20,7 @@
     }
 
     /* @ngInject */
-    function OrderWidgetCtrl(orderService, translateService) {
+    function StOrderSelectCtrl(orderService, translateService) {
         var vm = this;
         vm.translate = translateService;
         vm.orders = [];

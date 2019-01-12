@@ -16,7 +16,7 @@
             <td>{{order.createdBy}}</td>
             <td>{{order.createdOn | date:'medium'}}</td>
             <td>{{order.subTotal.toCurrency() }}</td>
-            <td><a ui-sref="order-edit({id: order.id})" title="View" class="btn btn-primary btn-xs"> <span class="fa fa-eye"></span></a></td>
+            <td><a ui-sref="order-edit({id: order.id})" title="View" class="btn btn-primary btn-xs"> <span class="fa fa-edit"></span></a></td>
         </tr>
     </tbody>
 </table>

@@ -66,7 +66,7 @@
             </tr>
         </thead>
         <tbody ng-show="!vm.isLoading">
-            <tr ng-repeat="order in vm.orders" class="{{order.cssClass}}">
+            <tr st-select-row="order" st-select-mode="multiple" ng-repeat="order in vm.orders" class="{{order.cssClass}}">
                 <td class="">
                     <a ng-if="order.canEdit" href="#" editable-select="order.statusId" e-ng-options="s.id as s.name for s in vm.orderStatus" onaftersave="vm.changeOrderStatus(order.id, $data)">
                         {{ vm.showOrderStatus(order.statusId) }}
