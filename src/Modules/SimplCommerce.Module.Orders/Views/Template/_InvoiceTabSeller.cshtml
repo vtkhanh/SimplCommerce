@@ -18,12 +18,7 @@
                                 <img ng-src="{{item.productImage}}" alt="{{item.productName}}"
                                      width="50">
                             </td>
-                            <td class="col-sm-2">
-                                <a ui-sref="product-edit({id: item.productId})" target="_blank"
-                                   title="{{item.productName}}">
-                                    {{item.productName}}
-                                </a>
-                            </td>
+                            <td class="col-sm-2">{{item.productName}}</td>
                             <td class="col-sm-1 text-center">{{item.productPrice.toCurrency()}}</td>
                             <td class="col-sm-1 text-center">{{item.quantity}}</td>
                             <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>

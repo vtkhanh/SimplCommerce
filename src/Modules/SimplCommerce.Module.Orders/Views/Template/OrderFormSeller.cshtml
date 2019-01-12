@@ -44,12 +44,7 @@
                                                                  width="50">
                                                         </td>
                                                         <td class="col-sm-1">{{item.productSku}}</td>
-                                                        <td class="col-sm-3">
-                                                            <a ui-sref="product-edit({id: item.productId})" target="_blank"
-                                                               title="{{item.productName}}">
-                                                                {{item.productName}}
-                                                            </a>
-                                                        </td>
+                                                        <td class="col-sm-3">{{item.productName}}</td>
                                                         <td class="col-sm-1 text-center">{{item.originalPrice.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
