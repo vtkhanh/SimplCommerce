@@ -12,6 +12,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="wwwroot\lib\**" />
+    <Compile Remove="wwwroot\modules\**" />
+    <Content Remove="wwwroot\lib\**" />
+    <Content Remove="wwwroot\modules\**" />
+    <EmbeddedResource Remove="wwwroot\lib\**" />
+    <EmbeddedResource Remove="wwwroot\modules\**" />
+    <None Remove="wwwroot\lib\**" />
+    <None Remove="wwwroot\modules\**" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\SimplCommerce.Infrastructure\SimplCommerce.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\SimplCommerce.Module.Core\SimplCommerce.Module.Core.csproj" />
     <ProjectReference Include="..\Modules\SimplCommerce.Module.Localization\SimplCommerce.Module.Localization.csproj" />

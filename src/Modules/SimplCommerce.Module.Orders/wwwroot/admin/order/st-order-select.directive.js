@@ -5,30 +5,31 @@
 
     function stOrderSelect() {
         var directive = {
-            restrict: 'E',
-            templateUrl: 'modules/orders/admin/order/order-widget.directive.html',
+            require: '^stTable',
+            template: '<input type="checkbox" ng-if="row.canEdit"/>',
             scope: {
-                status: '=',
-                numRecords: '='
+                row: '=stOrderSelect'
             },
-            controller: StOrderSelectCtrl,
-            controllerAs: 'vm',
-            bindToController: true
+            link: function (scope, element, attr, ctrl) {
+
+                element.bind('change', function (evt) {
+                    scope.$apply(function () {
+                        ctrl.select(scope.row, 'multiple');
+                    });
+                });
+
+                scope.$watch('row.isSelected', function (newValue, oldValue) {
+                    if (newValue === true) {
+                        element.parent().removeClass(scope.row.cssClass);
+                        element.parent().addClass('st-selected');
+                    } else {
+                        element.parent().addClass(scope.row.cssClass);
+                        element.parent().removeClass('st-selected');
+                    }
+                });
+            }
         };
 
         return directive;
-    }
-
-    /* @ngInject */
-    function StOrderSelectCtrl(orderService, translateService) {
-        var vm = this;
-        vm.translate = translateService;
-        vm.orders = [];
-
-        vm.$onInit = function () {
-            orderService.getOrders(vm.status, vm.numRecords).then(function (result) {
-                vm.orders = result.data;
-            });
-        };
     }
 })();
