@@ -213,3 +213,7 @@ table.vertical-align-middle tr td {
     width: 100%;
     height: 10rem;
 }
+
+.st-selected a.editable-click {
+    color: white;
+}
