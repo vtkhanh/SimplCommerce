@@ -14,7 +14,7 @@
             vm.orderStatus = result.data;
         });
 
-        vm.getOrders = function getOrders(tableState) {
+        vm.getOrders = (tableState) => {
             vm.isLoading = true;
             orderService.getOrdersForGrid(tableState).then(function (result) {
                 vm.orders = result.data.items;
@@ -25,14 +25,14 @@
             });
         };
 
-        vm.showOrderStatus = function (statusId) {
+        vm.showOrderStatus = (statusId) => {
             if (vm.orderStatus) {
                 const status = _.find(vm.orderStatus, item => item.id === statusId);
                 return status.name;
             }
-        }
+        };
 
-        vm.changeOrderStatus = function (orderId, statusId) {
+        vm.changeOrderStatus = (orderId, statusId) => {
             return orderService
                 .changeOrderStatus(orderId, statusId)
                 .then((result) => {
@@ -48,14 +48,22 @@
                     toastr.success("Saved successfully.");
                 })
                 .catch((response) => toastr.error(response.data.error));
-        }
+        };
 
-        vm.changeTrackingNumber = function (orderId, trackingNumber) {
+        vm.changeTrackingNumber = (orderId, trackingNumber) => {
             return orderService
                 .changeTrackingNumber(orderId, trackingNumber)
                 .then(() => toastr.success("Saved successfully."))
                 .catch((response) => toastr.error(response.data.error));
-        }
+        };
+
+        vm.hasOrdersSelected = () => {
+            return _.some(vm.orders, ['isSelected', true]);
+        };
+
+        vm.changeMultipleStatus = () => {
+            toastr.success("Saved successfully.");
+        };
 
         function updateCssClass(orders) {
             for (let order of orders) {

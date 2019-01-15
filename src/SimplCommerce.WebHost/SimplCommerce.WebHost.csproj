@@ -12,12 +12,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Modules\**" />
     <Compile Remove="wwwroot\lib\**" />
     <Compile Remove="wwwroot\modules\**" />
+    <Content Remove="Modules\**" />
     <Content Remove="wwwroot\lib\**" />
     <Content Remove="wwwroot\modules\**" />
+    <EmbeddedResource Remove="Modules\**" />
     <EmbeddedResource Remove="wwwroot\lib\**" />
     <EmbeddedResource Remove="wwwroot\modules\**" />
+    <None Remove="Modules\**" />
     <None Remove="wwwroot\lib\**" />
     <None Remove="wwwroot\modules\**" />
   </ItemGroup>
