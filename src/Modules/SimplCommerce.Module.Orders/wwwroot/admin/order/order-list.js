@@ -37,14 +37,9 @@
                 .changeOrderStatus(orderId, statusId)
                 .then((result) => {
                     const updatedOrder = result.data;
-                    const orderListItem = _.find(vm.orders, item => item.id === orderId);
 
-                    orderListItem.total = updatedOrder.orderTotal;
-                    orderListItem.cost = updatedOrder.orderTotalCost;
-                    orderListItem.completedOn = updatedOrder.completedOn;
-
-                    updateCssClassPerOrder(orderListItem);
-
+                    updateOrderItem(updatedOrder);
+                    
                     toastr.success("Saved successfully.");
                 })
                 .catch((response) => toastr.error(response.data.error));
@@ -57,13 +52,37 @@
                 .catch((response) => toastr.error(response.data.error));
         };
 
-        vm.hasOrdersSelected = () => {
-            return _.some(vm.orders, ['isSelected', true]);
+        vm.hasOrdersSelected = () => _.some(vm.orders, ['isSelected', true]);
+
+        vm.updateMultipleStatuses = () => {
+            if (!vm.selectedStatus) {
+                toastr.error("Please select a status.");
+                return;
+            }
+
+            const selectedIds = _(vm.orders).filter(order => order.isSelected).map(order => order.id).value();
+
+            orderService
+                .updateMultipleStatuses(selectedIds, vm.selectedStatus.id)
+                .then((result) => {
+                    const updatedOrders = result.data;
+
+                    _.forEach(updatedOrders, (updatedOrder) => updateOrderItem(updatedOrder));
+
+                    toastr.success("Saved successfully.");
+                });
         };
 
-        vm.changeMultipleStatus = () => {
-            toastr.success("Saved successfully.");
-        };
+        function updateOrderItem(updatedOrder) {
+            const orderListItem = _.find(vm.orders, item => item.id === updatedOrder.orderId);
+
+            orderListItem.statusId = updatedOrder.orderStatus;
+            orderListItem.total = updatedOrder.orderTotal;
+            orderListItem.cost = updatedOrder.orderTotalCost;
+            orderListItem.completedOn = updatedOrder.completedOn;
+
+            updateCssClassPerOrder(orderListItem);
+        }
 
         function updateCssClass(orders) {
             for (let order of orders) {

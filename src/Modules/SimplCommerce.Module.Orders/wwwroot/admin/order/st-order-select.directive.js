@@ -5,8 +5,9 @@
 
     function stOrderSelect() {
         var directive = {
+            restrict: 'A',
             require: '^stTable',
-            template: '<input type="checkbox" ng-if="row.canEdit"/>',
+            template: '<input type="checkbox"/>',
             scope: {
                 row: '=stOrderSelect'
             },

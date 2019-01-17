@@ -6,15 +6,15 @@
                 <h4 class="modal-title">{{::vm.translate.get('Update status')}}</h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal">
+                <form name="updateStatusesForm" class="form-horizontal">
                     <div class="form-group" ng-if="!vm.hasOrdersSelected()">
                         <label class="col-xs-4 control-label error">{{::vm.translate.get('No orders selected!')}}</label>
                     </div>
                     <div class="form-group">
                         <label class="col-xs-2 col-xs-offset-2 control-label">{{::vm.translate.get('Change to')}}</label>
                         <div class="col-xs-6">
-                            <select class="form-control" ng-disabled="!vm.hasOrdersSelected()">
-                                <option ng-repeat="status in vm.orderStatus" value="{{status.id}}">{{status.name}}</option>
+                            <select ng-model="vm.selectedStatus" ng-options="option.name for option in vm.orderStatus track by option.id"
+                                    class="form-control" ng-disabled="!vm.hasOrdersSelected()">
                             </select>
                         </div>
                     </div>
@@ -24,7 +24,8 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">
                     {{::vm.translate.get('Close')}}
                 </button>
-                <button type="button" ng-if="vm.hasOrdersSelected()" class="btn btn-primary" data-dismiss="modal" ng-click="vm.changeMultipleStatus()">
+                <button type="button" ng-if="vm.hasOrdersSelected()" ng-disabled="updateStatusesForm.$pristine" class="btn btn-primary" data-dismiss="modal" 
+                        ng-click="vm.updateMultipleStatuses()">
                     {{::vm.translate.get('Save')}}
                 </button>
             </div>
