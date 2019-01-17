@@ -216,6 +216,13 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(selectList);
         }
 
+        [HttpPut("update-multiple-statuses")]
+        public async Task<IActionResult> UpdateMultipleStatuses(UpdateMultipleStatusesVm request)
+        {
+            var (result, error) = await _orderService.UpdateStatusesAsync(request.OrderIds, request.Status);
+            return result != null ? Ok(result) : (IActionResult)BadRequest(new { Error = error });
+        }
+
         private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) =>
             User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.ViewModels;
@@ -50,6 +51,14 @@ namespace SimplCommerce.Module.Orders.Services
         /// <param name="statusId"></param>
         /// <returns></returns>
         Task<(GetOrderVm, string)> UpdateStatusAsync(long orderId, OrderStatus status);
+
+        /// <summary>
+        /// Update status of multiple orders
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        Task<(IList<GetOrderVm>, string)> UpdateStatusesAsync(IList<long> orderIds, OrderStatus status);
 
         /// <summary>
         /// Get order detail for editting

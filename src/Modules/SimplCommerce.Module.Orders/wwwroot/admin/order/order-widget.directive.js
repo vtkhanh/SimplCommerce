@@ -1,9 +1,9 @@
 ﻿(function() {
     angular
         .module('simplAdmin.orders')
-        .directive('orderWidget', mostSearchKeyword);
+        .directive('orderWidget', orderWidget);
 
-    function mostSearchKeyword() {
+    function orderWidget() {
         var directive = {
             restrict: 'E',
             templateUrl: 'modules/orders/admin/order/order-widget.directive.html',

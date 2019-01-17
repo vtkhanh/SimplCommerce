@@ -24,29 +24,12 @@
             </md-select>
         </md-input-container>
     </div>
-    <div class="col-sm-3">
-        <span>
-            <a href="javascript:;" class="order-note-btn" data-toggle="modal" data-target="#order-note-modal">
-                <i ng-if="!vm.note" class="far fa-sticky-note empty"></i>
-                <i ng-if="vm.note" class="fas fa-sticky-note"></i>
-            </a>
-        </span>
-    </div>
 </div>
-
-<div id="order-note-modal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">{{::vm.translate.get("Note")}}</h4>
-            </div>
-            <div class="modal-body">
-                <textarea ng-model="vm.note" class="note"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-            </div>
-        </div>
+<div class="form-group">
+    <div class="col-sm-6">
+        <md-input-container class="md-block" flex-gt-xs>
+            <label>{{::vm.translate.get('Note')}}</label>
+            <textarea ng-disabled="!vm.canEdit" ng-model="vm.note"></textarea>
+        </md-input-container>
     </div>
 </div>

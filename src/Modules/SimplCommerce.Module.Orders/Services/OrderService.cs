@@ -416,6 +416,38 @@ namespace SimplCommerce.Module.Orders.Services
             return (result, null);
         }
 
+        public async Task<(IList<GetOrderVm>, string)> UpdateStatusesAsync(IList<long> orderIds, OrderStatus status)
+        {
+            var orders = await _orderRepository.Query()
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                .Where(item => orderIds.Contains(item.Id))
+                .ToListAsync();
+            var result = new List<GetOrderVm>();
+
+            foreach (var order in orders)
+            {
+                if (!CanEditOrder(order))
+                    continue;
+                
+                UpdateStatus(order, status);
+
+                await _orderRepository.SaveChangesAsync();
+
+                var orderVm = new GetOrderVm
+                {
+                    OrderId = order.Id,
+                    SubTotal = order.SubTotal,
+                    OrderTotal = order.OrderTotal,
+                    OrderTotalCost = order.OrderTotalCost,
+                    OrderStatus = order.OrderStatus,
+                    CompletedOn = order.CompletedOn
+                };
+                result.Add(orderVm);
+            }
+
+            return (result, null);
+        }
+
         public async Task<(bool, string)> UpdateOrderStateAsync(OrderFormVm orderRequest)
         {
             var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderRequest.OrderId);

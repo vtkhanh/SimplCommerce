@@ -5,7 +5,7 @@
         .controller('OrderFormCtrl', OrderFormCtrl);
 
     /* @ngInject */
-    function OrderFormCtrl($state, $stateParams, translateService,
+    function OrderFormCtrl($scope, $state, $stateParams, translateService,
         orderService, userService, productService) {
 
         const OrderPendingStatus = 0;
@@ -64,8 +64,13 @@
         };
 
         vm.removeFromCart = (product) => {
-            _.remove(vm.orderItems, item => item.productId === product.productId);
-            vm.updateOrderSubTotal();
+            if (confirm('Are you sure?'))
+            {
+                _.remove(vm.orderItems, item => item.productId === product.productId);
+                vm.updateOrderSubTotal();
+
+                $scope.orderForm.$setDirty();
+            }
         };
 
         vm.onShippingAmountUpdate = () => {

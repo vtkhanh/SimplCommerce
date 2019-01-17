@@ -14,7 +14,7 @@
             vm.orderStatus = result.data;
         });
 
-        vm.getOrders = function getOrders(tableState) {
+        vm.getOrders = (tableState) => {
             vm.isLoading = true;
             orderService.getOrdersForGrid(tableState).then(function (result) {
                 vm.orders = result.data.items;
@@ -25,36 +25,63 @@
             });
         };
 
-        vm.showOrderStatus = function (statusId) {
+        vm.showOrderStatus = (statusId) => {
             if (vm.orderStatus) {
                 const status = _.find(vm.orderStatus, item => item.id === statusId);
                 return status.name;
             }
-        }
+        };
 
-        vm.changeOrderStatus = function (orderId, statusId) {
+        vm.changeOrderStatus = (orderId, statusId) => {
             return orderService
                 .changeOrderStatus(orderId, statusId)
                 .then((result) => {
                     const updatedOrder = result.data;
-                    const orderListItem = _.find(vm.orders, item => item.id === orderId);
 
-                    orderListItem.total = updatedOrder.orderTotal;
-                    orderListItem.cost = updatedOrder.orderTotalCost;
-                    orderListItem.completedOn = updatedOrder.completedOn;
-
-                    updateCssClassPerOrder(orderListItem);
-
+                    updateOrderItem(updatedOrder);
+                    
                     toastr.success("Saved successfully.");
                 })
                 .catch((response) => toastr.error(response.data.error));
-        }
+        };
 
-        vm.changeTrackingNumber = function (orderId, trackingNumber) {
+        vm.changeTrackingNumber = (orderId, trackingNumber) => {
             return orderService
                 .changeTrackingNumber(orderId, trackingNumber)
                 .then(() => toastr.success("Saved successfully."))
                 .catch((response) => toastr.error(response.data.error));
+        };
+
+        vm.hasOrdersSelected = () => _.some(vm.orders, ['isSelected', true]);
+
+        vm.updateMultipleStatuses = () => {
+            if (!vm.selectedStatus) {
+                toastr.error("Please select a status.");
+                return;
+            }
+
+            const selectedIds = _(vm.orders).filter(order => order.isSelected).map(order => order.id).value();
+
+            orderService
+                .updateMultipleStatuses(selectedIds, vm.selectedStatus.id)
+                .then((result) => {
+                    const updatedOrders = result.data;
+
+                    _.forEach(updatedOrders, (updatedOrder) => updateOrderItem(updatedOrder));
+
+                    toastr.success("Saved successfully.");
+                });
+        };
+
+        function updateOrderItem(updatedOrder) {
+            const orderListItem = _.find(vm.orders, item => item.id === updatedOrder.orderId);
+
+            orderListItem.statusId = updatedOrder.orderStatus;
+            orderListItem.total = updatedOrder.orderTotal;
+            orderListItem.cost = updatedOrder.orderTotalCost;
+            orderListItem.completedOn = updatedOrder.completedOn;
+
+            updateCssClassPerOrder(orderListItem);
         }
 
         function updateCssClass(orders) {

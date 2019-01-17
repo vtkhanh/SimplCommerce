@@ -167,11 +167,14 @@ td>span.glyphicon-remove {
     margin-top: 0;
 }
 
+.no-margin-right {
+    margin-right: 0 !important;
+}
+
 .form-group.required .control-label:after {
     content: "*";
     color: red;
 }
-
 
 .input-validation-error,
 .ng-dirty.ng-invalid {
@@ -180,6 +183,10 @@ td>span.glyphicon-remove {
 
 .order-summary {
     border-top: 2px dotted #dae2ea 
+}
+
+.error {
+    color: red;
 }
 
 /* Dont use validation on md elements */
@@ -212,4 +219,8 @@ table.vertical-align-middle tr td {
 #order-note-modal .note {
     width: 100%;
     height: 10rem;
+}
+
+.st-selected a.editable-click {
+    color: white;
 }

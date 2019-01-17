@@ -7,15 +7,16 @@
     /* @ngInject */
     function orderService($http) {
         var service = {
+            createOrder: createOrder,
+            updateOrder: updateOrder,
+            updateMultipleStatuses: updateMultipleStatuses,
+            changeOrderStatus: changeOrderStatus,
+            changeTrackingNumber: changeTrackingNumber,
             getOrders: getOrders,
             getOrdersForGrid: getOrdersForGrid,
             getOrderForEditing: getOrderForEditing,
             getOrder: getOrder,
-            createOrder: createOrder,
-            updateOrder: updateOrder,
             getOrderStatus: getOrderStatus,
-            changeOrderStatus: changeOrderStatus,
-            changeTrackingNumber: changeTrackingNumber,
             getStatusList: getStatusList,
             getPaymentList: getPaymentList
         };
@@ -27,6 +28,14 @@
 
         function updateOrder(params) {
             return $http.put(`api/orders`, params);
+        }
+
+        function updateMultipleStatuses(orderIds, status) {
+            const params = {
+                orderIds,
+                status
+            };
+            return $http.put('api/orders/update-multiple-statuses', params);
         }
 
         function getOrdersForGrid(params) {
