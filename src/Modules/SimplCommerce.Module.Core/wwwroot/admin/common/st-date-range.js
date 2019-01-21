@@ -10,12 +10,13 @@
                 require: '^stTable',
                 scope: {
                     before: '=',
-                    after: '='
+                    after: '=',
+                    mode: '@'
                 },
                 templateUrl: 'modules/core/admin/common/st-date-range-md.html',
-                link: function (scope, element, attr, table) {
-                    var predicateName = attr.predicate;
-
+                link: function (scope, element, attrs, ctrl) {
+                    var predicateName = attrs.predicate;
+                    
                     scope.changeDate = function() {
                         var query = {};
                         if (scope.before) {
@@ -27,7 +28,7 @@
                             query.after = scope.after;
                         }
 
-                        table.search(query, predicateName);
+                        ctrl.search(query, predicateName);
                     };
 
                     function open(before) {
@@ -45,6 +46,9 @@
 
                     scope.openBefore = open(true);
                     scope.openAfter = open();
+
+                    scope.hasBefore = attrs.before !== undefined;
+                    scope.mode = scope.mode || 'day';
                 }
             };
         }]);

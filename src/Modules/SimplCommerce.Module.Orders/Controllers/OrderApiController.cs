@@ -84,7 +84,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPost("list")]
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
-            IQueryable<Order> query = _orderRepository.Query();
+            IQueryable<Order> query = _orderRepository.QueryAsNoTracking();
 
             var currentUser = await _workContext.GetCurrentUser();
             var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
@@ -92,24 +92,20 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             if (param.Search.PredicateObject != null)
             {
-                dynamic search = param.Search.PredicateObject;
-                var id = (long?)search.Id;
-                var status = (OrderStatus?)search.Status;
-                var customerName = (string)search.CustomerName;
-                var trackingNumber = (string)search.TrackingNumber;
-                var createdBy = (string)search.CreatedBy;
-                var before = (DateTimeOffset?)search.CompletedOn?.before;
-                var after = (DateTimeOffset?)search.CompletedOn?.after;
+                var search = new OrderSearchVm(param.Search.PredicateObject);
+                
                 query = query
                     .Include(i => i.Customer)
                     .Include(i => i.CreatedBy)
-                    .WhereIf(id.HasValue, i => i.Id == id.Value)
-                    .WhereIf(status.HasValue, i => i.OrderStatus == status.Value)
-                    .WhereIf(customerName.HasValue(), i => i.Customer.FullName.Contains(customerName))
-                    .WhereIf(trackingNumber.HasValue(), i => i.TrackingNumber.Contains(trackingNumber))
-                    .WhereIf(createdBy.HasValue(), i => i.CreatedBy.FullName.Contains(createdBy))
-                    .WhereIf(before.HasValue, x => x.CompletedOn <= before)
-                    .WhereIf(after.HasValue, x => x.CompletedOn >= after)
+                    .WhereIf(search.Id.HasValue, i => i.Id == search.Id)
+                    .WhereIf(search.Status.HasValue, i => i.OrderStatus == search.Status)
+                    .WhereIf(search.CustomerName.HasValue(), i => i.Customer.FullName.Contains(search.CustomerName))
+                    .WhereIf(search.TrackingNumber.HasValue(), i => i.TrackingNumber.Contains(search.TrackingNumber))
+                    .WhereIf(search.CreatedBy.HasValue(), i => i.CreatedBy.FullName.Contains(search.CreatedBy))
+                    .WhereIf(search.CreatedBefore.HasValue, i => i.CreatedOn <= search.CreatedBefore)
+                    .WhereIf(search.CreatedAfter.HasValue, i => i.CreatedOn >= search.CreatedAfter)
+                    .WhereIf(search.CompletedBefore.HasValue, x => x.CompletedOn <= search.CompletedBefore)
+                    .WhereIf(search.CompletedAfter.HasValue, x => x.CompletedOn >= search.CompletedAfter)
                     ;
             }
 
@@ -125,6 +121,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                     Total = order.OrderTotal,
                     StatusId = order.OrderStatus,
                     OrderStatus = order.OrderStatus.ToString(),
+                    order.CreatedOn,
                     order.CompletedOn,
                     IsRestricted = !CanEditFullOrder(currentUser, order.CreatedById, order.VendorId),
                     CanEdit = order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1)
@@ -226,5 +223,6 @@ namespace SimplCommerce.Module.Orders.Controllers
         private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) =>
             User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
+        
     }
 }

@@ -44,7 +44,6 @@ const bower = {
     "angular-i18n": "angular-i18n/angular-locale_*.js",
     "angular-animate": "angular-animate/angular*.js",
     "angular-aria": "angular-aria/angular*.js",
-    "angular-material": "angular-material/angular-material*.{js,css}",
     "angular-messages": "angular-messages/angular-messages*.js",
     "angular-ui-router": "angular-ui-router/release/*.js",
     "angular-smart-table": "angular-smart-table/dist/*.js",
