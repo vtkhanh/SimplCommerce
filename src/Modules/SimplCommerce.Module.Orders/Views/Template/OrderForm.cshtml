@@ -71,8 +71,7 @@
                                                         <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">{{item.subTotalCost.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">
-                                                            <a ng-disabled="!vm.canEdit" 
-                                                                ng-click="vm.removeFromCart(item)" href="javascript:;">
+                                                            <a ng-if="vm.canEdit" ng-click="vm.removeFromCart(item)">
                                                                 <i class="fas fa-trash-alt"></i>
                                                             </a>
                                                         </td>
@@ -126,7 +125,7 @@
                                                         </td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input 
+                                                                <input ng-disabled="!vm.canEdit"
                                                                        type="number" class="text-center" ng-model="vm.shippingCost"
                                                                        min="0" ng-change="vm.onShippingCostUpdate()"
                                                                        aria-label="Actual shipping amount" />

@@ -62,8 +62,7 @@
                                                         </td>
                                                         <td class="col-sm-1 text-center">{{item.subTotal.toCurrency()}}</td>
                                                         <td class="col-sm-1 text-center">
-                                                            <a ng-disabled="!vm.canEdit" 
-                                                                ng-click="vm.removeFromCart(item)" href="javascript:;">
+                                                            <a ng-if="vm.canEdit" ng-click="vm.removeFromCart(item)">
                                                                 <i class="fas fa-trash-alt"></i>
                                                             </a>
                                                         </td>
@@ -89,7 +88,8 @@
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Discount")}}:</td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" ng-model="vm.discount"
+                                                                <input ng-disabled="!vm.canEdit"
+                                                                       type="number" class="text-center" ng-model="vm.discount"
                                                                        min="0" ng-change="vm.updateOrderTotal()"
                                                                        aria-label="Discount" />
                                                             </md-input-container>
@@ -106,7 +106,8 @@
                                                         <td class="col-sm-1 text-center">{{::vm.translate.get("Shipping")}}:</td>
                                                         <td class="col-sm-1">
                                                             <md-input-container class="no-margin-bottom no-margin-top hide-validation">
-                                                                <input type="number" class="text-center" ng-model="vm.shippingAmount"
+                                                                <input ng-disabled="!vm.canEdit"
+                                                                       type="number" class="text-center" ng-model="vm.shippingAmount"
                                                                        min="0" ng-change="vm.onShippingAmountUpdate()"
                                                                        aria-label="Shipping amount" />
                                                             </md-input-container>

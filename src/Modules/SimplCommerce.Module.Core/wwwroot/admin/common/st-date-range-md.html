@@ -1,10 +1,10 @@
 ﻿<div class="date-filter container-fluid">
     <div class="row">
         <div class="col-xs-6">
-            <md-datepicker ng-model="after" ng-change="changeDate(after)" md-placeholder="From"></md-datepicker>
+            <md-datepicker ng-model="after" ng-change="changeDate(after)" md-placeholder="From" md-mode="{{mode}}"></md-datepicker>
         </div>
-        <div class="col-xs-6">
-            <md-datepicker ng-model="before" ng-change="changeDate(before)" md-placeholder="To"></md-datepicker>
+        <div class="col-xs-6" ng-if="hasBefore">
+            <md-datepicker ng-model="before" ng-change="changeDate(before)" md-placeholder="To" md-mode="{{mode}}"></md-datepicker>
         </div>
     </div>
 </div>
