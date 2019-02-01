@@ -14,6 +14,8 @@ using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Orders.Services;
 using SimplCommerce.Module.Payments.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.IO;
+using CsvHelper;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -29,18 +31,21 @@ namespace SimplCommerce.Module.Orders.Controllers
         private readonly IRepository<Order> _orderRepository;
         private readonly IWorkContext _workContext;
         private readonly IAuthorizationService _authorizationService;
+        private readonly ISearchOrderService _searchOrderService;
 
         public OrderApiController(IOrderService orderService,
             IPaymentProviderService paymentProviderService,
             IRepository<Order> orderRepository,
             IWorkContext workContext,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            ISearchOrderService searchOrderService)
         {
             _orderService = orderService;
             _paymentProviderService = paymentProviderService;
             _orderRepository = orderRepository;
             _workContext = workContext;
             _authorizationService = authorizationService;
+            _searchOrderService = searchOrderService;
         }
 
         [HttpGet]
@@ -84,30 +89,14 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPost("list")]
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
-            IQueryable<Order> query = _orderRepository.QueryAsNoTracking();
-
             var currentUser = await _workContext.GetCurrentUser();
-            var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
-            query = query.WhereIf(!canManageOrder, i => i.VendorId == currentUser.VendorId);
-
-            if (param.Search.PredicateObject != null)
+            var search = new SearchParametersVm(param.Search.PredicateObject)
             {
-                var search = new OrderSearchVm(param.Search.PredicateObject);
-                
-                query = query
-                    .Include(i => i.Customer)
-                    .Include(i => i.CreatedBy)
-                    .WhereIf(search.Id.HasValue, i => i.Id == search.Id)
-                    .WhereIf(search.Status.HasValue, i => i.OrderStatus == search.Status)
-                    .WhereIf(search.CustomerName.HasValue(), i => i.Customer.FullName.Contains(search.CustomerName))
-                    .WhereIf(search.TrackingNumber.HasValue(), i => i.TrackingNumber.Contains(search.TrackingNumber))
-                    .WhereIf(search.CreatedBy.HasValue(), i => i.CreatedBy.FullName.Contains(search.CreatedBy))
-                    .WhereIf(search.CreatedBefore.HasValue, i => i.CreatedOn <= search.CreatedBefore)
-                    .WhereIf(search.CreatedAfter.HasValue, i => i.CreatedOn >= search.CreatedAfter)
-                    .WhereIf(search.CompletedBefore.HasValue, x => x.CompletedOn <= search.CompletedBefore)
-                    .WhereIf(search.CompletedAfter.HasValue, x => x.CompletedOn >= search.CompletedAfter)
-                    ;
-            }
+                CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded,
+                UserVendorId = currentUser.VendorId
+            };
+
+            var query = _searchOrderService.BuildQuery(search);
 
             var orders = query.ToSmartTableResult(
                 param,
@@ -128,6 +117,28 @@ namespace SimplCommerce.Module.Orders.Controllers
                 });
 
             return Json(orders);
+        }
+
+        [HttpGet("export")]
+        public async Task<ActionResult> Export([FromQuery] SmartTableParam param)
+        {
+            var currentUser = await _workContext.GetCurrentUser();
+            var search = new SearchParametersVm(param.Search?.PredicateObject)
+            {
+                CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded,
+                UserVendorId = currentUser.VendorId
+            };
+
+            var orders = await _searchOrderService.GetOrdersAsync(search);
+
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream))
+            using (var csvWriter = new CsvWriter(writer))
+            {
+                csvWriter.WriteRecords(orders);
+                writer.Flush();
+                return File(stream.ToArray(), "application/octet-stream", $"Orders-{DateTime.Now.ToString("dd/MM/yyyy")}.csv");
+            }
         }
 
         [HttpGet("edit/{id}")]
@@ -223,6 +234,6 @@ namespace SimplCommerce.Module.Orders.Controllers
         private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) =>
             User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
-        
+
     }
 }

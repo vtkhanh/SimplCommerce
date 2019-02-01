@@ -15,6 +15,7 @@
         });
 
         vm.getOrders = (tableState) => {
+            vm.tableState = tableState;
             vm.isLoading = true;
             orderService.getOrdersForGrid(tableState).then(function (result) {
                 vm.orders = result.data.items;
@@ -24,6 +25,10 @@
                 updateCssClass(vm.orders);
             });
         };
+
+        vm.exportOrders = () => {
+            orderService.exportOrders(vm.tableState);
+        }
 
         vm.showOrderStatus = (statusId) => {
             if (vm.orderStatus) {
