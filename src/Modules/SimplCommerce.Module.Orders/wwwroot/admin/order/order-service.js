@@ -1,5 +1,5 @@
-﻿/*global angular*/
-(function () {
+﻿/*global angular, jQuery*/
+(function ($) {
     angular
         .module('simplAdmin.orders')
         .factory('orderService', orderService);
@@ -18,7 +18,8 @@
             getOrder: getOrder,
             getOrderStatus: getOrderStatus,
             getStatusList: getStatusList,
-            getPaymentList: getPaymentList
+            getPaymentList: getPaymentList,
+            exportOrders: exportOrders
         };
         return service;
 
@@ -31,15 +32,25 @@
         }
 
         function updateMultipleStatuses(orderIds, status) {
-            const params = {
-                orderIds,
-                status
-            };
-            return $http.put('api/orders/update-multiple-statuses', params);
+            return $http.put('api/orders/update-multiple-statuses', { orderIds, status });
         }
 
         function getOrdersForGrid(params) {
             return $http.post('api/orders/list', params);
+        }
+
+        function exportOrders(params) {
+            //const downloadPath = 'api/orders/export?' + $.param(params);
+            //window.open(downloadPath, '_blank', ''); 
+            //return $http
+            //    .get(downloadPath, { responseType: 'arraybuffer' })
+            //    .then(downloadFile);
+            return $http({
+                method: 'GET',
+                url: 'api/orders/export',
+                params: params,
+                responseType: 'arraybuffer'
+            }).then(downloadFile);
         }
 
         function getOrders(status, numRecords) {
@@ -73,5 +84,31 @@
         function getPaymentList() {
             return $http.get('api/orders/payment-list');
         }
+
+        function downloadFile(data) {
+            const headers = data.headers();
+            const contentDisposition = headers['content-disposition'] || '';
+            const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition)[1].replace(/"/g,'');
+
+            const contentType = headers['content-type'];
+
+            const linkElement = document.createElement('a');
+            try {
+                const blob = new Blob([data.data], { type: contentType });
+                const url = window.URL.createObjectURL(blob);
+
+                linkElement.setAttribute('href', url);
+                linkElement.setAttribute("download", filename);
+
+                const clickEvent = new MouseEvent("click", {
+                    "view": window,
+                    "bubbles": true,
+                    "cancelable": false
+                });
+                linkElement.dispatchEvent(clickEvent);
+            } catch (ex) {
+                console.log(ex);
+            }
+        }
     }
-})();
+})(jQuery);

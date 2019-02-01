@@ -70,7 +70,7 @@ namespace SimplCommerce.WebHost.Extensions
                         headers.CacheControl = new CacheControlHeaderValue
                         {
                             Public = true,
-                            MaxAge = TimeSpan.FromDays(30)
+                            MaxAge = TimeSpan.FromHours(3)
                         };
                     }
                 });
