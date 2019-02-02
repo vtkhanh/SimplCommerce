@@ -40,17 +40,7 @@
         }
 
         function exportOrders(params) {
-            //const downloadPath = 'api/orders/export?' + $.param(params);
-            //window.open(downloadPath, '_blank', ''); 
-            //return $http
-            //    .get(downloadPath, { responseType: 'arraybuffer' })
-            //    .then(downloadFile);
-            return $http({
-                method: 'GET',
-                url: 'api/orders/export',
-                params: params,
-                responseType: 'arraybuffer'
-            }).then(downloadFile);
+            return $http.post('api/orders/export', params, { responseType: 'arraybuffer' }).then(downloadFile);
         }
 
         function getOrders(status, numRecords) {

@@ -90,11 +90,9 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
             var currentUser = await _workContext.GetCurrentUser();
-            var search = new SearchParametersVm(param.Search.PredicateObject)
-            {
-                CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded,
-                UserVendorId = currentUser.VendorId
-            };
+            var search = param.Search.PredicateObject?.ToObject<SearchOrderParametersVm>() ?? new SearchOrderParametersVm();
+            search.CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
+            search.UserVendorId = currentUser.VendorId;
 
             var query = _searchOrderService.BuildQuery(search);
 
@@ -119,17 +117,15 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(orders);
         }
 
-        [HttpGet("export")]
-        public async Task<ActionResult> Export([FromQuery] SmartTableParam param)
+        [HttpPost("export")]
+        public async Task<ActionResult> Export([FromBody] SmartTableParam param)
         {
             var currentUser = await _workContext.GetCurrentUser();
-            var search = new SearchParametersVm(param.Search?.PredicateObject)
-            {
-                CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded,
-                UserVendorId = currentUser.VendorId
-            };
+            var search = param.Search.PredicateObject?.ToObject<SearchOrderParametersVm>() ?? new SearchOrderParametersVm();
+            search.CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
+            search.UserVendorId = currentUser.VendorId;
 
-            var orders = await _searchOrderService.GetOrdersAsync(search);
+            var orders = await _searchOrderService.GetOrdersAsync(search, param.Sort);
 
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream))

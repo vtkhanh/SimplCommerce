@@ -3,29 +3,27 @@ using SimplCommerce.Module.Orders.Models;
 
 namespace SimplCommerce.Module.Orders.ViewModels
 {
-    public class SearchParametersVm
+    public class SearchOrderParametersVm
     {
-        private readonly dynamic _predicateObject;
+        public long? Id { get; set; }
 
-        public SearchParametersVm(dynamic predicateObject) => _predicateObject = predicateObject;
+        public OrderStatus? Status { get; set; }
 
-        public bool HasValues => _predicateObject != null;
+        public string CustomerName { get; set; }
 
-        public long? Id => (long?)_predicateObject?.Id;
+        public string TrackingNumber { get; set; }
 
-        public OrderStatus? Status => (OrderStatus?)_predicateObject?.Status;
+        public string CreatedBy { get; set; }
 
-        public string CustomerName => (string)_predicateObject?.CustomerName;
+        public PeriodVm CreatedOn { get; set; }
 
-        public string TrackingNumber => (string)_predicateObject?.TrackingNumber;
-
-        public string CreatedBy => (string)_predicateObject?.CreatedBy;
+        public PeriodVm CompletedOn { get; set; }
 
         public DateTimeOffset? CreatedBefore
         {
             get
             {
-                var createdBefore = (DateTimeOffset?)_predicateObject.CreatedOn?.before;
+                var createdBefore = CreatedOn?.Before;
                 if (!createdBefore.HasValue && CreatedAfter.HasValue)
                 {
                     createdBefore = GetLastDayOfMonth(CreatedAfter.Value);
@@ -34,13 +32,13 @@ namespace SimplCommerce.Module.Orders.ViewModels
             }
         }
 
-        public DateTimeOffset? CreatedAfter => (DateTimeOffset?)_predicateObject?.CreatedOn?.after;
+        public DateTimeOffset? CreatedAfter => CreatedOn?.After;
 
         public DateTimeOffset? CompletedBefore
         {
             get
             {
-                var completedBefore = (DateTimeOffset?)_predicateObject?.CompletedOn?.before;
+                var completedBefore = CompletedOn?.Before;
                 if (!completedBefore.HasValue && CompletedAfter.HasValue)
                 {
                     completedBefore = GetLastDayOfMonth(CompletedAfter.Value);
@@ -49,7 +47,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
             }
         }
 
-        public DateTimeOffset? CompletedAfter => (DateTimeOffset?)_predicateObject?.CompletedOn?.after;
+        public DateTimeOffset? CompletedAfter => CompletedOn?.After;
 
         public bool CanManageOrder { get; set; }
 
