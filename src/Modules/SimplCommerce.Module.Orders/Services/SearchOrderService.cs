@@ -19,35 +19,18 @@ namespace SimplCommerce.Module.Orders.Services
             _orderRepo = orderRepo;
         }
 
-        public IQueryable<Order> BuildQuery(SearchOrderParametersVm search) => 
-            _orderRepo.QueryAsNoTracking()
-                .Include(i => i.Customer)
-                .Include(i => i.CreatedBy)
-                .WhereIf(!search.CanManageOrder, i => i.VendorId == search.UserVendorId)
-                .WhereIf(search.Id.HasValue, i => i.Id == search.Id)
-                .WhereIf(search.Status.HasValue, i => i.OrderStatus == search.Status)
-                .WhereIf(search.CustomerName.HasValue(), i => i.Customer.FullName.Contains(search.CustomerName))
-                .WhereIf(search.TrackingNumber.HasValue(), i => i.TrackingNumber.Contains(search.TrackingNumber))
-                .WhereIf(search.CreatedBy.HasValue(), i => i.CreatedBy.FullName.Contains(search.CreatedBy))
-                .WhereIf(search.CreatedBefore.HasValue, i => i.CreatedOn <= search.CreatedBefore)
-                .WhereIf(search.CreatedAfter.HasValue, i => i.CreatedOn >= search.CreatedAfter)
-                .WhereIf(search.CompletedBefore.HasValue, x => x.CompletedOn <= search.CompletedBefore)
-                .WhereIf(search.CompletedAfter.HasValue, x => x.CompletedOn >= search.CompletedAfter);
+        public IQueryable<Order> BuildQuery(SearchOrderParametersVm search) => BuildQuery(search, null);
 
         public async Task<IEnumerable<OrderExportVm>> GetOrdersAsync(SearchOrderParametersVm search, Sort sort)
         {
             const string DateFormat = "dd/MM/yyyy";
 
-            var query = BuildQuery(search);
+            if (sort == null || !sort.Predicate.HasValue())
+            {
+                sort = new Sort() { Predicate = "Id", Reverse = true };
+            }
 
-            if (sort != null && sort.Predicate.HasValue())
-            {
-                query = query.OrderByName(sort.Predicate, sort.Reverse);
-            }
-            else
-            {
-                query = query.OrderByName("Id", true);
-            }
+            var query = BuildQuery(search, sort);
 
             var orders = await query.Select(order => new OrderExportVm
             {
@@ -64,5 +47,30 @@ namespace SimplCommerce.Module.Orders.Services
 
             return orders;
         }
+
+        private IQueryable<Order> BuildQuery(SearchOrderParametersVm search, Sort sort)
+        {
+            var query = _orderRepo.QueryAsNoTracking()
+                .Include(i => i.Customer)
+                .Include(i => i.CreatedBy)
+                .WhereIf(!search.CanManageOrder, i => i.VendorId == search.UserVendorId)
+                .WhereIf(search.Id.HasValue, i => i.Id == search.Id)
+                .WhereIf(search.Status.HasValue, i => i.OrderStatus == search.Status)
+                .WhereIf(search.CustomerName.HasValue(), i => i.Customer.FullName.Contains(search.CustomerName))
+                .WhereIf(search.TrackingNumber.HasValue(), i => i.TrackingNumber.Contains(search.TrackingNumber))
+                .WhereIf(search.CreatedBy.HasValue(), i => i.CreatedBy.FullName.Contains(search.CreatedBy))
+                .WhereIf(search.CreatedBefore.HasValue, i => i.CreatedOn <= search.CreatedBefore)
+                .WhereIf(search.CreatedAfter.HasValue, i => i.CreatedOn >= search.CreatedAfter)
+                .WhereIf(search.CompletedBefore.HasValue, x => x.CompletedOn <= search.CompletedBefore)
+                .WhereIf(search.CompletedAfter.HasValue, x => x.CompletedOn >= search.CompletedAfter);
+
+            if (sort != null && sort.Predicate.HasValue())
+            {
+                query = query.OrderByName(sort.Predicate, sort.Reverse);
+            }
+
+            return query;
+        }
+            
     }
 }

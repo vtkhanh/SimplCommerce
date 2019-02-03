@@ -16,6 +16,7 @@ using SimplCommerce.Module.Payments.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IO;
 using CsvHelper;
+using System.Text;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -128,12 +129,13 @@ namespace SimplCommerce.Module.Orders.Controllers
             var orders = await _searchOrderService.GetOrdersAsync(search, param.Sort);
 
             using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream))
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
             using (var csvWriter = new CsvWriter(writer))
             {
                 csvWriter.WriteRecords(orders);
                 writer.Flush();
-                return File(stream.ToArray(), "application/octet-stream", $"Orders-{DateTime.Now.ToString("dd/MM/yyyy")}.csv");
+                var fileName = $"Orders-{DateTime.Now.ToString("dd/MM/yyyy")}.csv";
+                return File(stream.ToArray(), "application/octet-stream", fileName);
             }
         }
 
