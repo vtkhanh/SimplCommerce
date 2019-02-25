@@ -15,6 +15,14 @@
         </md-input-container>
 
     </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-6">
+        <md-input-container class="md-block" flex-gt-xs>
+            <label>{{::vm.translate.get('Note')}}</label>
+            <textarea ng-disabled="!vm.canEdit" ng-model="vm.note"></textarea>
+        </md-input-container>
+    </div>
     <div class="col-sm-3">
         <md-input-container class="md-block" flex-gt-xs>
             <label>{{::vm.translate.get('Select payment')}}</label>
@@ -22,14 +30,6 @@
                        style="min-width: 200px;" aria-label="Order payment">
                 <md-option ng-repeat="payment in vm.paymentProviderList" ng-value="payment.value">{{payment.text}}</md-option>
             </md-select>
-        </md-input-container>
-    </div>
-</div>
-<div class="form-group">
-    <div class="col-sm-6">
-        <md-input-container class="md-block" flex-gt-xs>
-            <label>{{::vm.translate.get('Note')}}</label>
-            <textarea ng-disabled="!vm.canEdit" ng-model="vm.note"></textarea>
         </md-input-container>
     </div>
 </div>
