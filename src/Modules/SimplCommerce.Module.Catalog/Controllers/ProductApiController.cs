@@ -65,10 +65,10 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IList<ProductDto>>> Search(string query)
+        public async Task<ActionResult<IList<ProductDto>>> Search(string query, bool? hasOptions)
         {
             const int maxItems = 100;
-            var products = await _productService.SearchAsync(query, maxItems);
+            var products = await _productService.SearchAsync(query, hasOptions, maxItems);
             return products.ToList();
         }
 

@@ -15,19 +15,19 @@
 
         vm.searchCustomers = (query = '') =>
             userService
-            .searchCustomers(query)
-            .then((result) => {
-                return result.data;
-            })
-            .catch((response) => toastr.error(response.data.error));
+                .searchCustomers(query)
+                .then((result) => {
+                    return result.data;
+                })
+                .catch((response) => toastr.error(response.data.error));
 
         vm.searchProducts = (query) =>
             productService
-            .searchProducts(query)
-            .then((result) => {
-                return result.data;
-            })
-            .catch((response) => toastr.error(response.data.error));
+                .searchProducts(query, false)
+                .then((result) => {
+                    return result.data;
+                })
+                .catch((response) => toastr.error(response.data.error));
 
         vm.addToCart = (product) => {
             if (!product) return;

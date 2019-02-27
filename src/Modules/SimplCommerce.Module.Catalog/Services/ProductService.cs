@@ -82,11 +82,12 @@ namespace SimplCommerce.Module.Catalog.Services
             _productRepo.SaveChanges();
         }
 
-        public async Task<IEnumerable<ProductDto>> SearchAsync(string query, int? maxItems = null)
+        public async Task<IEnumerable<ProductDto>> SearchAsync(string query, bool? hasOptions, int? maxItems)
         {
             var products = await _productRepo.Query()
                 .Include(i => i.ThumbnailImage)
                 .Where(i => !i.IsDeleted)
+                .WhereIf(hasOptions.HasValue, i => i.HasOptions == hasOptions)
                 .WhereIf(query.HasValue(), i => i.Name.Contains(query) || i.Sku.Contains(query))
                 .OrderByDescending(i => i.HitCount) // Get the most frequently searched ones
                 .TakeIf(maxItems.HasValue, maxItems.HasValue ? maxItems.Value : 0)

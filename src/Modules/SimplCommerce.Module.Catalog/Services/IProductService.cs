@@ -13,7 +13,7 @@ namespace SimplCommerce.Module.Catalog.Services
 
         Task DeleteAsync(Product product);
 
-        Task<IEnumerable<ProductDto>> SearchAsync(string query, int? maxItems = null);
+        Task<IEnumerable<ProductDto>> SearchAsync(string query, bool? hasOptions, int? maxItems);
 
         Task<ProductSettingDto> GetProductSettingAsync();
 
