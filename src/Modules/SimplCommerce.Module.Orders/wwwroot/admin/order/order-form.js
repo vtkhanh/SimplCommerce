@@ -155,6 +155,7 @@
 
         function init() {
             vm.orderId = $stateParams.id || 0;
+            vm.invoiceTabSelected = vm.orderId > 0;
 
             if (vm.orderId === 0) { // Create order
                 orderService.getStatusList()
