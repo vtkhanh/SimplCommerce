@@ -138,6 +138,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 var name = (string)search.Name;
                 var sku = (string)search.Sku;
                 var hasOptions = (bool?)search.HasOptions;
+                var inStock = (bool?)search.InStock;
                 var isVisibleIndividually = (bool?)search.IsVisibleIndividually;
                 var isPublished = (bool?)search.IsPublished;
                 var before = (DateTimeOffset?)search.CreatedOn?.before;
@@ -147,6 +148,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                     .WhereIf(!name.IsNullOrEmpty(), x => x.Name.Contains(name))
                     .WhereIf(!sku.IsNullOrEmpty(), x => x.Sku.Contains(sku))
                     .WhereIf(hasOptions.HasValue, x => x.HasOptions == hasOptions)
+                    .WhereIf(inStock.HasValue, x => (inStock.Value && x.Stock > 0) || (!inStock.Value && x.Stock <= 0))
                     .WhereIf(isVisibleIndividually.HasValue, x => x.IsVisibleIndividually == isVisibleIndividually)
                     .WhereIf(isPublished.HasValue, x => x.IsPublished == isPublished)
                     .WhereIf(before.HasValue, x => x.CreatedOn <= before)
