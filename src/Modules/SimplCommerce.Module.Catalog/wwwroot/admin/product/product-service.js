@@ -24,8 +24,8 @@
         };
         return service;
 
-        function searchProducts(query) {
-            return $http.get(`api/products/search?query=${query}`);
+        function searchProducts(query, hasOptions = null) {
+            return $http.get(`api/products/search?query=${query}&hasOptions=${hasOptions}`);
         }
 
         function getProduct(id) {

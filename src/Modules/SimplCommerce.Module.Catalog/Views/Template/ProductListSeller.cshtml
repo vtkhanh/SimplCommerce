@@ -42,7 +42,13 @@
                         </select>
                     </div>
                 </th>
-                <th class="col-xs-1"></th>
+                <th class="col-xs-1">
+                    <select class="form-control" st-search="InStock">
+                        <option value="">{{::vm.translate.get('All')}}</option>
+                        <option value="true">{{::vm.translate.get('In stock')}}</option>
+                        <option value="false">{{::vm.translate.get('Out of stock')}}</option>
+                    </select>
+                </th>
                 <th class="col-xs-1"></th>
                 <th class="col-xs-1"></th>
             </tr>

@@ -15,19 +15,19 @@
 
         vm.searchCustomers = (query = '') =>
             userService
-            .searchCustomers(query)
-            .then((result) => {
-                return result.data;
-            })
-            .catch((response) => toastr.error(response.data.error));
+                .searchCustomers(query)
+                .then((result) => {
+                    return result.data;
+                })
+                .catch((response) => toastr.error(response.data.error));
 
         vm.searchProducts = (query) =>
             productService
-            .searchProducts(query)
-            .then((result) => {
-                return result.data;
-            })
-            .catch((response) => toastr.error(response.data.error));
+                .searchProducts(query, false)
+                .then((result) => {
+                    return result.data;
+                })
+                .catch((response) => toastr.error(response.data.error));
 
         vm.addToCart = (product) => {
             if (!product) return;
@@ -155,6 +155,7 @@
 
         function init() {
             vm.orderId = $stateParams.id || 0;
+            vm.invoiceTabSelected = vm.orderId > 0;
 
             if (vm.orderId === 0) { // Create order
                 orderService.getStatusList()
