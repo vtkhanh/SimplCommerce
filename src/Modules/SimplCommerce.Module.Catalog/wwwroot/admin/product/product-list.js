@@ -5,14 +5,17 @@
         .controller('ProductListCtrl', ProductListCtrl);
 
     /* @ngInject */
-    function ProductListCtrl($state, productService, translateService) {
+    function ProductListCtrl($state, $location, productService, translateService) {
         const vm = this;
+        let firstLoad = true;
         let tableStateRef;
 
         vm.translate = translateService;
         vm.products = [];
 
         vm.getProducts = (tableState) => {
+            setPageIndex(tableState);
+
             tableStateRef = tableState;
             vm.isLoading = true;
             productService
@@ -22,6 +25,8 @@
                     tableState.pagination.numberOfPages = result.data.numberOfPages;
                     vm.isLoading = false;
                 });
+
+            firstLoad = false;
         };
 
         vm.changeStatus = (product) => {
@@ -62,6 +67,7 @@
                             if (!tableStateRef.search.predicateObject) {
                                 tableStateRef.search.predicateObject = {}; // Initialize predicateObject
                             }
+                            tableStateRef.pagination.start = 0;
                             tableStateRef.search.predicateObject.Sku = vm.barcode;
                             vm.getProducts(tableStateRef);
                         } else {
@@ -73,5 +79,14 @@
                     .catch((response) => toastr.error(response.data));
             }
         };
+
+        function setPageIndex(tableState) {
+            let pageIndex = tableState.pagination.start / tableState.pagination.number + 1;
+            if (firstLoad) { // use Query String if this is the first load
+                pageIndex = $location.search()['page'] || 1;
+                tableState.pagination.start = (pageIndex - 1) * tableState.pagination.number;
+            }
+            $location.search({ 'page': pageIndex });
+        }
     }
 })();
