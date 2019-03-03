@@ -5,7 +5,7 @@
         .controller('ProductFormCtrl', ProductFormCtrl);
 
     /* @ngInject */
-    function ProductFormCtrl($state, $timeout, $stateParams, $http, categoryService, productService, summerNoteService, brandService, translateService) {
+    function ProductFormCtrl($state, $timeout, $stateParams, $window, categoryService, productService, summerNoteService, brandService, translateService) {
         const MIN_PROFIT = 30000; // Min profit on one item
 
         var vm = this;
@@ -368,6 +368,8 @@
                     }
                 });
         };
+
+        vm.back = () => $window.history.back();
 
         function init() {
             if (vm.isEditMode) {

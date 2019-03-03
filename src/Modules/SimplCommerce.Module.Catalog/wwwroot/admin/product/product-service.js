@@ -32,6 +32,10 @@
             return $http.get('api/products/' + id);
         }
 
+        function getProducts(params) {
+            return $http.post(`api/products/list`, params);
+        }
+
         function getProductSetting() {
             return $http.get('api/products/setting');
         }
@@ -51,11 +55,7 @@
         function getProductOptions() {
             return $http.get('api/product-options');
         }
-
-        function getProducts(params) {
-            return $http.post('api/products/list', params);
-        }
-
+        
         function addStock(barcode) {
             return $http.post('api/products/addStock/' + barcode, null);
         }
