@@ -135,7 +135,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                 csvWriter.WriteRecords(orders);
                 writer.Flush();
                 var fileName = $"Orders-{DateTime.Now.ToString("dd/MM/yyyy")}.csv";
-                return File(stream.ToArray(), "application/octet-stream", fileName);
+                return File(stream.ToArray(), FileContentType.Binary, fileName);
             }
         }
 

@@ -21,6 +21,8 @@ using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using AutoMapper;
 using SimplCommerce.Module.Catalog.Services.Dtos;
+using System.Text;
+using CsvHelper;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -39,6 +41,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         private readonly IProductService _productService;
         private readonly IWorkContext _workContext;
         private readonly IAuthorizationService _authorizationService;
+        private readonly ISearchProductService _searchProductService;
 
         public ProductApiController(
             IMapper mapper,
@@ -50,7 +53,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IRepository<ProductOptionValue> productOptionValueRepository,
             IRepository<ProductAttributeValue> productAttributeValueRepository,
             IWorkContext workContext,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            ISearchProductService searchProductService)
         {
             _mapper = mapper;
             _productRepository = productRepository;
@@ -62,6 +66,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             _productAttributeValueRepository = productAttributeValueRepository;
             _workContext = workContext;
             _authorizationService = authorizationService;
+            _searchProductService = searchProductService;
         }
 
         [HttpGet("search")]
@@ -127,38 +132,44 @@ namespace SimplCommerce.Module.Catalog.Controllers
         [HttpPost("list")]
         public async Task<IActionResult> List([FromBody] SmartTableParam param)
         {
-            var query = _productRepository.Query().Where(x => !x.IsDeleted);
+            var search = param.Search.PredicateObject?.ToObject<SearchProductParametersVm>() ?? new SearchProductParametersVm();
+
             var currentUser = await _workContext.GetCurrentUser();
             var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
-            query = query.WhereIf(!canManageOrder, x => x.VendorId == currentUser.VendorId);
+            search.CanManageOrder = canManageOrder;
+            search.VendorId = currentUser.VendorId;
 
-            if (param.Search.PredicateObject != null)
-            {
-                dynamic search = param.Search.PredicateObject;
-                var name = (string)search.Name;
-                var sku = (string)search.Sku;
-                var hasOptions = (bool?)search.HasOptions;
-                var inStock = (bool?)search.InStock;
-                var isVisibleIndividually = (bool?)search.IsVisibleIndividually;
-                var isPublished = (bool?)search.IsPublished;
-                var before = (DateTimeOffset?)search.CreatedOn?.before;
-                var after = (DateTimeOffset?)search.CreatedOn?.after;
-
-                query = query
-                    .WhereIf(!name.IsNullOrEmpty(), x => x.Name.Contains(name))
-                    .WhereIf(!sku.IsNullOrEmpty(), x => x.Sku.Contains(sku))
-                    .WhereIf(hasOptions.HasValue, x => x.HasOptions == hasOptions)
-                    .WhereIf(inStock.HasValue, x => (inStock.Value && x.Stock > 0) || (!inStock.Value && x.Stock <= 0))
-                    .WhereIf(isVisibleIndividually.HasValue, x => x.IsVisibleIndividually == isVisibleIndividually)
-                    .WhereIf(isPublished.HasValue, x => x.IsPublished == isPublished)
-                    .WhereIf(before.HasValue, x => x.CreatedOn <= before)
-                    .WhereIf(after.HasValue, x => x.CreatedOn >= after)
-                    ;
-            }
+            var query = _searchProductService.BuildQuery(search);
 
             var gridData = query.ToSmartTableResult(param, item => _mapper.Map<ProductListItem>(item));
 
             return Json(gridData);
+        }
+
+        [HttpPost("export")]
+        public async Task<IActionResult> Export([FromBody] SmartTableParam param)
+        {
+            var search = param.Search.PredicateObject?.ToObject<SearchProductParametersVm>() ?? new SearchProductParametersVm();
+
+            var currentUser = await _workContext.GetCurrentUser();
+            var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
+            search.CanManageOrder = canManageOrder;
+            search.VendorId = currentUser.VendorId;
+            search.HasOptions = false;
+            var products = _searchProductService.GetProducts(search, param.Sort);
+            var inStocks = products.Where(product => product.Stock > 0).OrderBy(product => product.Name);
+            var outOfStocks = products.Where(product => product.Stock <= 0).OrderBy(product => product.Name);
+            products = inStocks.Concat(outOfStocks);
+
+            using (var stream = new MemoryStream())
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
+            using (var csvWriter = new CsvWriter(writer))
+            {
+                csvWriter.WriteRecords(products);
+                writer.Flush();
+                var fileName = $"Products-{DateTime.Now.ToString("dd/MM/yyyy")}.csv";
+                return File(stream.ToArray(), FileContentType.Binary, fileName);
+            }
         }
 
         [HttpPost]
@@ -316,6 +327,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             return NoContent();
         }
+
+        
 
         private static void MapProductVariationVmToProduct(ProductForm model, Product product)
         {

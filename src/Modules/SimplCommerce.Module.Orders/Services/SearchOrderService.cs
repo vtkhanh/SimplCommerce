@@ -12,19 +12,16 @@ namespace SimplCommerce.Module.Orders.Services
 {
     public class SearchOrderService : ISearchOrderService
     {
+        private const string DATE_FORMAT = "dd/MM/yyyy";
+
         private readonly IRepository<Order> _orderRepo;
 
-        public SearchOrderService(IRepository<Order> orderRepo)
-        {
-            _orderRepo = orderRepo;
-        }
+        public SearchOrderService(IRepository<Order> orderRepo) => _orderRepo = orderRepo;
 
         public IQueryable<Order> BuildQuery(SearchOrderParametersVm search) => BuildQuery(search, null);
 
         public async Task<IEnumerable<OrderExportVm>> GetOrdersAsync(SearchOrderParametersVm search, Sort sort)
         {
-            const string DateFormat = "dd/MM/yyyy";
-
             if (sort == null || !sort.Predicate.HasValue())
             {
                 sort = new Sort() { Predicate = "Id", Reverse = true };
@@ -39,8 +36,8 @@ namespace SimplCommerce.Module.Orders.Services
                 CreatedBy = order.CreatedBy.FullName,
                 TrackingNumber = order.TrackingNumber,
                 Status = order.OrderStatus,
-                CreatedOn = order.CreatedOn.ToString(DateFormat),
-                CompletedOn = order.CompletedOn.HasValue ? order.CompletedOn.Value.ToString(DateFormat) : "",
+                CreatedOn = order.CreatedOn.ToString(DATE_FORMAT),
+                CompletedOn = order.CompletedOn.HasValue ? order.CompletedOn.Value.ToString(DATE_FORMAT) : "",
                 Cost = order.OrderTotalCost,
                 Total = order.OrderTotal
             }).ToListAsync();

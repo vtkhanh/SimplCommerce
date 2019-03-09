@@ -20,7 +20,8 @@
             deleteProduct: deleteProduct,
             getTaxClasses: getTaxClasses,
             searchProducts: searchProducts,
-            addStock: addStock
+            addStock: addStock,
+            exportProducts: exportProducts,
         };
         return service;
 
@@ -95,6 +96,10 @@
 
         function getTaxClasses() {
             return $http.get('api/tax-classes');
+        }
+
+        function exportProducts(params) {
+            return $http.post('api/products/export', params, { responseType: 'arraybuffer' }).then(downloadFile);
         }
     }
 })();

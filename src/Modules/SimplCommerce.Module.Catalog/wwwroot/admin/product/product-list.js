@@ -65,7 +65,7 @@
 
                             // Refresh the product list
                             if (!tableStateRef.search.predicateObject) {
-                                tableStateRef.search.predicateObject = {}; // Initialize predicateObject
+                                tableStateRef.search.predicateObject = {};
                             }
                             tableStateRef.pagination.start = 0;
                             tableStateRef.search.predicateObject.Sku = vm.barcode;
@@ -79,6 +79,8 @@
                     .catch((response) => toastr.error(response.data));
             }
         };
+
+        vm.exportProducts = () => productService.exportProducts(tableStateRef);
 
         function setPageIndex(tableState) {
             let pageIndex = tableState.pagination.start / tableState.pagination.number + 1;
