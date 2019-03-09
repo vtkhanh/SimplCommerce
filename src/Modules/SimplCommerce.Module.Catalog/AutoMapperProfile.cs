@@ -57,6 +57,9 @@ namespace SimplCommerce.Module.Catalog
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.ThumbnailImageUrl, opt => opt.Ignore())
                 ;
+            CreateMap<Product, ProductExportVm>()
+                .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => src.CreatedOn.ToString("dd/MM/yyyy")))
+                ;
         }
     }
 }

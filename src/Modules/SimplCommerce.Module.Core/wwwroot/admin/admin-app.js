@@ -86,5 +86,31 @@
         editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
 
         $rootScope.goBack = () => window.history.back();
+
+        $rootScope.downloadFile = (data) => {
+            const headers = data.headers();
+            const contentDisposition = headers['content-disposition'] || '';
+            const filename = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition)[1].replace(/"/g, '');
+
+            const contentType = headers['content-type'];
+
+            const linkElement = document.createElement('a');
+            try {
+                const blob = new Blob([data.data], { type: contentType });
+                const url = window.URL.createObjectURL(blob);
+
+                linkElement.setAttribute('href', url);
+                linkElement.setAttribute("download", filename);
+
+                const clickEvent = new MouseEvent("click", {
+                    "view": window,
+                    "bubbles": true,
+                    "cancelable": false
+                });
+                linkElement.dispatchEvent(clickEvent);
+            } catch (ex) {
+                console.log(ex);
+            }
+        };
     }]);
 })();

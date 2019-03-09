@@ -369,8 +369,6 @@
                 });
         };
 
-        vm.back = () => $window.history.back();
-
         function init() {
             if (vm.isEditMode) {
                 getProduct();

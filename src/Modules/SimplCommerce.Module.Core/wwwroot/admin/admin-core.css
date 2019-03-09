@@ -171,6 +171,11 @@ td>span.glyphicon-remove {
     margin-right: 0 !important;
 }
 
+.no-vertical-padding {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
 .form-group.required .control-label:after {
     content: "*";
     color: red;

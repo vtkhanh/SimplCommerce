@@ -6,7 +6,8 @@
 
     /* @ngInject */
     function OrderListCtrl(orderService, translateService) {
-        var vm = this;
+        const vm = this;
+        let tableStateRef;
         vm.translate = translateService;
         vm.orders = [];
 
@@ -15,7 +16,7 @@
         });
 
         vm.getOrders = (tableState) => {
-            vm.tableState = tableState;
+            tableStateRef = tableState;
             vm.isLoading = true;
             orderService.getOrdersForGrid(tableState).then(function (result) {
                 vm.orders = result.data.items;
@@ -26,9 +27,7 @@
             });
         };
 
-        vm.exportOrders = () => {
-            orderService.exportOrders(vm.tableState);
-        }
+        vm.exportOrders = () => orderService.exportOrders(tableStateRef);
 
         vm.showOrderStatus = (statusId) => {
             if (vm.orderStatus) {
