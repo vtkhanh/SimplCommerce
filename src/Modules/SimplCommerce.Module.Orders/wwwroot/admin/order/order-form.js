@@ -153,7 +153,7 @@
             }
         };
 
-        vm.printElement = (eleId) => {
+        vm.printInvoice = (eleId) => {
             // TODO: A shit way to print an element now, yet to figure out a better way
             const printWindow = window.open('', '_blank', 'Print Invoice');
 
