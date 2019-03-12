@@ -4,7 +4,10 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h2>{{::vm.translate.get(vm.pageTitle)}} <i ng-if="!vm.canEdit" class="fa fa-lock"></i></h2>
+        <h2>{{::vm.translate.get(vm.pageTitle)}} 
+            <i ng-if="!vm.canEdit" class="fa fa-lock"></i> 
+            <a ng-if="vm.hasInvoice" ng-href="javascript:;" data-toggle="modal" data-target="#print-invoice"><i class="fa fa-print"></i></a>
+        </h2>
     </div>
     <div class="panel-body">
         <form name="orderForm" class="form-horizontal">
@@ -157,7 +160,7 @@
                                     </div>
                                 </md-content>
                             </md-tab>
-                            <md-tab label="Invoice" md-active="vm.invoiceTabSelected">
+                            <md-tab label="Invoice" md-active="vm.hasInvoice">
                                 <md-content class="md-padding">
                                     <div id="invoice-tab" class="col-sm-12">
                                         <div class="table-responsive">
@@ -236,3 +239,5 @@
         </form>
     </div>
 </div>
+
+<partial name="_PrintInvoice"/>

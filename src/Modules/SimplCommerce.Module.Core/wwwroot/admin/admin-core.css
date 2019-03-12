@@ -229,3 +229,8 @@ table.vertical-align-middle tr td {
 .st-selected a.editable-click {
     color: white;
 }
+
+/* Others */
+.text-right {
+    text-align: right;
+}
