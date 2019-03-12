@@ -153,9 +153,29 @@
             }
         };
 
+        vm.printElement = (eleId) => {
+            // TODO: A shit way to print an element now, yet to figure out a better way
+            const printWindow = window.open('', '_blank', 'Print Invoice');
+
+            printWindow.document.open();
+            printWindow.document.write('<html><head><title>Print Invoice</title>');
+            // CSS & JS scripts
+            printWindow.document.write('<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">');
+            printWindow.document.write('<link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css" />');
+            printWindow.document.write('<link rel="stylesheet" type="text/css" href="modules/orders/admin/order/print-invoice.css" />');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(document.getElementById(eleId).innerHTML);
+            printWindow.document.write('</body></html>');
+
+            setTimeout(function () {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        };
+
         function init() {
             vm.orderId = $stateParams.id || 0;
-            vm.invoiceTabSelected = vm.orderId > 0;
+            vm.hasInvoice = vm.orderId > 0;
 
             if (vm.orderId === 0) { // Create order
                 orderService.getStatusList()
@@ -184,6 +204,7 @@
                 orderService.getOrderForEditing(vm.orderId)
                     .then((result) => {
                         const order = result.data;
+                        const selectedPayment = _.find(order.paymentProviderList, item => item.value == order.paymentProviderId);
 
                         vm.searchCustomers()
                             .then((data) => {
@@ -204,6 +225,7 @@
                         vm.orderStatus = order.orderStatus;
                         vm.orderStatusList = order.orderStatusList;
                         vm.paymentProviderId = order.paymentProviderId;
+                        vm.paymentProvider = selectedPayment != undefined ? selectedPayment.text : '';
                         vm.paymentProviderList = order.paymentProviderList;
                         vm.note = order.note;
                         vm.orderItems = order.orderItems;
