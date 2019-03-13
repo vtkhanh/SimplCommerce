@@ -97,7 +97,8 @@ namespace SimplCommerce.Module.Orders.Services
                         Stock = item.Product.Stock,
                         ProductImage = _mediaService.GetThumbnailUrl(item.Product.ThumbnailImage),
                         Quantity = item.Quantity
-                    }).ToList(),
+                    })
+                    .OrderBy(item => item.Id).ToList(),
                 PaymentProviderId = order.PaymentProviderId,
                 PaymentProviderList = (await _paymentProviderService.GetListAsync(true))
                     .Select(item => new SelectListItem
