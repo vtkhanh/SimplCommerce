@@ -1,20 +1,24 @@
-﻿@{ 
+﻿@{
     Layout = null;
 }
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h2>{{::vm.translate.get(vm.pageTitle)}} <i ng-if="!vm.canEdit" class="fa fa-lock"></i></h2>
+        <h2>
+            {{::vm.translate.get(vm.pageTitle)}}
+            <i ng-if="!vm.canEdit" class="fa fa-lock"></i>
+            <a ng-if="vm.hasInvoice" ng-href="javascript:;" data-toggle="modal" data-target="#print-invoice"><i class="fa fa-print"></i></a>
+        </h2>
     </div>
     <div class="panel-body">
         <form name="orderForm" class="form-horizontal">
             <my-validation errors="vm.validationErrors"></my-validation>
             <div>
-                <partial name="_SelectCustomerAndProduct"/>
+                <partial name="_SelectCustomerAndProduct" />
 
-                <partial name="_OrderState"/>
+                <partial name="_OrderState" />
 
-                <partial name="_CustomerInfo"/>
+                <partial name="_CustomerInfo" />
 
                 <div class="form-group">
                     <md-content>
@@ -143,8 +147,10 @@
                     </md-content>
 
                 </div>
-                <partial name="_OrderFormActions"/>
+                <partial name="_OrderFormActions" />
             </div>
         </form>
     </div>
 </div>
+
+<partial name="_PrintInvoice" />

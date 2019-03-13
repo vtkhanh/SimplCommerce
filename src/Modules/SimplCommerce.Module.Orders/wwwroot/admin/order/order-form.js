@@ -170,7 +170,7 @@
             setTimeout(function () {
                 printWindow.print();
                 printWindow.close();
-            }, 500);
+            }, 1000);
         };
 
         function init() {
