@@ -53,7 +53,7 @@ namespace SimplCommerce.Module.Core.Tests
 
                 var config = new MapperConfiguration(cfg =>
                 {
-                    cfg.AddProfile<SimplCommerce.Module.Core.AutoMapperProfile>();
+                    cfg.AddProfile<AutoMapperProfile>();
                 });
                 _mapper = config.CreateMapper();
             }
