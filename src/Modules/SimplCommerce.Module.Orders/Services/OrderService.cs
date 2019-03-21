@@ -400,7 +400,7 @@ namespace SimplCommerce.Module.Orders.Services
                 return (null, $"Order has been completed already!");
             }
 
-            UpdateStatus(order, status);
+            UpdateStatusAndOrderTotal(order, status);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -430,7 +430,7 @@ namespace SimplCommerce.Module.Orders.Services
                 if (!CanEditOrder(order))
                     continue;
                 
-                UpdateStatus(order, status);
+                UpdateStatusAndOrderTotal(order, status);
 
                 await _orderRepository.SaveChangesAsync();
 
@@ -451,7 +451,9 @@ namespace SimplCommerce.Module.Orders.Services
 
         public async Task<(bool, string)> UpdateOrderStateAsync(OrderFormVm orderRequest)
         {
-            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderRequest.OrderId);
+            var order = await _orderRepository.Query()
+                .Include(item => item.OrderItems).ThenInclude(item => item.Product)
+                .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
             if (order == null)
             {
                 return (false, $"Cannot find order with Id: {orderRequest.OrderId}");
@@ -463,7 +465,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
-            UpdateStatus(order, orderRequest.OrderStatus);
+            UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -533,10 +535,10 @@ namespace SimplCommerce.Module.Orders.Services
 
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
-            UpdateStatus(order, orderRequest.OrderStatus);
+            UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
         }
 
-        private void UpdateStatus(Order order, OrderStatus status)
+        private void UpdateStatusAndOrderTotal(Order order, OrderStatus status)
         {
             order.OrderStatus = status;
             if (status == OrderStatus.Cancelled)
