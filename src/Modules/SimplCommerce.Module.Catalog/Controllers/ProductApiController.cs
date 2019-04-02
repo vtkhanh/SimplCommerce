@@ -89,7 +89,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         {
             var (ok, error) = await _productService.AddStockAsync(barcode);
 
-            return Ok(ok);
+            return error.HasValue() ? (ObjectResult)BadRequest(error) : Ok(ok);
         }
 
         [HttpGet("{id}")]
@@ -258,29 +258,15 @@ namespace SimplCommerce.Module.Catalog.Controllers
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            if (!User.IsInRole(RoleName.Admin) && product.VendorId != currentUser.VendorId)
-            {
-                return new BadRequestObjectResult(new { error = "You don't have permission to manage this product" });
-            }
-
-            product = _mapper.Map(model.Product, product,
-                opt => opt.AfterMap((src, dest) => dest.UpdatedBy = currentUser));
 
             await SaveProductMedias(model, product);
-
-            foreach (var productMediaId in model.Product.DeletedMediaIds)
-            {
-                var productMedia = product.Medias.First(x => x.Id == productMediaId);
-                await _mediaService.DeleteMediaAsync(productMedia.Media);
-                product.RemoveMedia(productMedia);
-            }
-
             AddOrDeleteProductOption(model.Product, product);
             AddOrDeleteProductAttribute(model, product);
             AddOrDeleteCategories(model, product);
             AddOrDeleteProductVariation(model.Product, product);
             AddOrDeleteProductLinks(model, product);
 
+            product = _mapper.Map(model.Product, product, opt => opt.AfterMap((src, dest) => dest.UpdatedBy = currentUser));
             _productService.Update(product);
 
             return Accepted(new { product.Id });
@@ -327,8 +313,6 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
             return NoContent();
         }
-
-        
 
         private static void MapProductVariationVmToProduct(ProductForm model, Product product)
         {
@@ -459,30 +443,25 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
         private void AddOrDeleteProductVariation(ProductVm productVm, Product product)
         {
+            var childProducts = product.GetLinkedProducts(ProductLinkType.Super);
+
             foreach (var productVariationVm in productVm.Variations)
             {
-                var productLink = product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Super).FirstOrDefault(x => x.LinkedProduct.Name == productVariationVm.Name);
-                if (productLink == null)
+                if (productVariationVm.Id == 0) // New variation added
                 {
-                    productLink = new ProductLink
-                    {
-                        LinkType = ProductLinkType.Super,
-                        Product = product,
-                        LinkedProduct = product.Clone()
-                    };
-
-                    productLink.LinkedProduct.Name = productVariationVm.Name;
-                    productLink.LinkedProduct.SeoTitle = StringHelper.ToUrlFriendly(productVariationVm.Name);
-                    productLink.LinkedProduct.Price = productVariationVm.Price;
-                    productLink.LinkedProduct.OldPrice = productVariationVm.OldPrice;
-                    productLink.LinkedProduct.NormalizedName = productVariationVm.NormalizedName;
-                    productLink.LinkedProduct.HasOptions = false;
-                    productLink.LinkedProduct.IsVisibleIndividually = false;
-                    productLink.LinkedProduct.ThumbnailImage = product.ThumbnailImage;
+                    var productVariation = product.Clone();
+                    productVariation.Name = productVariationVm.Name;
+                    productVariation.SeoTitle = StringHelper.ToUrlFriendly(productVariationVm.Name);
+                    productVariation.Price = productVariationVm.Price;
+                    productVariation.OldPrice = productVariationVm.OldPrice;
+                    productVariation.NormalizedName = productVariationVm.NormalizedName;
+                    productVariation.HasOptions = false;
+                    productVariation.IsVisibleIndividually = false;
+                    productVariation.ThumbnailImage = product.ThumbnailImage;
 
                     foreach (var combinationVm in productVariationVm.OptionCombinations)
                     {
-                        productLink.LinkedProduct.AddOptionCombination(new ProductOptionCombination
+                        productVariation.AddOptionCombination(new ProductOptionCombination
                         {
                             OptionId = combinationVm.OptionId,
                             Value = combinationVm.Value,
@@ -490,23 +469,35 @@ namespace SimplCommerce.Module.Catalog.Controllers
                         });
                     }
 
-                    product.AddProductLinks(productLink);
+                    product.AddProductLinks(new ProductLink
+                    {
+                        LinkType = ProductLinkType.Super,
+                        Product = product,
+                        LinkedProduct = productVariation
+                    });
                 }
                 else
                 {
-                    productLink.LinkedProduct.Price = productVariationVm.Price;
-                    productLink.LinkedProduct.OldPrice = productVariationVm.OldPrice;
-                    productLink.LinkedProduct.IsDeleted = false;
+                    var productVariation = childProducts.FirstOrDefault(x => x.Id == productVariationVm.Id);
+                    productVariation.Price = productVariationVm.Price;
+                    productVariation.OldPrice = productVariationVm.OldPrice;
+                    productVariation.IsDeleted = false;
+
+                    // Main product is renamed => Rename child products based on the new name
+                    if (product.Name != productVm.Name)
+                    {
+                        productVariation.Name = productVariation.Name.Replace(product.Name, productVm.Name);
+                        productVariation.SeoTitle = StringHelper.ToUrlFriendly(productVariation.Name);
+                    }
                 }
             }
 
-            foreach (var productLink in product.ProductLinks.Where(x => x.LinkType == ProductLinkType.Super))
+            var removedVariations = product.ProductLinks
+                .Where(item => item.LinkType == ProductLinkType.Super && !productVm.Variations.Any(v => v.Id == item.LinkedProduct.Id));
+            foreach (var productLink in removedVariations)
             {
-                if (productVm.Variations.All(x => x.Name != productLink.LinkedProduct.Name))
-                {
-                    _productLinkRepository.Remove(productLink);
-                    productLink.LinkedProduct.IsDeleted = true;
-                }
+                _productLinkRepository.Remove(productLink);
+                productLink.LinkedProduct.IsDeleted = true;
             }
         }
 
@@ -643,6 +634,13 @@ namespace SimplCommerce.Module.Catalog.Controllers
                     Media = new Media { FileName = fileName, MediaType = MediaType.File, Caption = file.FileName }
                 };
                 product.AddMedia(productMedia);
+            }
+
+            foreach (var productMediaId in model.Product.DeletedMediaIds)
+            {
+                var productMedia = product.Medias.First(x => x.Id == productMediaId);
+                await _mediaService.DeleteMediaAsync(productMedia.Media);
+                product.RemoveMedia(productMedia);
             }
         }
 
