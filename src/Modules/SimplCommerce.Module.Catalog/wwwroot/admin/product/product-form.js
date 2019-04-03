@@ -11,15 +11,15 @@
         var vm = this;
         vm.translate = translateService;
         // declare shoreDescription and description for summernote
-        vm.product = { 
+        vm.product = {
             sku: $stateParams.sku,
-            shortDescription: '', 
-            description: '', 
-            specification: '', 
-            isPublished: true, 
-            price: 0, 
-            isCallForPricing: false, 
-            isAllowToOrder: true 
+            shortDescription: '',
+            description: '',
+            specification: '',
+            isPublished: true,
+            price: 0,
+            isCallForPricing: false,
+            isAllowToOrder: true
         };
         vm.product.categoryIds = [];
         vm.product.options = [];
@@ -75,7 +75,7 @@
         };
 
         vm.addOption = function addOption() {
-            onModifyOption(function() {
+            onModifyOption(function () {
                 vm.addingOption.values = [];
                 vm.addingOption.displayType = "text";
                 var index = vm.options.indexOf(vm.addingOption);
@@ -86,7 +86,7 @@
         };
 
         vm.deleteOption = function deleteOption(option) {
-            onModifyOption(function() {
+            onModifyOption(function () {
                 var index = vm.product.options.indexOf(option);
                 vm.product.options.splice(index, 1);
                 vm.options.push(option);
@@ -133,16 +133,16 @@
                         optionName: vm.product.options[optionIndex].name,
                         optionId: vm.product.options[optionIndex].id,
                         value: vm.product.options[optionIndex].values[j].key,
-                        sortIndex : optionIndex
+                        sortIndex: optionIndex
                     };
                     optionCombinations.push(optionValue);
 
                     if (optionIndex === maxIndexOption) {
                         variation = {
                             name: vm.product.name + ' ' + optionCombinations.map(getItemValue).join(' '),
-                            normalizedName : optionCombinations.map(getItemValue).join('-'),
+                            normalizedName: optionCombinations.map(getItemValue).join('-'),
                             optionCombinations: optionCombinations,
-                            price : vm.product.price
+                            price: vm.product.price
                         };
                         vm.product.variations.push(variation);
                     } else {
@@ -204,7 +204,7 @@
                 name: vm.product.name + ' ' + optionCombinations.map(function (item) {
                     return item.value;
                 }).join(' '),
-                normalizedName : optionCombinations.map(function (item) {
+                normalizedName: optionCombinations.map(function (item) {
                     return item.value;
                 }).join('-'),
                 optionCombinations: optionCombinations,
@@ -353,20 +353,22 @@
             }
 
             promise.then(function (result) {
-                    $state.go('product-edit', { id: result.data.id });
-                    toastr.success("Saved successfully!");
-                })
-                .catch(function (response) {
-                    var error = response.data;
-                    vm.validationErrors = [];
-                    if (error && angular.isObject(error)) {
-                        for (let key in error) {
-                            vm.validationErrors.push(error[key][0]);
-                        }
-                    } else {
-                        vm.validationErrors.push('Could not add product.');
+                if (vm.isEditMode) $state.reload();
+                else $state.go('product-edit', { id: result.data.id });
+
+                toastr.success("Saved successfully!");
+            })
+            .catch(function (response) {
+                var error = response.data;
+                vm.validationErrors = [];
+                if (error && angular.isObject(error)) {
+                    for (let key in error) {
+                        vm.validationErrors.push(error[key][0]);
                     }
-                });
+                } else {
+                    vm.validationErrors.push('Could not add product.');
+                }
+            });
         };
 
         function init() {
@@ -414,7 +416,7 @@
                 vm.categories = result.data;
             });
         }
-        
+
         function getProductOptions() {
             productService.getProductOptions().then(function (result) {
                 vm.options = result.data;
@@ -452,7 +454,7 @@
             }
             var category = vm.categories.find(function (item) { return item.id === categoryId; });
 
-            return category ? [category.id].concat(getParentCategoryIds(category.parentId)) : []; 
+            return category ? [category.id].concat(getParentCategoryIds(category.parentId)) : [];
         }
 
         function getChildCategoryIds(categoryId) {
