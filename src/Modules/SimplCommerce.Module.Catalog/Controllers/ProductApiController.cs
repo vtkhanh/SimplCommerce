@@ -591,14 +591,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             if (model.ThumbnailImage != null)
             {
                 var fileName = await SaveFile(model.ThumbnailImage);
-                if (product.ThumbnailImage != null)
-                {
-                    product.ThumbnailImage.FileName = fileName;
-                }
-                else
-                {
-                    product.ThumbnailImage = new Media { FileName = fileName };
-                }
+                product.ThumbnailImage = new Media { FileName = fileName };
             }
 
             // Currently model binder cannot map the collection of file productImages[0], productImages[1]
