@@ -53,6 +53,13 @@
             });
         };
 
+        vm.changeStock = (productId, stock) => {
+            productService
+                .changeStock(productId, stock)
+                .then(() => toastr.success("Saved successfully."))
+                .catch((response) => toastr.error(JSON.stringify(response.data)));
+        };
+
         vm.addStock = () => {
             if (vm.barcode) {
                 productService
@@ -76,7 +83,7 @@
 
                         vm.barcode = null;
                     })
-                    .catch((response) => toastr.error(response.data));
+                    .catch((response) => toastr.error(JSON.stringify(response.data)));
             }
         };
 

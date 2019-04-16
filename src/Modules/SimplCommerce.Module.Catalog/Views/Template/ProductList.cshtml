@@ -89,7 +89,11 @@
                 <td class="text-center col-xs-1">
                     <i ng-attr-class="{{product.hasOptions && 'fa fa-circle' || 'fa fa-circle-o'}}"></i>
                 </td>
-                <td class="text-center col-xs-1">{{product.stock}}</td>
+                <td class="text-center col-xs-1">
+                    <a href="#" editable-text="product.stock" onaftersave="vm.changeStock(product.id, $data)">
+                        {{product.stock}}
+                    </a>
+                </td>
                 <td class="text-center col-xs-1">{{product.weight}}</td>
                 <td class="text-center col-xs-1">{{product.cost.toCurrency()}}</td>
                 <td class="text-center col-xs-1">{{product.price.toCurrency()}}</td>
