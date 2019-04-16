@@ -92,6 +92,23 @@ namespace SimplCommerce.Module.Catalog.Controllers
             return error.HasValue() ? (ObjectResult)BadRequest(error) : Ok(ok);
         }
 
+        [HttpPost("changeStock")]
+        [Authorize(Policy.CanEditProduct)]
+        public async Task<ActionResult<ObjectResult>> ChangeStock([FromBody] ProductStockUpdateVm model)
+        {
+            var product = _productRepository.Query().FirstOrDefault(x => x.Id == model.Id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.Stock = model.Stock;
+            await _productRepository.SaveChangesAsync();
+
+            return Accepted(new { product.Id });
+        }
+
         [HttpGet("{id}")]
         [Authorize(Policy.CanEditProduct)]
         public async Task<IActionResult> Get(long id)

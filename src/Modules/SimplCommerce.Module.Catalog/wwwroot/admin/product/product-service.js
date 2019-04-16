@@ -21,6 +21,7 @@
             getTaxClasses: getTaxClasses,
             searchProducts: searchProducts,
             addStock: addStock,
+            changeStock: changeStock,
             exportProducts: exportProducts,
         };
         return service;
@@ -59,6 +60,10 @@
         
         function addStock(barcode) {
             return $http.post('api/products/addStock/' + barcode, null);
+        }
+
+        function changeStock(id, stock) {
+            return $http.post('api/products/changeStock', { id, stock });
         }
 
         function createProduct(product, thumbnailImage, productImages, productDocuments) {
