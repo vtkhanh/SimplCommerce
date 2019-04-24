@@ -29,6 +29,11 @@
                         templateUrl: 'modules/orders/admin/order/order-detail.html',
                         controller: 'OrderDetailCtrl as vm'
                     })
+                    .state('order-import', {
+                        url: '/order/import',
+                        templateUrl: 'template/orders/order-import',
+                        controller: 'OrderImportCtrl as vm'
+                    })
                 ;
             }
         ]);

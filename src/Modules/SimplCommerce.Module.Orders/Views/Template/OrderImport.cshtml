@@ -1,0 +1,26 @@
+﻿@{
+    Layout = null;
+}
+
+<div class="page-header">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>{{::vm.translate.get('Import Orders')}}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <form name="orderImportForm" class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-5">
+                <input class="form-control" type="file" ngf-select ng-model="vm.file" name="file" ngf-accept="'.xls,.xlsx,.csv'">
+            </div>
+            <div class="col-sm-1">
+                <button class="btn btn-primary" ng-disabled="orderImportForm.$invalid" ng-click="vm.upload()">
+                    <i class="fa fa-check">&nbsp;</i>{{::vm.translate.get('Upload')}}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

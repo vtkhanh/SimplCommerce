@@ -23,6 +23,7 @@ using AutoMapper;
 using SimplCommerce.Module.Catalog.Services.Dtos;
 using System.Text;
 using CsvHelper;
+using SimplCommerce.Infrastructure.Helpers;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -656,8 +657,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
 
         private async Task<string> SaveFile(IFormFile file)
         {
-            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Value.Trim('"');
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+            var fileName = file.GetReferenceFileName(Guid.NewGuid());
             await _mediaService.SaveMediaAsync(file.OpenReadStream(), fileName, file.ContentType);
             return fileName;
         }

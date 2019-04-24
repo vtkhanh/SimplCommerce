@@ -1,4 +1,5 @@
-﻿using SimplCommerce.Infrastructure.Models;
+﻿using System;
+using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Orders.Models.Enums;
 
 namespace SimplCommerce.Module.Orders.Models
