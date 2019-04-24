@@ -22,6 +22,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         private const string OrderFormRestrictedView = "OrderFormRestricted";
         private const string OrderReportView = "OrderReport";
         private const string OrderReportSellerView = "OrderReportSeller";
+        private const string OrderImportView = "OrderImport";
 
         private readonly IWorkContext _workContext;
         private readonly IOrderService _orderService;
@@ -65,5 +66,8 @@ namespace SimplCommerce.Module.Orders.Controllers
             var currentUser = await _workContext.GetCurrentUser();
             return View(OrderReportSellerView, new OrderReportSellerVm { UserName = currentUser.FullName });
         }
+
+        [HttpGet("order-import")]
+        public IActionResult GetOrderImport() => View(OrderImportView);
     }
 }
