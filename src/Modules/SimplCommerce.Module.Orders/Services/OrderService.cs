@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
@@ -27,11 +28,11 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IRepository<Cart> _cartRepository;
         private readonly IRepository<Order> _orderRepository;
         private readonly IRepository<Product> _productRepo;
-        private readonly ICouponService _couponService;
         private readonly IRepository<CartItem> _cartItemRepository;
+        private readonly IRepository<UserAddress> _userAddressRepository;
+        private readonly ICouponService _couponService;
         private readonly ITaxService _taxService;
         private readonly IShippingPriceService _shippingPriceService;
-        private readonly IRepository<UserAddress> _userAddressRepository;
         private readonly IWorkContext _workContext;
         private readonly IMediaService _mediaService;
         private readonly IPaymentProviderService _paymentProviderService;
@@ -65,14 +66,14 @@ namespace SimplCommerce.Module.Orders.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<(GetOrderVm, string)> GetOrderAsync(long orderId)
+        public async Task<ActionFeedback<GetOrderVm>> GetOrderAsync(long orderId)
         {
             var order = await _orderRepository.QueryAsNoTracking()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product).ThenInclude(item => item.ThumbnailImage)
                 .FirstOrDefaultAsync(item => item.Id == orderId);
 
             if (order == null)
-                return (null, $"Cannot find order with id {orderId}");
+                return ActionFeedback<GetOrderVm>.Fail($"Cannot find order with id {orderId}");
 
             var user = await _workContext.GetCurrentUser();
             var result = new GetOrderVm
@@ -115,45 +116,48 @@ namespace SimplCommerce.Module.Orders.Services
                 CanEdit = CanEditOrder(order)
             };
 
-            return (result, null);
+            return ActionFeedback<GetOrderVm>.Succeed(result);
         }
 
-        public async Task<(long, string)> CreateOrderAsync(OrderFormVm orderRequest)
+        public async Task<ActionFeedback<long>> CreateOrderAsync(OrderFormVm orderRequest)
         {
             if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
-                return (0, "Shopping cart cannot be empty");
+                return ActionFeedback<long>.Fail("Shopping cart cannot be empty");
 
             var user = await _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
 
-            await UpdateOrderDetailsAsync(order, orderRequest);
+            var feedback = await UpdateOrderDetailsAsync(order, orderRequest);
+            if (!feedback.Success)
+                return ActionFeedback<long>.Fail(feedback.ErrorMessage);
 
             _orderRepository.Add(order);
-
             await _orderRepository.SaveChangesAsync();
 
-            return (order.Id, null);
+            return ActionFeedback<long>.Succeed(order.Id);
         }
 
-        public async Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest)
+        public async Task<ActionFeedback> UpdateOrderAsync(OrderFormVm orderRequest)
         {
             if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
-                return (false, "Shopping cart cannot be empty");
+                return ActionFeedback.Fail("Shopping cart cannot be empty");
 
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
 
             if (order == null)
-                return (false, $"Cannot find order with id {orderRequest.OrderId}");
+                return ActionFeedback.Fail($"Cannot find order with id {orderRequest.OrderId}");
             if (!CanEditOrder(order))
-                return (false, $"Order has been completed already!");
+                return ActionFeedback.Fail($"Order has been completed already!");
 
-            await UpdateOrderDetailsAsync(order, orderRequest);
+            var feedback = await UpdateOrderDetailsAsync(order, orderRequest);
+            if (!feedback.Success)
+                return feedback;
 
             await _orderRepository.SaveChangesAsync();
 
-            return (true, null);
+            return ActionFeedback.Succeed();
         }
 
         public async Task<Order> CreateOrder(User user, string paymentMethod)
@@ -346,32 +350,22 @@ namespace SimplCommerce.Module.Orders.Services
             return taxAmount;
         }
 
-        public async Task<(bool, string)> UpdateTrackingNumberAsync(long orderId, string trackingNumber)
+        public async Task<ActionFeedback> UpdateTrackingNumberAsync(long orderId, string trackingNumber)
         {
             var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
 
             if (order == null)
-                return (false, $"Cannot find order with Id: {orderId}");
+                return ActionFeedback.Fail($"Cannot find order with Id: {orderId}");
             if (!CanEditOrder(order))
-                return (false, $"Order has been completed already!");
+                return ActionFeedback.Fail($"Order has been completed already!");
 
-            order.TrackingNumber = trackingNumber;
+            var feedback = UpdateTrackingNumber(order, trackingNumber);
+            if (!feedback.Success)
+                return feedback;
+
             await _orderRepository.SaveChangesAsync();
 
-            return (true, null);
-        }
-
-        public async Task<(bool, string)> UpdatePaymentProviderAsync(long orderId, long paymentProviderId)
-        {
-            var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
-
-            if (order == null)
-                return (false, $"Cannot find order with Id: {orderId}");
-
-            order.PaymentProviderId = paymentProviderId;
-            await _orderRepository.SaveChangesAsync();
-
-            return (true, null);
+            return ActionFeedback.Succeed();
         }
 
         public async Task<(GetOrderVm, string)> UpdateStatusAsync(long orderId, OrderStatus status)
@@ -434,16 +428,16 @@ namespace SimplCommerce.Module.Orders.Services
             return (result, null);
         }
 
-        public async Task<(bool, string)> UpdateOrderStateAsync(OrderFormVm orderRequest)
+        public async Task<ActionFeedback> UpdateOrderStateAsync(OrderFormVm orderRequest)
         {
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
 
             if (order == null)
-                return (false, $"Cannot find order with Id: {orderRequest.OrderId}");
+                return ActionFeedback.Fail($"Cannot find order with Id: {orderRequest.OrderId}");
             if (!CanEditOrder(order))
-                return (false, $"Order has been completed already!");
+                return ActionFeedback.Fail($"Order has been completed already!");
 
             order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
@@ -451,7 +445,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             await _orderRepository.SaveChangesAsync();
 
-            return (true, null);
+            return ActionFeedback.Succeed();
         }
 
         public async Task<long> GetOrderOwnerIdAsync(long orderId)
@@ -503,19 +497,36 @@ namespace SimplCommerce.Module.Orders.Services
             return shippingMethod;
         }
 
-        private async Task UpdateOrderDetailsAsync(Order order, OrderFormVm orderRequest)
+        private async Task<ActionFeedback> UpdateOrderDetailsAsync(Order order, OrderFormVm orderRequest)
         {
             order.CustomerId = orderRequest.CustomerId;
             order.ShippingAmount = orderRequest.ShippingAmount;
             order.ShippingCost = orderRequest.ShippingCost;
             order.Discount = orderRequest.Discount;
-            order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
             order.Note = orderRequest.Note;
+
+            var feedback = UpdateTrackingNumber(order, orderRequest.TrackingNumber);
+            if (!feedback.Success)
+                return feedback;
 
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
             UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
+
+            return ActionFeedback.Succeed();
+        }
+
+        private ActionFeedback UpdateTrackingNumber(Order order, string trackingNumber)
+        {
+            var isExisted = _orderRepository.QueryAsNoTracking().Where(item => item.TrackingNumber == trackingNumber).Any();
+
+            if (isExisted)
+                return ActionFeedback.Fail("Tracking number has been used!");
+
+            order.TrackingNumber = trackingNumber;
+
+            return ActionFeedback.Succeed();
         }
 
         private void UpdateStatusAndOrderTotal(Order order, OrderStatus status)

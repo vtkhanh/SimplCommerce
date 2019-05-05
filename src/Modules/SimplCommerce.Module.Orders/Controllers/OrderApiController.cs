@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
@@ -81,10 +82,10 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] OrderFormVm orderForm)
         {
-            var (orderId, errorMessage) = await _orderService.CreateOrderAsync(orderForm);
-            return orderId > 0
-                ? (IActionResult)Ok(new { Id = orderId })
-                : BadRequest(new { Error = errorMessage });
+            var feedback = await _orderService.CreateOrderAsync(orderForm);
+            return feedback.Success
+                ? (IActionResult) Ok(new { Id = feedback.Result })
+                : BadRequest(new { Error = feedback.ErrorMessage });
         }
 
         [HttpPost("list")]
@@ -118,7 +119,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(orders);
         }
 
-        
+
         [HttpPost("export")]
         public async Task<ActionResult> Export([FromBody] SmartTableParam param)
         {
@@ -143,37 +144,38 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(long id)
         {
-            var (order, errorMessage) = await _orderService.GetOrderAsync(id);
-            return errorMessage.HasValue() ? (IActionResult)BadRequest(new { Error = errorMessage }) : Ok(order);
+            var feedback = await _orderService.GetOrderAsync(id);
+            return feedback.Success ? Ok(feedback.Result) : (IActionResult)BadRequest(new { Error = feedback.ErrorMessage });
         }
 
         [HttpPut]
         public async Task<IActionResult> Edit([FromBody] OrderFormVm orderForm)
         {
-            var (order, errorMessage) = await _orderService.GetOrderAsync(orderForm.OrderId);
-            if (order == null)
+            var getOrderFeedback = await _orderService.GetOrderAsync(orderForm.OrderId);
+            if (!getOrderFeedback.Success)
             {
-                return BadRequest(new { Error = errorMessage });
+                return BadRequest(new { Error = getOrderFeedback.ErrorMessage });
             }
 
             var currentUser = await _workContext.GetCurrentUser();
+            var order = getOrderFeedback.Result;
+            ActionFeedback feedback = ActionFeedback.Succeed();
 
-            bool ok = true;
             if (!CanEditFullOrder(currentUser, order.CreatedById, order.VendorId))
             {
                 if (order.OrderStatus != orderForm.OrderStatus ||
                     order.TrackingNumber != orderForm.TrackingNumber ||
                     order.PaymentProviderId != orderForm.PaymentProviderId)
                 {
-                    (ok, errorMessage) = await _orderService.UpdateOrderStateAsync(orderForm);
+                    feedback = await _orderService.UpdateOrderStateAsync(orderForm);
                 }
             }
             else
             {
-                (ok, errorMessage) = await _orderService.UpdateOrderAsync(orderForm);
+                feedback = await _orderService.UpdateOrderAsync(orderForm);
             }
 
-            return ok ? (IActionResult)Accepted() : BadRequest(new { Error = errorMessage });
+            return feedback.Success ? (IActionResult)Accepted() : BadRequest(new { Error = feedback.ErrorMessage });
         }
 
         [HttpPut("change-order-status")]
@@ -193,8 +195,8 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPut("change-tracking-number")]
         public async Task<IActionResult> ChangeTrackingNumber(OrderUpdateVm order)
         {
-            var (ok, error) = await _orderService.UpdateTrackingNumberAsync(order.OrderId, order.TrackingNumber);
-            return ok ? Ok() : (IActionResult)BadRequest(new { Error = error });
+            var feedback = await _orderService.UpdateTrackingNumberAsync(order.OrderId, order.TrackingNumber);
+            return feedback.Success ? Ok() : (IActionResult)BadRequest(new { Error = feedback.ErrorMessage });
         }
 
         [HttpGet("status-list")]

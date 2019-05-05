@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.ViewModels;
@@ -13,36 +14,28 @@ namespace SimplCommerce.Module.Orders.Services
         /// </summary>
         /// <param name="orderRequest">order detail</param>
         /// <returns>bool: success/fail; string: errorMessage</returns>
-        Task<(long, string)> CreateOrderAsync(OrderFormVm orderRequest);
+        Task<ActionFeedback<long>> CreateOrderAsync(OrderFormVm orderRequest);
 
         /// <summary>
         /// Order updated by admins
         /// </summary>
         /// <param name="orderRequest"></param>
         /// <returns></returns>
-        Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest);
+        Task<ActionFeedback> UpdateOrderAsync(OrderFormVm orderRequest);
 
         /// <summary>
         /// Update order status, tracking number, and payment provider
         /// </summary>
         /// <param name="orderRequest"></param>
         /// <returns></returns>
-        Task<(bool, string)> UpdateOrderStateAsync(OrderFormVm orderRequest);
+        Task<ActionFeedback> UpdateOrderStateAsync(OrderFormVm orderRequest);
 
         /// <summary>
         /// Update order tracking number
         /// </summary>
         /// <param name="trackingNumber"></param>
         /// <returns></returns>
-        Task<(bool, string)> UpdateTrackingNumberAsync(long orderId, string trackingNumber);
-
-        /// <summary>
-        /// Update order payment provider
-        /// </summary>
-        /// <param name="orderId"></param>
-        /// <param name="paymentProviderId"></param>
-        /// <returns></returns>
-        Task<(bool, string)> UpdatePaymentProviderAsync(long orderId, long paymentProviderId);
+        Task<ActionFeedback> UpdateTrackingNumberAsync(long orderId, string trackingNumber);
 
         /// <summary>
         /// Update order status
@@ -65,7 +58,7 @@ namespace SimplCommerce.Module.Orders.Services
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        Task<(GetOrderVm, string)> GetOrderAsync(long orderId);
+        Task<ActionFeedback<GetOrderVm>> GetOrderAsync(long orderId);
 
         /// <summary>
         /// Create order for user from active cart

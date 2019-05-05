@@ -44,13 +44,14 @@ namespace SimplCommerce.Module.Orders.Controllers
             }
 
             var currentUser = await _workContext.GetCurrentUser();
-            var (order, message) = await _orderService.GetOrderAsync(id);
+            var feedback = await _orderService.GetOrderAsync(id);
 
-            if (order == null)
+            if (!feedback.Success)
             {
-                return BadRequest(message);
+                return BadRequest(feedback.ErrorMessage);
             }
 
+            var order = feedback.Result;
             return order.CanEdit && order.CreatedById == currentUser.Id ? View(OrderFormSellerView) : View(OrderFormRestrictedView);
         }
 
