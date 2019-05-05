@@ -55,6 +55,8 @@ namespace SimplCommerce.WebHost
 
             services.AddMediatR();
 
+            services.AddHttpContextAccessor();
+
             return services.Build(_configuration, _hostingEnvironment);
         }
 

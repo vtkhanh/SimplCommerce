@@ -5,6 +5,7 @@
     <PreserveCompilationContext>false</PreserveCompilationContext>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <OutputType>Library</OutputType>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
