@@ -1,22 +1,22 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Infrastructure.Web.SmartTable;
-using SimplCommerce.Module.Orders.Models;
-using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Services;
+using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Module.Payments.Services;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.IO;
-using CsvHelper;
-using System.Text;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -112,12 +112,13 @@ namespace SimplCommerce.Module.Orders.Controllers
                     order.CreatedOn,
                     order.CompletedOn,
                     IsRestricted = !CanEditFullOrder(currentUser, order.CreatedById, order.VendorId),
-                    CanEdit = order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1)
+                    CanEdit = CanEditOrder(order)
                 });
 
             return Json(orders);
         }
 
+        
         [HttpPost("export")]
         public async Task<ActionResult> Export([FromBody] SmartTableParam param)
         {
@@ -232,6 +233,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) =>
             User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
-
+        private bool CanEditOrder(Order order) =>
+            User.IsInRole(RoleName.Admin) || order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1);
     }
 }

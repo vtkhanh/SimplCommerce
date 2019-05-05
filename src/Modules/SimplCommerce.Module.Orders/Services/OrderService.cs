@@ -1,22 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore;
-using SimplCommerce.Infrastructure.Data;
-using SimplCommerce.Module.Core.Models;
-using SimplCommerce.Module.Orders.Models;
-using SimplCommerce.Module.Pricing.Services;
-using SimplCommerce.Module.ShoppingCart.Models;
-using SimplCommerce.Module.Orders.ViewModels;
-using SimplCommerce.Module.ShippingPrices.Services;
-using SimplCommerce.Module.Tax.Services;
-using SimplCommerce.Module.Core.Extensions;
-using SimplCommerce.Module.Core.Services;
-using System.Collections.Generic;
-using SimplCommerce.Module.Catalog.Models;
-using SimplCommerce.Module.Payments.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Module.Catalog.Models;
+using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Core.Models;
+using SimplCommerce.Module.Core.Services;
+using SimplCommerce.Module.Orders.Models;
+using SimplCommerce.Module.Orders.ViewModels;
+using SimplCommerce.Module.Payments.Services;
+using SimplCommerce.Module.Pricing.Services;
+using SimplCommerce.Module.ShippingPrices.Services;
+using SimplCommerce.Module.ShoppingCart.Models;
+using SimplCommerce.Module.Tax.Services;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -33,31 +35,34 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IWorkContext _workContext;
         private readonly IMediaService _mediaService;
         private readonly IPaymentProviderService _paymentProviderService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public OrderService(
             IRepository<Order> orderRepository,
             IRepository<Product> productRepo,
             IRepository<Cart> cartRepository,
-            ICouponService couponService,
             IRepository<CartItem> cartItemRepository,
+            IRepository<UserAddress> userAddressRepository,
+            ICouponService couponService,
             ITaxService taxService,
             IShippingPriceService shippingPriceService,
-            IRepository<UserAddress> userAddressRepository,
             IMediaService mediaService,
+            IPaymentProviderService paymentProviderService,
             IWorkContext workContext,
-            IPaymentProviderService paymentProviderService)
+            IHttpContextAccessor httpContextAccessor)
         {
             _orderRepository = orderRepository;
             _productRepo = productRepo;
             _cartRepository = cartRepository;
-            _couponService = couponService;
             _cartItemRepository = cartItemRepository;
+            _userAddressRepository = userAddressRepository;
+            _couponService = couponService;
             _taxService = taxService;
             _shippingPriceService = shippingPriceService;
-            _userAddressRepository = userAddressRepository;
-            _workContext = workContext;
             _mediaService = mediaService;
             _paymentProviderService = paymentProviderService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<(GetOrderVm, string)> GetOrderAsync(long orderId)
@@ -69,6 +74,7 @@ namespace SimplCommerce.Module.Orders.Services
             if (order == null)
                 return (null, $"Cannot find order with id {orderId}");
 
+            var user = await _workContext.GetCurrentUser();
             var result = new GetOrderVm
             {
                 OrderStatus = order.OrderStatus,
@@ -115,9 +121,7 @@ namespace SimplCommerce.Module.Orders.Services
         public async Task<(long, string)> CreateOrderAsync(OrderFormVm orderRequest)
         {
             if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
-            {
                 return (0, "Shopping cart cannot be empty");
-            }
 
             var user = await _workContext.GetCurrentUser();
             var order = new Order() { CreatedById = user.Id };
@@ -134,22 +138,16 @@ namespace SimplCommerce.Module.Orders.Services
         public async Task<(bool, string)> UpdateOrderAsync(OrderFormVm orderRequest)
         {
             if (orderRequest.OrderItems == null || !orderRequest.OrderItems.Any())
-            {
                 return (false, "Shopping cart cannot be empty");
-            }
 
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
 
             if (order == null)
-            {
                 return (false, $"Cannot find order with id {orderRequest.OrderId}");
-            }
             if (!CanEditOrder(order))
-            {
                 return (false, $"Order has been completed already!");
-            }
 
             await UpdateOrderDetailsAsync(order, orderRequest);
 
@@ -165,9 +163,7 @@ namespace SimplCommerce.Module.Orders.Services
                .Where(x => x.UserId == user.Id && x.IsActive).FirstOrDefaultAsync();
 
             if (cart == null)
-            {
                 throw new ApplicationException($"Cart of user {user.Id} cannot be found");
-            }
 
             var shippingData = JsonConvert.DeserializeObject<DeliveryInformationVm>(cart.ShippingData);
             Address billingAddress;
@@ -214,9 +210,7 @@ namespace SimplCommerce.Module.Orders.Services
                 .Where(x => x.UserId == user.Id && x.IsActive).FirstOrDefault();
 
             if (cart == null)
-            {
                 throw new ApplicationException($"Cart of user {user.Id} cannot be found");
-            }
 
             var discount = await ApplyDiscount(user, cart);
             var shippingMethod = await ValidateShippingMethod(shippingMethodName, shippingAddress, cart);
@@ -319,7 +313,7 @@ namespace SimplCommerce.Module.Orders.Services
             }
 
             _orderRepository.SaveChanges();
-            // await _orderEmailService.SendEmailToUser(user, order);
+
             return order;
         }
 
@@ -327,10 +321,9 @@ namespace SimplCommerce.Module.Orders.Services
         {
             decimal taxAmount = 0;
             var cart = await _cartRepository.Query().FirstOrDefaultAsync(x => x.UserId == cartOwnerUserId && x.IsActive);
+
             if (cart == null)
-            {
                 throw new ApplicationException($"No active cart of user {cartOwnerUserId}");
-            }
 
             var cartItems = _cartItemRepository.Query()
                 .Where(x => x.CartId == cart.Id)
@@ -356,14 +349,11 @@ namespace SimplCommerce.Module.Orders.Services
         public async Task<(bool, string)> UpdateTrackingNumberAsync(long orderId, string trackingNumber)
         {
             var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+
             if (order == null)
-            {
                 return (false, $"Cannot find order with Id: {orderId}");
-            }
             if (!CanEditOrder(order))
-            {
                 return (false, $"Order has been completed already!");
-            }
 
             order.TrackingNumber = trackingNumber;
             await _orderRepository.SaveChangesAsync();
@@ -374,10 +364,9 @@ namespace SimplCommerce.Module.Orders.Services
         public async Task<(bool, string)> UpdatePaymentProviderAsync(long orderId, long paymentProviderId)
         {
             var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
+
             if (order == null)
-            {
                 return (false, $"Cannot find order with Id: {orderId}");
-            }
 
             order.PaymentProviderId = paymentProviderId;
             await _orderRepository.SaveChangesAsync();
@@ -392,13 +381,9 @@ namespace SimplCommerce.Module.Orders.Services
                 .FirstOrDefaultAsync(item => item.Id == orderId);
 
             if (order == null)
-            {
                 return (null, $"Cannot find order with Id: {orderId}");
-            }
             if (!CanEditOrder(order))
-            {
                 return (null, $"Order has been completed already!");
-            }
 
             UpdateStatusAndOrderTotal(order, status);
 
@@ -429,7 +414,7 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 if (!CanEditOrder(order))
                     continue;
-                
+
                 UpdateStatusAndOrderTotal(order, status);
 
                 await _orderRepository.SaveChangesAsync();
@@ -454,14 +439,11 @@ namespace SimplCommerce.Module.Orders.Services
             var order = await _orderRepository.Query()
                 .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(item => item.Id == orderRequest.OrderId);
+
             if (order == null)
-            {
                 return (false, $"Cannot find order with Id: {orderRequest.OrderId}");
-            }
             if (!CanEditOrder(order))
-            {
                 return (false, $"Order has been completed already!");
-            }
 
             order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
@@ -477,7 +459,7 @@ namespace SimplCommerce.Module.Orders.Services
             var order = await _orderRepository.Query().FirstOrDefaultAsync(x => x.Id == orderId);
 
             if (order == null)
-                return default(long);
+                return default;
 
             return order.CreatedById;
         }
@@ -516,9 +498,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             var shippingMethod = applicableShippingPrices.FirstOrDefault(x => x.Name == shippingMethodName);
             if (shippingMethod == null)
-            {
                 throw new ApplicationException($"Invalid shipping method {shippingMethod}");
-            }
 
             return shippingMethod;
         }
@@ -545,7 +525,8 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 ResetOrderItemQuantities(order);
             }
-            if (status == OrderStatus.Complete) {
+            if (status == OrderStatus.Complete)
+            {
                 order.CompletedOn = DateTimeOffset.Now;
             }
             CalculateOrderTotal(order);
@@ -585,9 +566,11 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 // Update product stock
                 var product = await _productRepo.Query().FirstOrDefaultAsync(i => i.Id == item.ProductId);
-                if (product == null) continue;
-                product.Stock -= item.Quantity;
 
+                if (product == null)
+                    continue;
+
+                product.Stock -= item.Quantity;
                 var orderItem = new OrderItem
                 {
                     Product = product,
@@ -598,7 +581,11 @@ namespace SimplCommerce.Module.Orders.Services
             }
         }
 
-        private static bool CanEditOrder(Order order) => 
-            order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1);
+        private bool CanEditOrder(Order order)
+        {
+            return _httpContextAccessor.HttpContext.User.IsInRole(RoleName.Admin)
+                || order.OrderStatus != OrderStatus.Complete
+                || order.CompletedOn > DateTimeOffset.Now.AddDays(-1);
+        }
     }
 }

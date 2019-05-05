@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using SimplCommerce.Infrastructure;
@@ -9,9 +11,11 @@ using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Services;
+using SimplCommerce.Module.Orders.Tests.Services.TestableObjects;
 using SimplCommerce.Module.Orders.ViewModels;
 using SimplCommerce.Test.Shared.MockQueryable;
 using Xunit;
@@ -73,6 +77,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     order = await orderRepo.QueryAsNoTracking().FirstAsync();
                 }
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 GetOrderVm updatedOrder;
@@ -80,7 +85,8 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
                     (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, status);
                 }
 
@@ -90,6 +96,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.Equal(status, updatedOrder.OrderStatus);
             }
 
+            
             [Fact]
             public async Task WithCancelledStatus_ShouldResetQuantities()
             {
@@ -102,6 +109,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                         .Include(item => item.OrderItems).ThenInclude(item => item.Product)
                         .FirstAsync();
                 }
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 Order updatedOrder;
@@ -109,7 +117,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
                     (_, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Cancelled);
 
                     updatedOrder = await orderRepo.QueryAsNoTracking()
@@ -139,6 +147,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     order = await orderRepo.QueryAsNoTracking().FirstAsync();
                 }
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 GetOrderVm updatedOrder;
@@ -146,7 +155,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
                     (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id + 1, OrderStatus.Complete);
                 }
 
@@ -165,6 +174,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     order = await orderRepo.QueryAsNoTracking().FirstAsync();
                 }
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 GetOrderVm updatedOrder;
@@ -172,7 +182,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
                     (updatedOrder, error) = await orderService.UpdateStatusAsync(order.Id, OrderStatus.Complete);
                 }
 
@@ -189,8 +199,8 @@ namespace SimplCommerce.Module.Orders.Tests.Services
             public async Task WithBeingCompletedOverOneDay_ShouldReturnError(OrderStatus status)
             {
                 // Arrange
+                var orderService = TestableOrderService.Create();
                 const long TestOrderId = 10;
-                var mockOrderRepo = new Mock<IRepository<Order>>();
                 var order = new Order(TestOrderId)
                 {
                     CompletedOn = DateTimeOffset.Now.AddDays(-2),
@@ -198,10 +208,10 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
                 var mockOrders = new Order[] { order }.AsQueryable().BuildMock();
 
-                mockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                orderService.MockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                SetupMockHttpContextAccessorWithUserInRole(orderService.MockHttpContextAccessor, RoleName.Seller);
 
                 // Action
-                var orderService = new OrderService(mockOrderRepo.Object, null, null, null, null, null, null, null, null, null, null);
                 (GetOrderVm orderResult, string error) = await orderService.UpdateStatusAsync(TestOrderId, status);
 
                 // Assert
@@ -246,6 +256,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var order = await orderRepo.QueryAsNoTracking().FirstAsync();
                     orderId = order.Id;
                 }
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 bool ok;
@@ -253,7 +264,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
                     (ok, error) = await orderService.UpdateTrackingNumberAsync(orderId, trackingNumber);
                 }
 
@@ -281,6 +292,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     order = await orderRepo.QueryAsNoTracking().FirstAsync();
                 }
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 bool ok;
@@ -288,7 +300,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
                     (ok, error) = await orderService.UpdateTrackingNumberAsync(order.Id + 1, trackingNumber);
                 }
 
@@ -301,9 +313,9 @@ namespace SimplCommerce.Module.Orders.Tests.Services
             public async Task WithBeingCompletedOverOneDay_ShouldReturnError()
             {
                 // Arrange
+                var orderService = TestableOrderService.Create();
                 const long TestOrderId = 10;
                 const string TestTrackingNumber = "aTrackingNumber123";
-                var mockOrderRepo = new Mock<IRepository<Order>>();
                 var order = new Order(TestOrderId)
                 {
                     CompletedOn = DateTimeOffset.Now.AddDays(-2),
@@ -311,10 +323,10 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
                 var mockOrders = new Order[] { order }.AsQueryable().BuildMock();
 
-                mockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                orderService.MockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                SetupMockHttpContextAccessorWithUserInRole(orderService.MockHttpContextAccessor, RoleName.Seller);
 
                 // Action
-                var orderService = new OrderService(mockOrderRepo.Object, null, null, null, null, null, null, null, null, null, null);
                 (bool success, string error) = await orderService.UpdateTrackingNumberAsync(TestOrderId, TestTrackingNumber);
 
                 // Assert
@@ -386,7 +398,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
                     var workContext = workContextMock.Object;
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, workContext, null);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, workContext, null);
 
                     (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
                 }
@@ -451,7 +463,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
                     var workContext = workContextMock.Object;
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, workContext, null);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, workContext, null);
 
                     (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
                 }
@@ -489,7 +501,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = TestableOrderService.Create();
                 var (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
 
                 // Assert
@@ -507,7 +519,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = TestableOrderService.Create();
                 var (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
 
                 // Assert
@@ -578,6 +590,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
                     }
                 };
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 string error;
@@ -586,7 +599,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 {
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
 
                     (success, error) = await orderService.UpdateOrderAsync(orderRequest);
                 }
@@ -639,6 +652,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                         new OrderItemVm { ProductId = products[1].Id, Quantity = 3, ProductPrice = products[1].Price, ProductCost = products[1].Cost },
                     }
                 };
+                var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
                 string error;
@@ -647,7 +661,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 {
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
-                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
 
                     (success, error) = await orderService.UpdateOrderAsync(orderRequest);
                 }
@@ -687,7 +701,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = TestableOrderService.Create();
                 var (success, error) = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
@@ -705,7 +719,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
 
                 // Action
-                var orderService = new OrderService(null, null, null, null, null, null, null, null, null, null, null);
+                var orderService = TestableOrderService.Create();
                 var (success, error) = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
@@ -717,6 +731,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
             public async Task WhenOrder_IsCompletedOverOneDay_ShouldFail()
             {
                 // Arrange
+                var orderService = TestableOrderService.Create();
                 const long TestOrderId = 10;
                 var orderRequest = new OrderFormVm() { OrderId = TestOrderId };
                 var mockOrderRepo = new Mock<IRepository<Order>>();
@@ -727,10 +742,9 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
                 var mockOrders = new Order[] { order }.AsQueryable().BuildMock();
 
-                mockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                orderService.MockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
 
                 // Action
-                var orderService = new OrderService(mockOrderRepo.Object, null, null, null, null, null, null, null, null, null, null);
                 (bool success, string error) = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
@@ -771,7 +785,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
 
                     ownerId = await orderService.GetOrderOwnerIdAsync(orderId);
                 }
@@ -805,7 +819,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 using (var context = new SimplDbContext(options))
                 {
                     var orderRepo = new Repository<Order>(context);
-                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null);
+                    var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, null);
 
                     ownerId = await orderService.GetOrderOwnerIdAsync(orderId + 1);
                 }
@@ -813,6 +827,22 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 // Assert
                 Assert.Equal(default(long), ownerId);
             }
+        }
+
+        private static Mock<IHttpContextAccessor> GetMockHttpContextAccessorWithUserInRole(string roleName)
+        {
+            var mockUser = new Mock<ClaimsPrincipal>();
+            mockUser.Setup(user => user.IsInRole(roleName)).Returns(true);
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            mockHttpContextAccessor.SetupGet(accessor => accessor.HttpContext).Returns(new DefaultHttpContext { User = mockUser.Object });
+            return mockHttpContextAccessor;
+        }
+
+        private static void SetupMockHttpContextAccessorWithUserInRole(Mock<IHttpContextAccessor> mockHttpContextAccessor, string roleName)
+        {
+            var mockUser = new Mock<ClaimsPrincipal>();
+            mockUser.Setup(user => user.IsInRole(roleName)).Returns(true);
+            mockHttpContextAccessor.SetupGet(accessor => accessor.HttpContext).Returns(new DefaultHttpContext { User = mockUser.Object });
         }
     }
 }

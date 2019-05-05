@@ -5,6 +5,7 @@
     <PreserveCompilationContext>false</PreserveCompilationContext>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <OutputType>Library</OutputType>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,5 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" /> -->
   </ItemGroup>
 </Project>
