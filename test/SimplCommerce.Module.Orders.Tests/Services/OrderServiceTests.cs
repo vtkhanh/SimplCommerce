@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Core.Extensions;
@@ -259,13 +260,12 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
-                bool ok;
-                string error;
+                ActionFeedback feedback;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
-                    (ok, error) = await orderService.UpdateTrackingNumberAsync(orderId, trackingNumber);
+                    feedback = await orderService.UpdateTrackingNumberAsync(orderId, trackingNumber);
                 }
 
                 Order updated;
@@ -276,8 +276,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 }
 
                 // Assert
-                Assert.True(ok);
-                Assert.True(error.IsNullOrEmpty());
+                Assert.True(feedback.Success);
                 Assert.Equal(trackingNumber, updated.TrackingNumber);
             }
 
@@ -295,18 +294,17 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
-                bool ok;
-                string error;
+                ActionFeedback feedback;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var orderService = new OrderService(orderRepo, null, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
-                    (ok, error) = await orderService.UpdateTrackingNumberAsync(order.Id + 1, trackingNumber);
+                    feedback = await orderService.UpdateTrackingNumberAsync(order.Id + 1, trackingNumber);
                 }
 
                 // Assert
-                Assert.False(ok);
-                Assert.True(error.HasValue());
+                Assert.False(feedback.Success);
+                Assert.True(feedback.ErrorMessage.HasValue());
             }
 
             [Fact]
@@ -327,12 +325,39 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 SetupMockHttpContextAccessorWithUserInRole(orderService.MockHttpContextAccessor, RoleName.Seller);
 
                 // Action
-                (bool success, string error) = await orderService.UpdateTrackingNumberAsync(TestOrderId, TestTrackingNumber);
+                var feedback = await orderService.UpdateTrackingNumberAsync(TestOrderId, TestTrackingNumber);
 
                 // Assert
-                Assert.False(success);
-                Assert.NotNull(error);
-                Assert.NotEmpty(error);
+                Assert.False(feedback.Success);
+                Assert.True(feedback.ErrorMessage.HasValue());
+            }
+
+            [Fact]
+            public async Task WithExistingTrackingNumber_ShouldReturnError()
+            {
+                // Arrange
+                var orderService = TestableOrderService.Create();
+                const long TestOrderId = 11;
+                const string TestTrackingNumber = "aTrackingNumber123";
+                var order = new Order(TestOrderId)
+                {
+                    OrderStatus = OrderStatus.Pending
+                };
+                var order2 = new Order()
+                {
+                    TrackingNumber = TestTrackingNumber
+                };
+                var mockOrders = new Order[] { order, order2 }.AsQueryable().BuildMock();
+                orderService.MockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                orderService.MockOrderRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+                SetupMockHttpContextAccessorWithUserInRole(orderService.MockHttpContextAccessor, RoleName.Seller);
+
+                // Action
+                var feedback = await orderService.UpdateTrackingNumberAsync(TestOrderId, TestTrackingNumber);
+
+                // Assert
+                Assert.False(feedback.Success);
+                Assert.Equal("Tracking number has been used!", feedback.ErrorMessage);
 
             }
         }
@@ -391,8 +416,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
 
                 // Action
-                long orderId;
-                string error;
+                ActionFeedback<long> feedback;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
@@ -400,7 +424,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var workContext = workContextMock.Object;
                     var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, workContext, null);
 
-                    (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
+                    feedback = await orderService.CreateOrderAsync(orderRequest);
                 }
 
                 Order createdOrder;
@@ -409,12 +433,12 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     createdOrder = await orderRepo.QueryAsNoTracking()
                         .Include(item => item.OrderItems).ThenInclude(item => item.Product)
-                        .FirstOrDefaultAsync(i => i.Id == orderId);
+                        .FirstOrDefaultAsync(i => i.Id == feedback.Result);
                 }
 
                 // Assert
                 Assert.NotNull(createdOrder);
-                Assert.Null(error);
+                Assert.True(feedback.Success);
                 Assert.Equal(userId, createdOrder.CreatedById);
                 Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
@@ -456,8 +480,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 };
 
                 // Action
-                string error;
-                long orderId;
+                ActionFeedback<long> feedback;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
@@ -465,7 +488,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var workContext = workContextMock.Object;
                     var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, workContext, null);
 
-                    (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
+                    feedback = await orderService.CreateOrderAsync(orderRequest);
                 }
 
                 Order createdOrder;
@@ -474,11 +497,11 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                     var orderRepo = new Repository<Order>(context);
                     createdOrder = await orderRepo.QueryAsNoTracking()
                         .Include(item => item.OrderItems).ThenInclude(item => item.Product)
-                        .FirstOrDefaultAsync(i => i.Id == orderId);
+                        .FirstOrDefaultAsync(i => i.Id == feedback.Result);
                 }
 
                 // Assert
-                Assert.Null(error);
+                Assert.True(feedback.Success);
                 Assert.NotNull(createdOrder);
                 Assert.Equal(orderRequest.OrderStatus, createdOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, createdOrder.TrackingNumber);
@@ -502,11 +525,12 @@ namespace SimplCommerce.Module.Orders.Tests.Services
 
                 // Action
                 var orderService = TestableOrderService.Create();
-                var (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
+                var feedback = await orderService.CreateOrderAsync(orderRequest);
 
                 // Assert
-                Assert.Equal(0, orderId);
-                Assert.NotNull(error);
+                Assert.Equal(0, feedback.Result);
+                Assert.False(feedback.Success);
+                Assert.NotNull(feedback.ErrorMessage);
             }
 
             [Fact]
@@ -520,11 +544,12 @@ namespace SimplCommerce.Module.Orders.Tests.Services
 
                 // Action
                 var orderService = TestableOrderService.Create();
-                var (orderId, error) = await orderService.CreateOrderAsync(orderRequest);
+                var feedback = await orderService.CreateOrderAsync(orderRequest);
 
                 // Assert
-                Assert.Equal(0, orderId);
-                Assert.NotNull(error);
+                Assert.Equal(0, feedback.Result);
+                Assert.False(feedback.Success);
+                Assert.NotNull(feedback.ErrorMessage);
             }
         }
 
@@ -593,15 +618,14 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
-                string error;
-                bool success;
+                ActionFeedback feedback;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
                     var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
 
-                    (success, error) = await orderService.UpdateOrderAsync(orderRequest);
+                    feedback = await orderService.UpdateOrderAsync(orderRequest);
                 }
 
                 Order updatedOrder;
@@ -614,8 +638,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 }
 
                 // Assert
-                Assert.True(success);
-                Assert.Null(error);
+                Assert.True(feedback.Success);
                 Assert.NotNull(updatedOrder);
                 Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
@@ -631,11 +654,11 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.Equal(products[1].Stock - orderRequest.OrderItems[1].Quantity, updatedOrder.OrderItems[1].Product.Stock);
             }
 
-            [Fact]
+            [Fact()]
             public async Task WithCanceledStatus_ShouldResetOrderItemQuantities()
             {
                 // Arrange
-                var (orderId, products) = Init(nameof(WithCanceledStatus_ShouldResetOrderItemQuantities));
+                var (orderId, products) = Init("CanUpdateOrder_WithCanceledStatus_ShouldResetOrderItemQuantities");
 
                 var orderRequest = new OrderFormVm()
                 {
@@ -655,15 +678,14 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 var mockHttpContextAccessor = GetMockHttpContextAccessorWithUserInRole(RoleName.Seller);
 
                 // Action
-                string error;
-                bool success;
+                ActionFeedback feedback;
                 using (var context = new SimplDbContext(_options))
                 {
                     var orderRepo = new Repository<Order>(context);
                     var productRepo = new Repository<Product>(context);
                     var orderService = new OrderService(orderRepo, productRepo, null, null, null, null, null, null, null, null, null, mockHttpContextAccessor.Object);
 
-                    (success, error) = await orderService.UpdateOrderAsync(orderRequest);
+                    feedback = await orderService.UpdateOrderAsync(orderRequest);
                 }
 
                 Order updatedOrder;
@@ -676,8 +698,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 }
 
                 // Assert
-                Assert.True(success);
-                Assert.Null(error);
+                Assert.True(feedback.Success);
                 Assert.NotNull(updatedOrder);
                 Assert.Equal(orderRequest.OrderStatus, updatedOrder.OrderStatus);
                 Assert.Equal(orderRequest.TrackingNumber, updatedOrder.TrackingNumber);
@@ -702,11 +723,11 @@ namespace SimplCommerce.Module.Orders.Tests.Services
 
                 // Action
                 var orderService = TestableOrderService.Create();
-                var (success, error) = await orderService.UpdateOrderAsync(orderRequest);
+                var feedback = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
-                Assert.False(success);
-                Assert.NotNull(error);
+                Assert.False(feedback.Success);
+                Assert.True(feedback.ErrorMessage.HasValue());
             }
 
             [Fact]
@@ -720,11 +741,11 @@ namespace SimplCommerce.Module.Orders.Tests.Services
 
                 // Action
                 var orderService = TestableOrderService.Create();
-                var (success, error) = await orderService.UpdateOrderAsync(orderRequest);
+                var feedback = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
-                Assert.False(success);
-                Assert.NotNull(error);
+                Assert.False(feedback.Success);
+                Assert.True(feedback.ErrorMessage.HasValue());
             }
 
             [Fact]
@@ -745,12 +766,11 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 orderService.MockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
 
                 // Action
-                (bool success, string error) = await orderService.UpdateOrderAsync(orderRequest);
+                var feedback = await orderService.UpdateOrderAsync(orderRequest);
 
                 // Assert
-                Assert.False(success);
-                Assert.NotNull(error);
-                Assert.NotEmpty(error);
+                Assert.False(feedback.Success);
+                Assert.True(feedback.ErrorMessage.HasValue());
             }
         }
 

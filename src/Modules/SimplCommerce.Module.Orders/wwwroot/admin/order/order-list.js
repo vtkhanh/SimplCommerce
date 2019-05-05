@@ -53,7 +53,9 @@
             return orderService
                 .changeTrackingNumber(orderId, trackingNumber)
                 .then(() => toastr.success("Saved successfully."))
-                .catch((response) => toastr.error(response.data.error));
+                .catch((response) => {
+                    toastr.error(response.data.error);
+                });
         };
 
         vm.hasOrdersSelected = () => _.some(vm.orders, ['isSelected', true]);

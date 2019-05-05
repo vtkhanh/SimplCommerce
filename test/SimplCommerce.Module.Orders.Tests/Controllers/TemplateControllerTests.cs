@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Models;
@@ -132,7 +133,7 @@ namespace SimplCommerce.Module.Orders.Tests.Controllers
                 CanEdit = canEditOrder,
                 CreatedById = ownerId
             };
-            (GetOrderVm, string) orderResult = (order, null);
+            var orderResult = ActionFeedback<GetOrderVm>.Succeed(order);
             _mockOrderService.Setup(service => service.GetOrderAsync(OrderId)).Returns(Task.FromResult(orderResult));
 
             // Action
