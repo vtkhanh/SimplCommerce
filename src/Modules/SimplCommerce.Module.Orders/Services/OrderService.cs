@@ -519,7 +519,7 @@ namespace SimplCommerce.Module.Orders.Services
 
         private ActionFeedback UpdateTrackingNumber(Order order, string trackingNumber)
         {
-            var isExisted = _orderRepository.QueryAsNoTracking().Where(item => item.TrackingNumber == trackingNumber).Any();
+            var isExisted = _orderRepository.QueryAsNoTracking().Where(item => item.TrackingNumber == trackingNumber && item.Id != order.Id).Any();
 
             if (isExisted)
                 return ActionFeedback.Fail("Tracking number has been used!");
