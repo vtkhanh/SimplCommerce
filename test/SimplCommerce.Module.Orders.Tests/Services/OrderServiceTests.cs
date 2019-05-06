@@ -343,7 +343,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 {
                     OrderStatus = OrderStatus.Pending
                 };
-                var order2 = new Order()
+                var order2 = new Order(TestOrderId + 1)
                 {
                     TrackingNumber = TestTrackingNumber
                 };
