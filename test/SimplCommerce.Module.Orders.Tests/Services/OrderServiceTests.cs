@@ -360,6 +360,34 @@ namespace SimplCommerce.Module.Orders.Tests.Services
                 Assert.Equal("Tracking number has been used!", feedback.ErrorMessage);
 
             }
+
+            [Fact]
+            public async Task WithEmptyTrackingNumber_ShouldSucceed()
+            {
+                // Arrange
+                var orderService = TestableOrderService.Create();
+                const long TestOrderId = 11;
+                const string TestTrackingNumber = "";
+                var order = new Order(TestOrderId)
+                {
+                    OrderStatus = OrderStatus.Pending
+                };
+                var order2 = new Order(TestOrderId + 1)
+                {
+                    TrackingNumber = TestTrackingNumber
+                };
+                var mockOrders = new Order[] { order, order2 }.AsQueryable().BuildMock();
+                orderService.MockOrderRepo.Setup(repo => repo.Query()).Returns(mockOrders.Object);
+                orderService.MockOrderRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+                SetupMockHttpContextAccessorWithUserInRole(orderService.MockHttpContextAccessor, RoleName.Seller);
+
+                // Action
+                var feedback = await orderService.UpdateTrackingNumberAsync(TestOrderId, TestTrackingNumber);
+
+                // Assert
+                Assert.True(feedback.Success);
+
+            }
         }
 
         public class CreateOrderAsync

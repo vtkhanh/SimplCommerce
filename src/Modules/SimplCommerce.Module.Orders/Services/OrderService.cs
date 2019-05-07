@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Catalog.Models;
@@ -519,7 +520,8 @@ namespace SimplCommerce.Module.Orders.Services
 
         private ActionFeedback UpdateTrackingNumber(Order order, string trackingNumber)
         {
-            var isExisted = _orderRepository.QueryAsNoTracking().Where(item => item.TrackingNumber == trackingNumber && item.Id != order.Id).Any();
+            var isExisted = trackingNumber.HasValue() 
+                && _orderRepository.QueryAsNoTracking().Where(item => item.TrackingNumber == trackingNumber && item.Id != order.Id).Any();
 
             if (isExisted)
                 return ActionFeedback.Fail("Tracking number has been used!");
