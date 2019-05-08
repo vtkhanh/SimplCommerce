@@ -2,6 +2,6 @@
 {
     public enum ImportResultDetailStatus
     {
-        Success, SKUNotFound, 
+        Success, SKUNotFound
     }
 }

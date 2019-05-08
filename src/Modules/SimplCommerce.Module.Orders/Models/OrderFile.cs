@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
+using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Models.Enums;
 
 namespace SimplCommerce.Module.Orders.Models
@@ -15,5 +17,8 @@ namespace SimplCommerce.Module.Orders.Models
         public long CreatedById { get; set; }
 
         public DateTimeOffset CreatedOn { get; set; }
+
+        [ForeignKey("CreatedById")]
+        public User CreatedBy { get; set; }
     }
 }
