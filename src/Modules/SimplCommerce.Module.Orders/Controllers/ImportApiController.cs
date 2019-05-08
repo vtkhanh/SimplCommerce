@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,13 @@ namespace SimplCommerce.Module.Orders.Controllers
             await _fileStorageService.SaveMediaAsync(model.OrderFile.OpenReadStream(), referenceFileName, model.OrderFile.ContentType);
 
             return referenceFileName;
+        }
+
+        [HttpGet("list")]
+        public async Task<ActionResult> List()
+        {
+            var files = (await _orderFileService.GetAsync()).OrderByDescending(file => file.Id);
+            return Json(files);
         }
     }
 }

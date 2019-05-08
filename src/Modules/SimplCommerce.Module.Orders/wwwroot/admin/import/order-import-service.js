@@ -7,7 +7,8 @@
     /* @ngInject */
     function orderImportService($http, Upload) {
         var service = {
-            upload: upload
+            upload: upload,
+            getOrderFilesForGrid: getOrderFilesForGrid
         };
         return service;
 
@@ -19,6 +20,10 @@
                     orderFile
                 }
             });
+        }
+
+        function getOrderFilesForGrid() {
+            return $http.get('api/order-import/list');
         }
     }
 })();
