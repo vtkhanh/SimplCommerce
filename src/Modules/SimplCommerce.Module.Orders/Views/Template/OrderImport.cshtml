@@ -24,3 +24,41 @@
         </div>
     </form>
 </div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{::vm.translate.get('File Name')}}</th>
+                <th>{{::vm.translate.get('Created By')}}</th>
+                <th>{{::vm.translate.get('Created On')}}</th>
+                <th>{{::vm.translate.get('Status')}}</th>
+                <th>{{::vm.translate.get('Actions')}}</th>
+            </tr>
+        </thead>
+        <tbody ng-show="!vm.isLoading">
+            <tr ng-repeat="orderFile in vm.orderFiles">
+                <td>{{orderFile.fileName}}</td>
+                <td>{{orderFile.createdBy}}</td>
+                <td>{{orderFile.createdOn | date:'medium'}}</td>
+                <td>{{orderFile.status}}</td>
+                <td>
+                    @*<a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
+                            <span class="fa fa-edit" ng-if="order.canEdit"></span>
+                            <span class="fa fa-eye" ng-if="!order.canEdit"></span>
+                        </a>*@
+                </td>
+            </tr>
+        </tbody>
+        <tbody ng-show="vm.isLoading">
+            <tr>
+                <td colspan="10" class="text-center">Loading ... </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="text-center" st-pagination="" st-items-by-page="50" st-displayed-pages="10" colspan="10"></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
