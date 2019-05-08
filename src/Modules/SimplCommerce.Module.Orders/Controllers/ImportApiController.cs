@@ -66,5 +66,12 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             return Json(files);
         }
+
+        [HttpGet("list")]
+        public async Task<ActionResult> List()
+        {
+            var files = (await _orderFileService.GetAsync()).OrderByDescending(file => file.Id);
+            return Json(files);
+        }
     }
 }
