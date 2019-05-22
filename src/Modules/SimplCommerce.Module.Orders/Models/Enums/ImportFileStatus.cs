@@ -2,6 +2,6 @@
 {
     public enum ImportFileStatus
     {
-        Pending, InProgress, Complete
+        Pending, InProgress, Completed
     }
 }

@@ -22,8 +22,8 @@
             });
         }
 
-        function getOrderFilesForGrid() {
-            return $http.get('api/order-import/list');
+        function getOrderFilesForGrid(params) {
+            return $http.post('api/order-import/list', params);
         }
     }
 })();

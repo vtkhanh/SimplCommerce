@@ -2,10 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Models.Enums;
 using SimplCommerce.Module.Orders.Services.Dtos;
+using SimplCommerce.Module.Orders.ViewModels;
 
 namespace SimplCommerce.Module.Orders.Services
 {
@@ -18,19 +21,38 @@ namespace SimplCommerce.Module.Orders.Services
             _orderFileRepo = importFileRepo;
         }
 
-        public async Task<IList<GetOrderFileDto>> GetAsync()
+        //public async Task<IList<GetOrderFileDto>> GetAsync()
+        //{
+        //    return await _orderFileRepo
+        //        .QueryAsNoTracking()
+        //        .Select(file => new GetOrderFileDto
+        //        {
+        //            Id = file.Id,
+        //            FileName = file.FileName,
+        //            CreatedOn = file.CreatedOn,
+        //            Status = file.Status.ToString(),
+        //            CreatedBy = file.CreatedBy.FullName
+        //        })
+        //        .ToListAsync();
+        //}
+
+        public SmartTableResult<GetOrderFileDto> GetOrderFiles(SmartTableParam param)
         {
-            return await _orderFileRepo
+            var result = _orderFileRepo
                 .QueryAsNoTracking()
-                .Select(file => new GetOrderFileDto
-                {
-                    Id = file.Id,
-                    FileName = file.FileName,
-                    CreatedOn = file.CreatedOn,
-                    Status = file.Status.ToString(),
-                    CreatedBy = file.CreatedBy.FullName
-                })
-                .ToListAsync();
+                .ToSmartTableResult(
+                    param,
+                    file => new GetOrderFileDto
+                    {
+                        Id = file.Id,
+                        FileName = file.FileName,
+                        CreatedOn = file.CreatedOn,
+                        Status = file.Status.ToString(),
+                        CreatedBy = file.CreatedBy.FullName
+                    }
+                );
+
+            return result;
         }
 
         public async Task SaveAsync(SaveOrderFileDto request)
