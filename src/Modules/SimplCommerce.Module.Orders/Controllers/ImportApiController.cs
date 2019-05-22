@@ -67,10 +67,11 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(files);
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult> List()
+        [HttpPost("list")]
+        public IActionResult List([FromBody] SmartTableParam param)
         {
-            var files = (await _orderFileService.GetAsync()).OrderByDescending(file => file.Id);
+            var files = _orderFileService.GetOrderFiles(param);
+
             return Json(files);
         }
     }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Orders.Models.Enums;
 using SimplCommerce.Module.Orders.Services.Dtos;
