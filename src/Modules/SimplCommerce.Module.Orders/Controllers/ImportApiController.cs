@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimplCommerce.Infrastructure.Helpers;
+using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Services;
@@ -48,10 +49,11 @@ namespace SimplCommerce.Module.Orders.Controllers
             return referenceFileName;
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult> List()
+        [HttpPost("list")]
+        public IActionResult List([FromBody] SmartTableParam param)
         {
-            var files = (await _orderFileService.GetAsync()).OrderByDescending(file => file.Id);
+            var files = _orderFileService.GetOrderFiles(param);
+
             return Json(files);
         }
     }

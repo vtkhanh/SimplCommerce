@@ -230,7 +230,17 @@ table.vertical-align-middle tr td {
     color: white;
 }
 
+/* Order import */
+.order-import .success {
+    color: green;
+}
+
 /* Others */
 .text-right {
     text-align: right;
+}
+
+.loading {
+    font-size: 2rem;
+    color: green;
 }
