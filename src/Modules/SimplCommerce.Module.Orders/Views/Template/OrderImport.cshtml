@@ -25,8 +25,8 @@
     </form>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped">
+<div class="table-responsive order-import">
+    <table class="table table-striped" st-pipe="vm.getOrderFiles" st-table="vm.orderFiles">
         <thead>
             <tr>
                 <th>{{::vm.translate.get('File Name')}}</th>
@@ -41,7 +41,11 @@
                 <td>{{orderFile.fileName}}</td>
                 <td>{{orderFile.createdBy}}</td>
                 <td>{{orderFile.createdOn | date:'medium'}}</td>
-                <td>{{orderFile.status}}</td>
+                <td>
+                    <span ng-if="orderFile.status == 'Pending'">Pending</span>
+                    <i ng-if="orderFile.status == 'Completed'" class="fas fa-check success"></i>
+                    <i ng-if="orderFile.status == 'InProgress'" class="fas fa-spinner fa-spin loading"></i>
+                </td>
                 <td>
                     @*<a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
                             <span class="fa fa-edit" ng-if="order.canEdit"></span>
@@ -57,7 +61,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <td class="text-center" st-pagination="" st-items-by-page="50" st-displayed-pages="10" colspan="10"></td>
+                <td class="text-center" st-pagination="" st-items-by-page="50" st-displayed-pages="10" colspan="5"></td>
             </tr>
         </tfoot>
     </table>
