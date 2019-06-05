@@ -70,7 +70,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpPost("list")]
         public IActionResult List([FromBody] SmartTableParam param)
         {
-            var files = _orderFileService.GetOrderFiles(param);
+            var files = _orderFileService.Get(param);
 
             return Json(files);
         }

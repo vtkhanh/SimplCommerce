@@ -1,12 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Models.Enums;
 using SimplCommerce.Module.Orders.Services.Dtos;
-using SimplCommerce.Module.Orders.ViewModels;
 
 namespace SimplCommerce.Module.Orders.Services
 {
