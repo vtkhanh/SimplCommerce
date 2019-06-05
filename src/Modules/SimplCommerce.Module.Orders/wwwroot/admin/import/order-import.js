@@ -15,8 +15,7 @@
             orderImportService
                 .upload(vm.file)
                 .then(result => {
-                    toastr.success(result.data);
-
+                    toastr.success("Uploaded successfully");
                     $state.reload();
                 });
         }
