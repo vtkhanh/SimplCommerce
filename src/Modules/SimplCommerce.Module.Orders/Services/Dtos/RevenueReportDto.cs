@@ -5,7 +5,7 @@ using SimplCommerce.Module.Orders.Models;
 
 namespace SimplCommerce.Module.Orders.Services.Dtos
 {
-    public class RevenueReportDto
+    internal class RevenueReportDto
     {
         private const string MonthFormat = "MM/yyyy";
 
