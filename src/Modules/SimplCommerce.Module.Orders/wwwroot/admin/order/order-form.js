@@ -9,9 +9,10 @@
         orderService, userService, productService) {
 
         const OrderPendingStatus = 0;
-
         const vm = this;
+
         vm.translate = translateService;
+        vm.formIsDisabled = false;
 
         vm.searchCustomers = (query = '') =>
             userService
@@ -119,6 +120,8 @@
         };
 
         vm.save = () => {
+            vm.formIsDisabled = true;
+
             const params = {
                 customerId: vm.customer.id,
                 trackingNumber: vm.trackingNumber,
@@ -138,7 +141,8 @@
                         });
                         toastr.success("Saved successfully.");
                     })
-                    .catch((response) => processError(response.data));
+                    .catch((response) => processError(response.data))
+                    .finally(() => vm.formIsDisabled = false);
             } else {
                 params.orderId = vm.orderId;
                 orderService.updateOrder(params)
@@ -149,7 +153,8 @@
                         }
                         toastr.success("Saved successfully.");
                     })
-                    .catch((response) => processError(response.data));
+                    .catch((response) => processError(response.data))
+                    .finally(() => vm.formIsDisabled = false);
             }
         };
 
