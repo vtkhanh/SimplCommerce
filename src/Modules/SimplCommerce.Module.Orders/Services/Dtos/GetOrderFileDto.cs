@@ -1,9 +1,8 @@
 ﻿using System;
-using SimplCommerce.Module.Orders.Models.Enums;
 
 namespace SimplCommerce.Module.Orders.Services.Dtos
 {
-    public class GetOrderFileDto
+    internal class GetOrderFileDto
     {
         public long Id { get; set; }
 
