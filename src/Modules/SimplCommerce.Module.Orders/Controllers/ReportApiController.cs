@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Orders.Services;
-using SimplCommerce.Module.Orders.Services.Dtos;
 
 namespace SimplCommerce.Module.Orders.Controllers
 {
@@ -24,7 +23,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("revenue-report")]
         public async Task<IActionResult> GetRevenueReportAsync(long? createdById)
         {
-            RevenueReportDto report;
+            RevenueReportBuilder report;
             IList<object> series;
 
             if (User.IsInRole(RoleName.Admin))
