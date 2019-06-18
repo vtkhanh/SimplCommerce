@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Moq;
-using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Orders.Models;
-using SimplCommerce.Module.Orders.Services;
+using SimplCommerce.Module.Orders.Tests.Services.TestableObjects;
 using SimplCommerce.Test.Shared.MockQueryable;
 using Xunit;
 
@@ -17,13 +17,16 @@ namespace SimplCommerce.Module.Orders.Tests.Services
         public async Task GetRevenueReportAsync_ShouldReturnResult_ForAllSellers()
         {
             // Arrange
+            var reportService = TestableReportService.Create();
+
             var testOrders = CreateTestOrders();
             var mockOrders = testOrders.AsQueryable().BuildMock();
-            var mockRepo = new Mock<IRepository<Order>>();
-            mockRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+            var mockAppSettings = CreateAppSettings().AsQueryable().BuildMock();
+
+            reportService.MockOrderRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+            reportService.MockAppSettingRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockAppSettings.Object);
 
             // Action
-            var reportService = new ReportService(mockRepo.Object);
             var report = await reportService.GetRevenueReportAsync(DateTime.Now, null);
 
             // Assert
@@ -42,14 +45,17 @@ namespace SimplCommerce.Module.Orders.Tests.Services
         public async Task GetRevenueReportAsync_ShouldReturnResult_ForOneSeller()
         {
             // Arrange
+            var reportService = TestableReportService.Create();
+
             var testOrders = CreateTestOrders();
             var sellerId = testOrders[1].CreatedById;
             var mockOrders = testOrders.AsQueryable().BuildMock();
-            var mockRepo = new Mock<IRepository<Order>>();
-            mockRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+            var mockAppSettings = CreateAppSettings().AsQueryable().BuildMock();
+
+            reportService.MockOrderRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+            reportService.MockAppSettingRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockAppSettings.Object);
 
             // Action
-            var reportService = new ReportService(mockRepo.Object);
             var report = await reportService.GetRevenueReportAsync(DateTime.Now, sellerId);
 
             // Assert
@@ -68,14 +74,17 @@ namespace SimplCommerce.Module.Orders.Tests.Services
         public async Task GetRevenueReportBySellerAsync_ShouldReturnResult()
         {
             // Arrange
+            var reportService = TestableReportService.Create();
+
             var testOrders = CreateTestOrders();
             var sellerId = testOrders[1].CreatedById;
             var mockOrders = testOrders.AsQueryable().BuildMock();
-            var mockRepo = new Mock<IRepository<Order>>();
-            mockRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+            var mockAppSettings = CreateAppSettings().AsQueryable().BuildMock();
+
+            reportService.MockOrderRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockOrders.Object);
+            reportService.MockAppSettingRepo.Setup(repo => repo.QueryAsNoTracking()).Returns(mockAppSettings.Object);
 
             // Action
-            var reportService = new ReportService(mockRepo.Object);
             var report = await reportService.GetRevenueReportBySellerAsync(DateTime.Now, sellerId);
 
             // Assert
@@ -85,7 +94,16 @@ namespace SimplCommerce.Module.Orders.Tests.Services
             Assert.Empty(report.Totals);
             Assert.Empty(report.Costs);
             Assert.Empty(report.Profits);
+        }
 
+        private IList<AppSetting> CreateAppSettings()
+        {
+            var appSetting = new AppSetting
+            {
+                Key = AppSettingKey.ReportMonthOffset,
+                Value = "3"
+            };
+            return new List<AppSetting> { appSetting };
         }
 
         private IList<Order> CreateTestOrders()

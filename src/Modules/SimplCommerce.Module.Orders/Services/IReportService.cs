@@ -5,7 +5,7 @@ namespace SimplCommerce.Module.Orders.Services
 {
     public interface IReportService
     {
-        Task<RevenueReportBuilder> GetRevenueReportAsync(DateTime time, long? createdById, int monthOffset = 3);
-        Task<RevenueReportBuilder> GetRevenueReportBySellerAsync(DateTime time, long sellerId, int monthOffset = 3);
+        Task<RevenueReportBuilder> GetRevenueReportAsync(DateTime time, long? createdById);
+        Task<RevenueReportBuilder> GetRevenueReportBySellerAsync(DateTime time, long sellerId);
     }
 }

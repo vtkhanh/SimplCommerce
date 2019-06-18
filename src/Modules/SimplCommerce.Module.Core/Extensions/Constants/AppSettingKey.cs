@@ -9,5 +9,7 @@ namespace SimplCommerce.Module.Core.Extensions.Constants
         public const string FeeOfPicker = "Cost.FeeOfPicker";
 
         public const string AssetVersion = "Global.AssetVersion";
+
+        public const string ReportMonthOffset = "Order.ReportMonthOffset";
     }
 }
