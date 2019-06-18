@@ -8,7 +8,7 @@ using SimplCommerce.Module.Orders.Services.Dtos;
 
 namespace SimplCommerce.Module.Orders.Services
 {
-    internal class OrderFileService : IOrderFileService
+    public class OrderFileService : IOrderFileService
     {
         private readonly IRepository<OrderFile> _orderFileRepo;
 

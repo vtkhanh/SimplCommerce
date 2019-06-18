@@ -2,7 +2,7 @@
 
 namespace SimplCommerce.Module.Orders.Services.Dtos
 {
-    internal class GetOrderFileDto
+    public class GetOrderFileDto
     {
         public long Id { get; set; }
 
