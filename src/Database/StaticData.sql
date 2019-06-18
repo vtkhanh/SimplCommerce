@@ -1,14 +1,18 @@
 ﻿SET IDENTITY_INSERT [dbo].[Core_AppSetting] ON 
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (1, N'Catalog.ProductPageSize', N'10', 1, N'Catalog')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (2, N'Global.AssetVersion', N'1.0', 1, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (3, N'News.PageSize', N'10', 1, N'News')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (4, N'GoogleAppKey', N'AIzaSyBmsQV2FUo6g52R1kovLyfvaYm4FryNs4g', 0, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (5, N'SmtpServer', N'smtp.gmail.com', 0, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (6, N'SmtpPort', N'587', 0, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (7, N'SmtpUsername', N'', 0, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (8, N'SmtpPassword', N'', 0, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (9, N'Theme', N'Generic', 0, N'Core')
-INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module]) VALUES (10, N'Tax_IsProductPriceIncludedTax', N'true', 1, N'Tax')
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (1, N'Catalog.ProductPageSize', N'10', 1, N'Catalog', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (2, N'Global.AssetVersion', N'1.0', 1, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (3, N'News.PageSize', N'10', 1, N'News', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (4, N'GoogleAppKey', N'AIzaSyBmsQV2FUo6g52R1kovLyfvaYm4FryNs4g', 0, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (5, N'SmtpServer', N'smtp.gmail.com', 0, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (6, N'SmtpPort', N'587', 0, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (7, N'SmtpUsername', N'', 0, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (8, N'SmtpPassword', N'', 0, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (9, N'Theme', N'Generic', 0, N'Core', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (10, N'Tax_IsProductPriceIncludedTax', N'true', 1, N'Tax', NULL)
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (11, N'Cost.CurrencyConversionRate', N'21', 1, N'Catalog', 'KRW/VND')
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (12, N'Cost.FeePerWeightUnit', N'10.1', 1, N'Catalog', 'KRW per gam')
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (13, N'Cost.FeeOfPicker', N'0', 1, N'Catalog', '%')
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (14, N'Order.ReportMonthOffset', N'0', 1, N'Orders', 'Month(s)')
 SET IDENTITY_INSERT [dbo].[Core_AppSetting] OFF
 GO
 
