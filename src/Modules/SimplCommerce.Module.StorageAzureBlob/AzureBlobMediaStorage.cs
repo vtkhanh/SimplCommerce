@@ -12,7 +12,7 @@ namespace SimplCommerce.Module.StorageAzureBlob
 {
     public class AzureBlobMediaStorage : IMediaService
     {
-        private readonly CloudBlobContainer _blobContainer;
+        protected readonly CloudBlobContainer _blobContainer;
 
         public AzureBlobMediaStorage(AzureStorageConfig storageConfig)
         {
