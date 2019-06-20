@@ -19,5 +19,6 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
         public string FullName { get; set; }
         public string Phone { get; set; }
         public string ShippingAddress { get; set; }
+        public decimal OrderTotal { get; set; }
     }
 }

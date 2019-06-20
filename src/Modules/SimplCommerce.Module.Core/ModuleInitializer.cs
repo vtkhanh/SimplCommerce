@@ -1,17 +1,15 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using SimplCommerce.Infrastructure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SimplCommerce.Infrastructure;
+using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Core.Extensions;
+using SimplCommerce.Module.Core.Extensions.Constants;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.Services;
-using AutoMapper;
-using Microsoft.Extensions.Configuration;
-using SimplCommerce.Module.Core.Data;
-using SimplCommerce.Infrastructure.Data;
-using SimplCommerce.Module.Core.Extensions.Constants;
 
 namespace SimplCommerce.Module.Core
 {
