@@ -17,6 +17,8 @@ namespace SimplCommerce.Module.Orders.Models
 
         public Order(long id) : base(id) { }
 
+        public string ExternalId { get; set; }
+
         public DateTimeOffset CreatedOn { get; set; }
 
         public DateTimeOffset? UpdatedOn { get; set; }

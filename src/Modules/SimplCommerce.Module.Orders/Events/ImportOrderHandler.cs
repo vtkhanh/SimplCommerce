@@ -33,8 +33,10 @@ namespace SimplCommerce.Module.Orders.Events
             using (var fileStream = new MemoryStream())
             {
                 await _fileStorageService.DownloadToStreamAsync(request.ReferenceFileName, fileStream);
+
                 var orders = _orderFileParser.Parse(fileStream);
-                _orderImportService.Import(orders);
+
+                await _orderImportService.ImportAsync(orders);
             }
 
             await _orderFileService.UpdateStatusAsync(request.OrderFileId, ImportFileStatus.Completed);
