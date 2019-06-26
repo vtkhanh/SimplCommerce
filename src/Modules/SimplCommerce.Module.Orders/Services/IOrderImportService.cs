@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using SimplCommerce.Module.Orders.Services.Dtos;
 
 namespace SimplCommerce.Module.Orders.Services
 {
     internal interface IOrderImportService
     {
-        bool Import(IEnumerable<ImportingOrderDto> orders);
+        Task<bool> ImportAsync(IEnumerable<ImportingOrderDto> orders);
     }
 }
