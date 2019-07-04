@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 
 namespace SimplCommerce.Module.Orders.Models
@@ -13,5 +14,7 @@ namespace SimplCommerce.Module.Orders.Models
 
         [ForeignKey("OrderFileId")]
         public OrderFile OrderFile { get; set; }
+
+        public virtual ICollection<ImportResultDetail> ImportResultDetails { get; set; }
     }
 }

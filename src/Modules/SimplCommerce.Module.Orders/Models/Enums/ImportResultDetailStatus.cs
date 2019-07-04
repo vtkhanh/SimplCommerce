@@ -3,6 +3,7 @@
     public enum ImportResultDetailStatus
     {
         Success = 1,
-        SKUNotFound = 2
+        SkuNotFound = 2,
+        Others = 3
     }
 }

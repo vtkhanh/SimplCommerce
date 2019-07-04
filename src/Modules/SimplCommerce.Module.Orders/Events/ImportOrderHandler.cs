@@ -36,7 +36,7 @@ namespace SimplCommerce.Module.Orders.Events
 
                 var orders = _orderFileParser.Parse(fileStream);
 
-                await _orderImportService.ImportAsync(orders);
+                await _orderImportService.ImportAsync(request.OrderFileId, orders);
             }
 
             await _orderFileService.UpdateStatusAsync(request.OrderFileId, ImportFileStatus.Completed);

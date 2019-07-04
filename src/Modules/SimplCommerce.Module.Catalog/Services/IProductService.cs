@@ -15,6 +15,8 @@ namespace SimplCommerce.Module.Catalog.Services
 
         Task<IEnumerable<ProductDto>> SearchAsync(string query, bool? hasOptions, int? maxItems);
 
+        Task<long> GetProductIdBySkuAsync(string sku);
+
         Task<ProductSettingDto> GetProductSettingAsync();
 
         Task<(bool, string)> AddStockAsync(string barcode);

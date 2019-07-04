@@ -84,7 +84,8 @@ namespace SimplCommerce.Module.Catalog.Services
 
         public async Task<IEnumerable<ProductDto>> SearchAsync(string query, bool? hasOptions, int? maxItems)
         {
-            var products = await _productRepo.Query()
+            var products = await _productRepo
+                .QueryAsNoTracking()
                 .Include(i => i.ThumbnailImage)
                 .Where(i => !i.IsDeleted)
                 .WhereIf(hasOptions.HasValue, i => i.HasOptions == hasOptions)
@@ -109,6 +110,12 @@ namespace SimplCommerce.Module.Catalog.Services
             return result;
         }
 
+        public async Task<long> GetProductIdBySkuAsync(string sku)
+        {
+            var product = await _productRepo.QueryAsNoTracking().SingleOrDefaultAsync(item => item.Sku == sku);
+            return product?.Id ?? 0;
+        }
+
         public async Task<ProductSettingDto> GetProductSettingAsync()
         {
             var settings = await _appSettingRepo.Query()
@@ -125,16 +132,17 @@ namespace SimplCommerce.Module.Catalog.Services
             return result;
         }
 
-        public async Task<(bool, string)> AddStockAsync(string barcode) 
+        public async Task<(bool, string)> AddStockAsync(string barcode)
         {
             var product = await _productRepo.Query().FirstOrDefaultAsync(item => item.Sku == barcode);
-            if (product == null) return (false, $"No product found with barcode: {barcode}");
+            if (product == null)
+                return (false, $"No product found with barcode: {barcode}");
 
             // +1 to current stock
             product.Stock++;
 
             await _productRepo.SaveChangesAsync();
-            
+
             return (true, "");
         }
 
@@ -144,5 +152,6 @@ namespace SimplCommerce.Module.Catalog.Services
             var ok = decimal.TryParse(value, out decimal result);
             return ok ? result : defaultVal;
         }
+
     }
 }
