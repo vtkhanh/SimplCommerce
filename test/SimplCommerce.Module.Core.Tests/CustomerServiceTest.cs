@@ -71,7 +71,7 @@ namespace SimplCommerce.Module.Core.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var userRepo = new Repository<User>(context);
-                    var customerService = new CustomerService(_mapper, userRepo);
+                    var customerService = new CustomerService(_mapper, null, userRepo);
                     searchResult = (await customerService.SearchAsync(query)).ToList();
                 }
 
@@ -92,7 +92,7 @@ namespace SimplCommerce.Module.Core.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var userRepo = new Repository<User>(context);
-                    var customerService = new CustomerService(_mapper, userRepo);
+                    var customerService = new CustomerService(_mapper, null, userRepo);
                     searchResult = (await customerService.SearchAsync(query)).ToList();
                 }
 
@@ -111,7 +111,7 @@ namespace SimplCommerce.Module.Core.Tests
                 using (var context = new SimplDbContext(_options))
                 {
                     var userRepo = new Repository<User>(context);
-                    var customerService = new CustomerService(_mapper, userRepo);
+                    var customerService = new CustomerService(_mapper, null, userRepo);
                     searchResult = (await customerService.SearchAsync(query)).ToList();
                 }
 

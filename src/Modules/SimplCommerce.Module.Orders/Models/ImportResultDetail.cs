@@ -8,7 +8,7 @@ namespace SimplCommerce.Module.Orders.Models
     {
         public long ImportResultId { get; set; }
 
-        public int LineNumber { get; set; }
+        public string ExternalOrderId { get; set; }
 
         public ImportResultDetailStatus Status { get; set; }
 
