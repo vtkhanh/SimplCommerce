@@ -31,5 +31,9 @@
                     vm.isLoading = false;
                 });
         };
+
+        vm.viewResult = (importResultId) => {
+            vm.message = "Import result id: " + importResultId;
+        };
     }
 })();

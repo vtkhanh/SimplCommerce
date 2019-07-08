@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Infrastructure.Web.SmartTable;
@@ -19,19 +20,34 @@ namespace SimplCommerce.Module.Orders.Services
 
         public SmartTableResult<GetOrderFileDto> Get(SmartTableParam param)
         {
-            var result = _orderFileRepo
+            var orderFiles = _orderFileRepo
                 .QueryAsNoTracking()
-                .ToSmartTableResult(
-                    param,
-                    file => new GetOrderFileDto
-                    {
-                        Id = file.Id,
-                        FileName = file.FileName,
-                        CreatedOn = file.CreatedOn,
-                        Status = file.Status.ToString(),
-                        CreatedBy = file.CreatedBy.FullName
-                    }
-                );
+                .Include(item => item.CreatedBy)
+                .Include(item => item.ImportResults)
+                .Select(file => new
+                {
+                    file.Id,
+                    file.FileName,
+                    file.CreatedOn,
+                    Status = file.Status.ToString(),
+                    CreatedBy = file.CreatedBy.FullName,
+                    ImportResult = file.ImportResults.OrderByDescending(item => item.Id).FirstOrDefault()
+                });
+
+            var result = orderFiles.ToSmartTableResult(
+                param,
+                file => new GetOrderFileDto
+                {
+                    Id = file.Id,
+                    FileName = file.FileName,
+                    CreatedOn = file.CreatedOn,
+                    Status = file.Status.ToString(),
+                    CreatedBy = file.CreatedBy,
+                    ImportResultId = file.ImportResult is object ? file.ImportResult.Id : 0,
+                    SuccessCount = file.ImportResult is object ? file.ImportResult.SuccessCount : 0,
+                    FailureCount = file.ImportResult is object ? file.ImportResult.FailureCount : 0,
+                }
+            );
 
             return result;
         }

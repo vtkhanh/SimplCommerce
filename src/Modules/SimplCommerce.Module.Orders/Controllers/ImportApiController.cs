@@ -74,5 +74,11 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             return Json(files);
         }
+
+        [HttpGet("import-result")]
+        public async Task<ActionResult> GetImportResult()
+        {
+
+        }
     }
 }

@@ -13,5 +13,11 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
         public DateTimeOffset CreatedOn { get; set; }
 
         public string Status { get; set; }
+
+        public long ImportResultId { get; set; }
+
+        public int SuccessCount { get; set; }
+
+        public int FailureCount { get; set; }
     }
 }
