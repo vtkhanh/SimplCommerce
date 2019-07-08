@@ -506,6 +506,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.Discount = orderRequest.Discount;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
             order.Note = orderRequest.Note;
+            order.ExternalId = orderRequest.ExternalId;
 
             var feedback = UpdateTrackingNumber(order, orderRequest.TrackingNumber);
             if (!feedback.Success)

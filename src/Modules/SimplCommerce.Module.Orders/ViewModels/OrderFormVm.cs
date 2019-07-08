@@ -12,6 +12,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
     {
         public long OrderId { get; set; }
 
+        public string ExternalId { get; set; }
+
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Customer is required")]
         public long CustomerId { get; set; }
