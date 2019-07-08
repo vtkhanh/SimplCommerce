@@ -5,7 +5,7 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
 {
     internal class ImportingOrderDto
     {
-        public string ExternalOrderId { get; set; }
+        public string ExternalId { get; set; }
         public string Sku { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }

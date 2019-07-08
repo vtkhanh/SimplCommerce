@@ -7,7 +7,7 @@ namespace SimplCommerce.Module.Orders.Services.Constants
     {
         public static class ColumnIndex
         {
-            public const int ExternalOrderId = 0;
+            public const int ExternalId = 0;
             public const int OrderedDate = 1;
             public const int Status = 2;
             public const int TrackingNumber = 4;

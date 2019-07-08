@@ -4,6 +4,7 @@
     {
         Success = 1,
         SkuNotFound = 2,
-        Others = 3
+        Imported = 3,
+        Others = 4,
     }
 }

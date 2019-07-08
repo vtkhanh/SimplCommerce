@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Catalog.Services;
 using SimplCommerce.Module.Core.Services;
@@ -20,38 +21,46 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly IRepository<Order> _orderRepo;
+        private readonly IRepository<ImportResult> _importResultRepo;
 
         public OrderImportService(
             ICustomerService customerService, 
             IOrderService orderService, 
             IProductService productService,
-            IRepository<Order> orderRepo)
+            IRepository<Order> orderRepo,
+            IRepository<ImportResult> importResultRepo)
         {
             _customerService = customerService;
             _orderService = orderService;
             _productService = productService;
             _orderRepo = orderRepo;
+            _importResultRepo = importResultRepo;
         }
 
         public async Task<bool> ImportAsync(long orderFileId, IEnumerable<ImportingOrderDto> orders)
         {
             var importResult = new ImportResult
             {
-                OrderFileId = orderFileId
+                OrderFileId = orderFileId,
+                ImportResultDetails = new List<ImportResultDetail>()
             };
 
             foreach (var orderDto in orders)
             {
                 try
                 {
-                    var orderItem = await GetOrderItemAsync(orderDto);
-
-                    if (orderItem is null)
+                    if (await ValidateOrderIsImportedAsync(orderDto.ExternalId))
                     {
-                        ReportFailure(importResult, orderDto.ExternalOrderId, ImportResultDetailStatus.SkuNotFound, null);
+                        Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.Imported, null);
                         continue;
                     }
 
+                    var orderItem = await GetOrderItemAsync(orderDto);
+                    if (orderItem is null)
+                    {
+                        Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.SkuNotFound, null);
+                        continue;
+                    }
                     var orderForm = new OrderFormVm
                     {
                         TrackingNumber = orderDto.TrackingNumber,
@@ -65,31 +74,32 @@ namespace SimplCommerce.Module.Orders.Services
                     var feedback = await _orderService.CreateOrderAsync(orderForm);
 
                     if (feedback.Success)
-                    {
-                        var importedOrder = await _orderRepo.Query().FirstAsync(order => order.Id == feedback.Result);
-                        importedOrder.CompletedOn = orderDto.OrderedDate;
-                        importedOrder.ExternalId = orderDto.ExternalOrderId;
-                        await _orderRepo.SaveChangesAsync();
-
-                        ReportSuccess(importResult);
-                    }
+                        Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.Success, null);
                     else
-                    {
-                        ReportFailure(importResult, orderDto.ExternalOrderId, ImportResultDetailStatus.Others, feedback.ErrorMessage);
-                    }
+                        Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.Others, feedback.ErrorMessage);
                 }
                 catch (Exception exception)
                 {
-                    ReportFailure(importResult, orderDto.ExternalOrderId, ImportResultDetailStatus.Others, exception.Message);
+                    // TODO: log exception to AppInsights
+
+                    Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.Others, exception.Message);
                 }
             }
+
+            _importResultRepo.Add(importResult);
+            await _importResultRepo.SaveChangesAsync();
 
             return true;
         }
 
-        private void ReportSuccess(ImportResult importResult) => importResult.SuccessCount++;
+        private async Task<bool> ValidateOrderIsImportedAsync(string externalId)
+        {
+            var importedOrder = await _orderRepo.QueryAsNoTracking()
+                .FirstOrDefaultAsync(order => order.ExternalId.HasValue() && order.ExternalId != externalId);
+            return importedOrder is object;
+        }
 
-        private void ReportFailure(ImportResult importResult, string externalOrderId, ImportResultDetailStatus status, string message)
+        private void Report(ImportResult importResult, string externalId, ImportResultDetailStatus status, string message)
         {
             if (status == ImportResultDetailStatus.Success)
             {
@@ -98,13 +108,14 @@ namespace SimplCommerce.Module.Orders.Services
             else
             {
                 importResult.FailureCount++;
-                importResult.ImportResultDetails.Add(new ImportResultDetail
-                {
-                    ExternalOrderId = externalOrderId,
-                    Status = status,
-                    Message = message
-                });
             }
+
+            importResult.ImportResultDetails.Add(new ImportResultDetail
+            {
+                ExternalId = externalId,
+                Status = status,
+                Message = message
+            });
         }
 
         private async Task<OrderItemVm> GetOrderItemAsync(ImportingOrderDto orderDto)
