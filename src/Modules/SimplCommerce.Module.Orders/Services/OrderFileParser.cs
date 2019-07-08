@@ -35,7 +35,7 @@ namespace SimplCommerce.Module.Orders.Services
                             var dto = new ImportingOrderDto
                             {
                                 ExternalId = externalId,
-                                OrderedDate = DateTime.ParseExact(row[ColumnIndex.OrderedDate].ToString(), FileDateTimeFormat, null),
+                                OrderedDate = DateTime.Parse(row[ColumnIndex.OrderedDate].ToString()), // DateTime.ParseExact(row[ColumnIndex.OrderedDate].ToString(), FileDateTimeFormat, null),
                                 Status = OrderStatusMapping[row[ColumnIndex.Status].ToString()],
                                 TrackingNumber = row[ColumnIndex.TrackingNumber].ToString(),
                                 Sku = row[ColumnIndex.Sku].ToString(),

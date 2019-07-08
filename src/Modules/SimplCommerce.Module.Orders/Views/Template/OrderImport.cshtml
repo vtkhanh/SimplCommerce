@@ -33,6 +33,7 @@
                 <th>{{::vm.translate.get('Created By')}}</th>
                 <th>{{::vm.translate.get('Created On')}}</th>
                 <th>{{::vm.translate.get('Status')}}</th>
+                <th>{{::vm.translate.get('Result')}}</th>
                 <th>{{::vm.translate.get('Actions')}}</th>
             </tr>
         </thead>
@@ -47,10 +48,14 @@
                     <i ng-if="orderFile.status == 'InProgress'" class="fas fa-spinner fa-spin loading"></i>
                 </td>
                 <td>
+                    <a href="javascript:;" ng-click="vm.viewResult(orderFile.importResultId)" data-toggle="modal" data-target="#view-import-result">
+                        <span class="success">{{orderFile.successCount}}</span> | <span class="error">{{orderFile.failureCount}}</span>
+                    </a>
+                </td>
+                <td>
                     @*<a ui-sref="order-edit({id: order.id})" title="Edit" class="btn btn-primary btn-xs">
-                            <span class="fa fa-edit" ng-if="order.canEdit"></span>
-                            <span class="fa fa-eye" ng-if="!order.canEdit"></span>
-                        </a>*@
+                        <span class="fa fa-edit" ng-if="order.canEdit"></span>
+                    </a>*@
                 </td>
             </tr>
         </tbody>
@@ -66,3 +71,5 @@
         </tfoot>
     </table>
 </div>
+
+<partial name="_ViewImportResultModal" />

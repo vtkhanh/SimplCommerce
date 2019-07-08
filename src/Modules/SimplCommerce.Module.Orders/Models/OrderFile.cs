@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using SimplCommerce.Infrastructure.Models;
 using SimplCommerce.Module.Core.Models;
@@ -20,5 +21,7 @@ namespace SimplCommerce.Module.Orders.Models
 
         [ForeignKey("CreatedById")]
         public User CreatedBy { get; set; }
+
+        public virtual ICollection<ImportResult> ImportResults { get; set; }
     }
 }
