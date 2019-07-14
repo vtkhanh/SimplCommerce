@@ -33,7 +33,11 @@
         };
 
         vm.viewResult = (importResultId) => {
-            vm.message = "Import result id: " + importResultId;
+            orderImportService
+                .getImportResult(importResultId)
+                .then(result => {
+                    vm.importResult = result.data;
+                });
         };
     }
 })();

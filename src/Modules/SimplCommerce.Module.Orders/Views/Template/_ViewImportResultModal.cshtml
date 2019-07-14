@@ -7,6 +7,11 @@
             </div>
             <div class="modal-body">
                 <h3>{{vm.message}}</h3>
+                <ul>
+                    <li ng-repeat="item in vm.importResult.items">
+                        <span>{{item.externalId}} : </span><span>{{item.status}}</span><span ng-if="item.status === 'Others'">{{item.message}}</span>
+                    </li>
+                </ul>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">

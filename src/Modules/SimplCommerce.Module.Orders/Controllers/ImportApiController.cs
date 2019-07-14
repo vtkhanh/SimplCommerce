@@ -24,16 +24,20 @@ namespace SimplCommerce.Module.Orders.Controllers
         private readonly IWorkContext _workContext;
         private readonly IOrderFileStorageService _fileStorageService;
         private readonly IOrderFileService _orderFileService;
+        private readonly IImportResultService _importResultService;
         private readonly IMediator _mediator;
 
-        public ImportApiController(IWorkContext workContext, 
+        public ImportApiController(
+            IWorkContext workContext, 
             IOrderFileStorageService fileStorageService, 
             IOrderFileService orderFileService,
+            IImportResultService importResultService,
             IMediator mediator)
         {
             _workContext = workContext;
             _fileStorageService = fileStorageService;
             _orderFileService = orderFileService;
+            _importResultService = importResultService;
             _mediator = mediator;
         }
 
@@ -75,10 +79,12 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(files);
         }
 
-        [HttpGet("import-result")]
-        public async Task<ActionResult> GetImportResult()
+        [HttpGet("import-result/{importResultId}")]
+        public async Task<ActionResult> GetImportResult(long importResultId)
         {
+            var result = await _importResultService.GetAsync(importResultId);
 
+            return Json(result);
         }
     }
 }
