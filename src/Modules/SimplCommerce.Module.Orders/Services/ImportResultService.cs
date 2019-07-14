@@ -30,6 +30,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             if (result is object)
             {
+                resultDto.ImportedAt = result.ImportedAt;
                 resultDto.Items = result.ImportResultDetails.Select(item => new ImportResultDetailDto
                 {
                     ExternalId = item.ExternalId,

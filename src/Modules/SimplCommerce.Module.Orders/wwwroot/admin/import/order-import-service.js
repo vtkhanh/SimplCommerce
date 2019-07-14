@@ -9,7 +9,8 @@
         var service = {
             upload: upload,
             getOrderFilesForGrid: getOrderFilesForGrid,
-            getImportResult: getImportResult
+            getImportResult: getImportResult,
+            runImport: runImport
         };
         return service;
 
@@ -29,6 +30,10 @@
 
         function getImportResult(importResultId) {
             return $http.get('api/order-import/import-result/' + importResultId);
+        }
+
+        function runImport(orderFileId) {
+            return $http.post('api/order-import/run-import/' + orderFileId);
         }
     }
 })();

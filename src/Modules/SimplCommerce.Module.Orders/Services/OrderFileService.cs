@@ -57,16 +57,15 @@ namespace SimplCommerce.Module.Orders.Services
             var file = await _orderFileRepo.QueryAsNoTracking().FirstOrDefaultAsync(item => item.Id == id);
 
             if (file is null)
-            {
                 return null;
-            }
 
             return new GetOrderFileDto
             {
                 Id = file.Id,
                 FileName = file.FileName,
                 CreatedOn = file.CreatedOn,
-                Status = file.Status.ToString()
+                Status = file.Status.ToString(),
+                ReferenceFileName = file.ReferenceFileName
             };
         }
 
@@ -92,9 +91,7 @@ namespace SimplCommerce.Module.Orders.Services
             var file = await _orderFileRepo.Query().FirstOrDefaultAsync(item => item.Id == id);
 
             if (file is null)
-            {
                 return false;
-            }
 
             file.Status = status;
             await _orderFileRepo.SaveChangesAsync();

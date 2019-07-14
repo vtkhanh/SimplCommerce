@@ -8,6 +8,8 @@ namespace SimplCommerce.Module.Orders.Services.Dtos
 
         public string FileName { get; set; }
 
+        public string ReferenceFileName { get; set; }
+
         public string CreatedBy { get; set; }
 
         public DateTimeOffset CreatedOn { get; set; }
