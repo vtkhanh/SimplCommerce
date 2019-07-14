@@ -6,7 +6,7 @@
                 <h4 class="modal-title">{{::vm.translate.get('Import Result')}}</h4>
             </div>
             <div class="modal-body">
-                <h3>{{vm.message}}</h3>
+                <h4>{{::vm.translate.get('Imported at: ')}}{{vm.importResult.time}}</h4>
                 <ul>
                     <li ng-repeat="item in vm.importResult.items">
                         <span>{{item.externalId}} : </span><span>{{item.status}}</span><span ng-if="item.status === 'Others'">{{item.message}}</span>

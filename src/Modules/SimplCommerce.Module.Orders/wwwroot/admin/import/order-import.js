@@ -14,7 +14,7 @@
         vm.upload = () => {
             orderImportService
                 .upload(vm.file)
-                .then(result => {
+                .then(() => {
                     toastr.success("Uploaded successfully");
                     $state.reload();
                 });
@@ -37,7 +37,17 @@
                 .getImportResult(importResultId)
                 .then(result => {
                     vm.importResult = result.data;
+                    vm.importResult.time = moment(vm.importResult.importedAt).format('lll');
                 });
         };
+
+        vm.runImport = (orderFileId) => {
+            orderImportService
+                .runImport(orderFileId)
+                .then(() => {
+                    toastr.success("Re-Importing...");
+                    $state.reload();
+                });
+        }
     }
 })();

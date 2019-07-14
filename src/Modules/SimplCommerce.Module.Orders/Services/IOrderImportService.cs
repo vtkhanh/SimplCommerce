@@ -6,6 +6,6 @@ namespace SimplCommerce.Module.Orders.Services
 {
     internal interface IOrderImportService
     {
-        Task<bool> ImportAsync(long orderFileId, IEnumerable<ImportingOrderDto> orders);
+        Task<bool> ImportAsync(long importedById, long orderFileId, IEnumerable<ImportingOrderDto> orders);
     }
 }

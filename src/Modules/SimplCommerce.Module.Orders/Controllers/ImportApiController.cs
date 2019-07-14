@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -58,7 +57,7 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             await _fileStorageService.SaveMediaAsync(model.OrderFile.OpenReadStream(), referenceFileName, model.OrderFile.ContentType);
 
-            await _mediator.Send(new ImportOrderRequest(orderFileId, referenceFileName));
+            await _mediator.Send(new ImportOrderRequest(currentUser.Id, orderFileId, referenceFileName));
 
             return Accepted();
         }
@@ -85,6 +84,17 @@ namespace SimplCommerce.Module.Orders.Controllers
             var result = await _importResultService.GetAsync(importResultId);
 
             return Json(result);
+        }
+
+        [HttpPost("run-import/{orderFileId}")]
+        public async Task<ActionResult> RunImport(long orderFileId)
+        {
+            var currentUser = await _workContext.GetCurrentUser();
+            var orderFile = await _orderFileService.GetByIdAsync(orderFileId);
+
+            await _mediator.Send(new ImportOrderRequest(currentUser.Id, orderFileId, orderFile.ReferenceFileName));
+
+            return Accepted();
         }
     }
 }

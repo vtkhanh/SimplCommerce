@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure;
@@ -37,11 +36,12 @@ namespace SimplCommerce.Module.Orders.Services
             _importResultRepo = importResultRepo;
         }
 
-        public async Task<bool> ImportAsync(long orderFileId, IEnumerable<ImportingOrderDto> orders)
+        public async Task<bool> ImportAsync(long importedById, long orderFileId, IEnumerable<ImportingOrderDto> orders)
         {
             var importResult = new ImportResult
             {
                 OrderFileId = orderFileId,
+                ImportedById = importedById,
                 ImportResultDetails = new List<ImportResultDetail>()
             };
 
@@ -61,6 +61,7 @@ namespace SimplCommerce.Module.Orders.Services
                         Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.SkuNotFound, null);
                         continue;
                     }
+
                     var orderForm = new OrderFormVm
                     {
                         TrackingNumber = orderDto.TrackingNumber,
@@ -70,7 +71,6 @@ namespace SimplCommerce.Module.Orders.Services
                         CustomerId = await GetCustomerIdAsync(orderDto),
                         OrderItems = new List<OrderItemVm> { orderItem }
                     };
-
                     var feedback = await _orderService.CreateOrderAsync(orderForm);
 
                     if (feedback.Success)
@@ -94,8 +94,10 @@ namespace SimplCommerce.Module.Orders.Services
 
         private async Task<bool> ValidateOrderIsImportedAsync(string externalId)
         {
-            var importedOrder = await _orderRepo.QueryAsNoTracking()
+            var importedOrder = await _orderRepo
+                .QueryAsNoTracking()
                 .FirstOrDefaultAsync(order => order.ExternalId.HasValue() && order.ExternalId != externalId);
+
             return importedOrder is object;
         }
 
