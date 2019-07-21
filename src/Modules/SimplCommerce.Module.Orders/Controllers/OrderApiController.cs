@@ -106,6 +106,7 @@ namespace SimplCommerce.Module.Orders.Controllers
                     CustomerName = order.Customer.FullName,
                     CreatedBy = order.CreatedBy.FullName,
                     order.TrackingNumber,
+                    order.ExternalId,
                     Cost = order.OrderTotalCost,
                     Total = order.OrderTotal,
                     StatusId = order.OrderStatus,
@@ -118,7 +119,6 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             return Json(orders);
         }
-
 
         [HttpPost("export")]
         public async Task<ActionResult> Export([FromBody] SmartTableParam param)

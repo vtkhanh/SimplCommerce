@@ -506,9 +506,13 @@ namespace SimplCommerce.Module.Orders.Services
             order.Discount = orderRequest.Discount;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
             order.Note = orderRequest.Note;
-            order.ExternalId = orderRequest.ExternalId;
+            
 
             var feedback = UpdateTrackingNumber(order, orderRequest.TrackingNumber);
+            if (!feedback.Success)
+                return feedback;
+
+            feedback = UpdateExternalId(order, orderRequest.ExternalId);
             if (!feedback.Success)
                 return feedback;
 
@@ -516,13 +520,27 @@ namespace SimplCommerce.Module.Orders.Services
 
             UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
 
+
+            return ActionFeedback.Succeed();
+        }
+
+        private ActionFeedback UpdateExternalId(Order order, string externalId)
+        {
+            var isExisted = externalId.HasValue() 
+                && _orderRepository.QueryAsNoTracking().Any(item => item.ExternalId == externalId && item.Id != order.Id);
+
+            if (isExisted)
+                return ActionFeedback.Fail("ExternalId has been used!");
+
+            order.ExternalId = externalId;
+
             return ActionFeedback.Succeed();
         }
 
         private ActionFeedback UpdateTrackingNumber(Order order, string trackingNumber)
         {
             var isExisted = trackingNumber.HasValue() 
-                && _orderRepository.QueryAsNoTracking().Where(item => item.TrackingNumber == trackingNumber && item.Id != order.Id).Any();
+                && _orderRepository.QueryAsNoTracking().Any(item => item.TrackingNumber == trackingNumber && item.Id != order.Id);
 
             if (isExisted)
                 return ActionFeedback.Fail("Tracking number has been used!");

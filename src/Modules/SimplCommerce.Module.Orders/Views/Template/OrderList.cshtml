@@ -24,6 +24,7 @@
                 <th class="text-center">{{::vm.translate.get('Status')}}</th>
                 <th class="text-center">{{::vm.translate.get('Customer')}}</th>
                 <th class="text-center">{{::vm.translate.get('Tracking Number')}}</th>
+                <th class="text-center">{{::vm.translate.get('External Order ID')}}</th>
                 <th class="text-center">{{::vm.translate.get('Created By')}}</th>
                 <th st-sort="CreatedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Created On')}}</th>
                 <th st-sort="CompletedOn" class=" sortable text-center hidden-xs">{{::vm.translate.get('Completed On')}}</th>
@@ -53,6 +54,11 @@
                 </th>
                 <th class="">
                     <div class="form-group no-margin-bottom">
+                        <input class="form-control" st-search="ExternalId" />
+                    </div>
+                </th>
+                <th class="">
+                    <div class="form-group no-margin-bottom">
                         <input class="form-control" st-search="CreatedBy" />
                     </div>
                 </th>
@@ -68,7 +74,7 @@
                     <div class="collapse navbar-collapse">
                         <ul class="nav navbar-nav navbar-right no-margin-right">
                             <li class="dropdown">
-                                <a href="javascript:;" class="dropdown-toggle no-vertical-padding" data-toggle="dropdown" 
+                                <a href="javascript:;" class="dropdown-toggle no-vertical-padding" data-toggle="dropdown"
                                    role="button" aria-haspopup="true" aria-expanded="false">
                                     <i class="fas fa-bars"></i>
                                 </a>
@@ -106,6 +112,7 @@
                         {{ order.trackingNumber }}
                     </span>
                 </td>
+                <td class="">{{order.externalId}}</td>
                 <td class="text-center">{{ order.createdBy }}</td>
                 <td class=" text-center hidden-xs">{{order.createdOn | date:'medium'}}</td>
                 <td class=" text-center hidden-xs">{{order.completedOn | date:'medium'}}</td>
@@ -121,7 +128,7 @@
         </tbody>
         <tbody ng-show="vm.isLoading">
             <tr>
-                <td colspan="10" class="text-center">Loading ... </td>
+                <td colspan="11" class="text-center">Loading ... </td>
             </tr>
         </tbody>
         <tfoot>
