@@ -112,7 +112,7 @@ namespace SimplCommerce.Module.Catalog.Services
 
         public async Task<long> GetProductIdBySkuAsync(string sku)
         {
-            var product = await _productRepo.QueryAsNoTracking().SingleOrDefaultAsync(item => item.Sku == sku);
+            var product = await _productRepo.QueryAsNoTracking().SingleOrDefaultAsync(item => item.Sku == sku && !item.IsDeleted);
             return product?.Id ?? 0;
         }
 

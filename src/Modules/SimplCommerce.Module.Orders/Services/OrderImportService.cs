@@ -64,6 +64,7 @@ namespace SimplCommerce.Module.Orders.Services
 
                     var orderForm = new OrderFormVm
                     {
+                        ExternalId = orderDto.ExternalId,
                         TrackingNumber = orderDto.TrackingNumber,
                         ShippingAmount = orderDto.ShippingAmount,
                         ShippingCost = orderDto.ShippingCost,
@@ -96,7 +97,7 @@ namespace SimplCommerce.Module.Orders.Services
         {
             var importedOrder = await _orderRepo
                 .QueryAsNoTracking()
-                .FirstOrDefaultAsync(order => order.ExternalId.HasValue() && order.ExternalId != externalId);
+                .FirstOrDefaultAsync(order => order.ExternalId.HasValue() && order.ExternalId == externalId);
 
             return importedOrder is object;
         }

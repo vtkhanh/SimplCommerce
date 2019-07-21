@@ -9,7 +9,7 @@
                 <h4>{{::vm.translate.get('Imported at: ')}}{{vm.importResult.time}}</h4>
                 <ul>
                     <li ng-repeat="item in vm.importResult.items">
-                        <span>{{item.externalId}} : </span><span>{{item.status}}</span><span ng-if="item.status === 'Others'">{{item.message}}</span>
+                        <span>{{item.externalId}} : </span><span>{{item.status}}</span><span ng-if="item.status === 'Others'"> - {{item.message}}</span>
                     </li>
                 </ul>
             </div>

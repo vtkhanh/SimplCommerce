@@ -55,6 +55,7 @@ namespace SimplCommerce.Module.Orders.Services
                 .WhereIf(search.Status.HasValue, i => i.OrderStatus == search.Status)
                 .WhereIf(search.CustomerName.HasValue(), i => i.Customer.FullName.Contains(search.CustomerName))
                 .WhereIf(search.TrackingNumber.HasValue(), i => i.TrackingNumber.Contains(search.TrackingNumber))
+                .WhereIf(search.ExternalId.HasValue(), i => i.ExternalId.Contains(search.ExternalId))
                 .WhereIf(search.CreatedBy.HasValue(), i => i.CreatedBy.FullName.Contains(search.CreatedBy))
                 .WhereIf(search.CreatedBefore.HasValue, i => i.CreatedOn <= search.CreatedBefore)
                 .WhereIf(search.CreatedAfter.HasValue, i => i.CreatedOn >= search.CreatedAfter)

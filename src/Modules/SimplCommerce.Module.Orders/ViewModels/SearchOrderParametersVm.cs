@@ -13,6 +13,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public string TrackingNumber { get; set; }
 
+        public string ExternalId { get; set; }
+
         public string CreatedBy { get; set; }
 
         public PeriodVm CreatedOn { get; set; }
