@@ -70,14 +70,6 @@ namespace SimplCommerce.Module.Orders.Controllers
             return Json(files);
         }
 
-        [HttpPost("list")]
-        public IActionResult List([FromBody] SmartTableParam param)
-        {
-            var files = _orderFileService.Get(param);
-
-            return Json(files);
-        }
-
         [HttpGet("import-result/{importResultId}")]
         public async Task<ActionResult> GetImportResult(long importResultId)
         {
