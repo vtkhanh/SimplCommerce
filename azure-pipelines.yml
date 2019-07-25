@@ -18,9 +18,9 @@ trigger:
 
 steps:
 - task: DotNetCoreInstaller@0
-  displayName: Use .NET SDK 2.1.301
+  displayName: Use .NET SDK 2.1.700
   inputs:
-    version: '2.1.301'
+    version: '2.1.700'
 
 - script: dotnet restore
   displayName: dotnet restore
