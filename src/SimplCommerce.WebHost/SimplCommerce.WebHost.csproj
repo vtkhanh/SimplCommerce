@@ -13,15 +13,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Remove="appsettings.Development.json" />
-    <None Remove="appsettings.Docker.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="appsettings.Development.json;appsettings.Docker.json">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SimplCommerce.Infrastructure\SimplCommerce.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\SimplCommerce.Module.Core\SimplCommerce.Module.Core.csproj" />
     <ProjectReference Include="..\Modules\SimplCommerce.Module.Localization\SimplCommerce.Module.Localization.csproj" />

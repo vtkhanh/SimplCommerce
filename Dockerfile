@@ -34,7 +34,7 @@ RUN for file in $(ls *.csproj); do mkdir -p src/Modules/${file%.*}/ && mv $file 
 COPY test/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
 
-COPY ./Directory.Build.props ./global.json ./run-tests.sh ./
+COPY ./Directory.Build.props ./run-tests.sh ./
 RUN dotnet restore
 
 COPY ./src ./src
