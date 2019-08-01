@@ -16,6 +16,8 @@ namespace SimplCommerce.Module.Orders.ViewModels
 
         public decimal Cost { get; set; }
 
+        public decimal Subtotal { get; set; }
+
         public decimal Total { get; set; }
 
         public string CreatedOn { get; set; }

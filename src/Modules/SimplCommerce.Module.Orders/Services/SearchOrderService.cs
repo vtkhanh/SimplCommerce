@@ -39,6 +39,7 @@ namespace SimplCommerce.Module.Orders.Services
                 CreatedOn = order.CreatedOn.ToString(DATE_FORMAT),
                 CompletedOn = order.CompletedOn.HasValue ? order.CompletedOn.Value.ToString(DATE_FORMAT) : "",
                 Cost = order.OrderTotalCost,
+                Subtotal = order.SubTotal,
                 Total = order.OrderTotal
             }).ToListAsync();
 
