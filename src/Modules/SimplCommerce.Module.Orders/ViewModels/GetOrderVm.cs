@@ -56,5 +56,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public bool CanEdit { get; set; }
 
         public string Note { get; set; }
+
+        public bool IsShopeeOrder { get; set; }
     }
 }

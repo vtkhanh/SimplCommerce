@@ -89,6 +89,8 @@ namespace SimplCommerce.Module.Orders.Models
 
         public string Note { get; set; }
 
+        public bool IsShopeeOrder { get; set; }
+
         public IList<Order> Children { get; protected set; } = new List<Order>();
 
         public void AddOrderItem(OrderItem item)

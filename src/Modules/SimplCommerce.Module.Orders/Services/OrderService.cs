@@ -92,6 +92,7 @@ namespace SimplCommerce.Module.Orders.Services
                 CreatedById = order.CreatedById,
                 VendorId = order.VendorId,
                 Note = order.Note,
+                IsShopeeOrder = order.IsShopeeOrder,
                 OrderItems = order.OrderItems
                     .Select(item => new OrderItemVm
                     {
@@ -506,7 +507,7 @@ namespace SimplCommerce.Module.Orders.Services
             order.Discount = orderRequest.Discount;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
             order.Note = orderRequest.Note;
-            
+            order.IsShopeeOrder = orderRequest.IsShopeeOrder;
 
             var feedback = UpdateTrackingNumber(order, orderRequest.TrackingNumber);
             if (!feedback.Success)
@@ -519,7 +520,6 @@ namespace SimplCommerce.Module.Orders.Services
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
             UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
-
 
             return ActionFeedback.Succeed();
         }

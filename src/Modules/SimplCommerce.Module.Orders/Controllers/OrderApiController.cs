@@ -14,6 +14,7 @@ using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
+using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Orders.Models;
 using SimplCommerce.Module.Orders.Services;
 using SimplCommerce.Module.Orders.ViewModels;
@@ -34,13 +35,15 @@ namespace SimplCommerce.Module.Orders.Controllers
         private readonly IWorkContext _workContext;
         private readonly IAuthorizationService _authorizationService;
         private readonly ISearchOrderService _searchOrderService;
+        private readonly IAppSettingService _appSettingService;
 
         public OrderApiController(IOrderService orderService,
             IPaymentProviderService paymentProviderService,
             IRepository<Order> orderRepository,
             IWorkContext workContext,
             IAuthorizationService authorizationService,
-            ISearchOrderService searchOrderService)
+            ISearchOrderService searchOrderService,
+            IAppSettingService appSettingService)
         {
             _orderService = orderService;
             _paymentProviderService = paymentProviderService;
@@ -48,6 +51,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             _workContext = workContext;
             _authorizationService = authorizationService;
             _searchOrderService = searchOrderService;
+            _appSettingService = appSettingService;
         }
 
         [HttpGet]
@@ -223,6 +227,14 @@ namespace SimplCommerce.Module.Orders.Controllers
                 Text = item.Description
             });
             return Json(selectList);
+        }
+
+        [HttpGet("shopee-fee")]
+        public async Task<IActionResult> GetShopeeFee()
+        {
+            var shopeeFeeSetting = await _appSettingService.GetAsync(AppSettingKey.ShopeeFee);
+            int.TryParse(shopeeFeeSetting.Value, out int shopeeFee);
+            return Json(shopeeFee);
         }
 
         [HttpPut("update-multiple-statuses")]

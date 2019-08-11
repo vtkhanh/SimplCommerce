@@ -19,7 +19,8 @@
             getOrderStatus: getOrderStatus,
             getStatusList: getStatusList,
             getPaymentList: getPaymentList,
-            exportOrders: exportOrders
+            exportOrders: exportOrders,
+            getShopeeFee: getShopeeFee
         };
         return service;
 
@@ -75,5 +76,8 @@
             return $http.get('api/orders/payment-list');
         }
 
+        function getShopeeFee() {
+            return $http.get('api/orders/shopee-fee');
+        }
     }
 })(jQuery);

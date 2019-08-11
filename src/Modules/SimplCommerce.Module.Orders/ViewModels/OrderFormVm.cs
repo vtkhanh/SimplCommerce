@@ -44,5 +44,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public long? PaymentProviderId { get; set; }
 
         public string Note { get; set; }
+
+        public bool IsShopeeOrder { get; set; }
     }
 }

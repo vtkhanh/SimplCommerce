@@ -11,5 +11,7 @@ namespace SimplCommerce.Module.Core.Extensions.Constants
         public const string AssetVersion = "Global.AssetVersion";
 
         public const string ReportMonthOffset = "Order.ReportMonthOffset";
+
+        public const string ShopeeFee = "Order.ShopeeFee";
     }
 }

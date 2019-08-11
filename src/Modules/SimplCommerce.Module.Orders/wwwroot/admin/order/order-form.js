@@ -131,7 +131,8 @@
                 orderStatus: vm.orderStatus || OrderPendingStatus,
                 paymentProviderId: vm.paymentProviderId,
                 orderItems: vm.orderItems,
-                note: vm.note
+                note: vm.note,
+                isShopeeOrder: vm.isShopeeOrder
             };
             if (vm.orderId === 0) {
                 orderService.createOrder(params)
@@ -178,9 +179,22 @@
             }, 1000);
         };
 
+        vm.updateShopeeOrder = () => {
+            if (vm.isShopeeOrder) {
+                vm.shippingCost = vm.shippingCost + (vm.shopeeFee / 100) * vm.orderSubTotalCost;
+            } else {
+                vm.shippingCost = vm.shippingCost - (vm.shopeeFee / 100) * vm.orderSubTotalCost;
+            }
+            vm.onShippingCostUpdate();
+        }
+
         function init() {
             vm.orderId = $stateParams.id || 0;
             vm.hasInvoice = vm.orderId > 0;
+
+            orderService.getShopeeFee()
+                .then(result => vm.shopeeFee = result.data)
+                .catch((response) => processError(response.data));
 
             if (vm.orderId === 0) { // Create order
                 orderService.getStatusList()
@@ -190,12 +204,13 @@
                 orderService.getPaymentList()
                     .then(result => vm.paymentProviderList = result.data)
                     .catch((response) => processError(response.data));
-
+                
                 vm.canEdit = true;
                 vm.customer = null;
                 vm.selectedProduct = null;
                 vm.trackingNumber = null;
                 vm.note = null;
+                vm.isShopeeOrder = false;
                 vm.orderItems = [];
                 vm.orderSubTotal = 0;
                 vm.shippingAmount = 0;
@@ -233,6 +248,7 @@
                         vm.paymentProvider = selectedPayment != undefined ? selectedPayment.text : '';
                         vm.paymentProviderList = order.paymentProviderList;
                         vm.note = order.note;
+                        vm.isShopeeOrder = order.isShopeeOrder;
                         vm.orderItems = order.orderItems;
                         vm.orderItems.forEach(element => {
                             element.productStock = element.stock;

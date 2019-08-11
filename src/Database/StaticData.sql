@@ -13,6 +13,7 @@ INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingP
 INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (12, N'Cost.FeePerWeightUnit', N'10.1', 1, N'Catalog', 'KRW per gam')
 INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (13, N'Cost.FeeOfPicker', N'0', 1, N'Catalog', '%')
 INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (14, N'Order.ReportMonthOffset', N'0', 1, N'Orders', 'Month(s)')
+INSERT [dbo].[Core_AppSetting] ([Id], [Key], [Value], [IsVisibleInCommonSettingPage], [Module], [Description]) VALUES (15, N'Order.ShopeeFee', N'0', 1, N'Orders', '%')
 SET IDENTITY_INSERT [dbo].[Core_AppSetting] OFF
 GO
 
