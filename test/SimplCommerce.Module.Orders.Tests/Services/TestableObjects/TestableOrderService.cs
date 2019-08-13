@@ -29,6 +29,7 @@ namespace SimplCommerce.Module.Orders.Tests.Services.TestableObjects
         public Mock<IPaymentProviderService> MockPaymentProviderService;
         public Mock<IWorkContext> MockWorkContext;
         public Mock<IHttpContextAccessor> MockHttpContextAccessor;
+        public Mock<IAppSettingService> MockAppSettingService;
 
         private TestableOrderService(
                 Mock<IRepository<Order>> mockOrderRepo,
@@ -42,7 +43,8 @@ namespace SimplCommerce.Module.Orders.Tests.Services.TestableObjects
                 Mock<IMediaService> mockMediaService,
                 Mock<IPaymentProviderService> mockPaymentProviderService,
                 Mock<IWorkContext> mockWorkContext,
-                Mock<IHttpContextAccessor> mockHttpContextAccessor
+                Mock<IHttpContextAccessor> mockHttpContextAccessor,
+                Mock<IAppSettingService> mockAppSettingService
             )
             : base(
                   mockOrderRepo.Object,
@@ -56,7 +58,8 @@ namespace SimplCommerce.Module.Orders.Tests.Services.TestableObjects
                   mockMediaService.Object,
                   mockPaymentProviderService.Object,
                   mockWorkContext.Object,
-                  mockHttpContextAccessor.Object
+                  mockHttpContextAccessor.Object,
+                  mockAppSettingService.Object
             )
         {
             MockOrderRepo = mockOrderRepo;
@@ -86,7 +89,8 @@ namespace SimplCommerce.Module.Orders.Tests.Services.TestableObjects
                     new Mock<IMediaService>(),
                     new Mock<IPaymentProviderService>(),
                     new Mock<IWorkContext>(),
-                    new Mock<IHttpContextAccessor>()
+                    new Mock<IHttpContextAccessor>(),
+                    new Mock<IAppSettingService>()
                 );
     }
 }

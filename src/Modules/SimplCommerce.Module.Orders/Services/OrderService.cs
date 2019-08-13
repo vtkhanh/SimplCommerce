@@ -38,6 +38,7 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IMediaService _mediaService;
         private readonly IPaymentProviderService _paymentProviderService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IAppSettingService _appSettingService;
 
         public OrderService(
             IRepository<Order> orderRepository,
@@ -51,7 +52,8 @@ namespace SimplCommerce.Module.Orders.Services
             IMediaService mediaService,
             IPaymentProviderService paymentProviderService,
             IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IAppSettingService appSettingService)
         {
             _orderRepository = orderRepository;
             _productRepo = productRepo;
@@ -65,6 +67,7 @@ namespace SimplCommerce.Module.Orders.Services
             _paymentProviderService = paymentProviderService;
             _workContext = workContext;
             _httpContextAccessor = httpContextAccessor;
+            _appSettingService = appSettingService;
         }
 
         public async Task<ActionFeedback<GetOrderVm>> GetOrderAsync(long orderId)
@@ -381,7 +384,7 @@ namespace SimplCommerce.Module.Orders.Services
             if (!CanEditOrder(order))
                 return (null, $"Order has been completed already!");
 
-            UpdateStatusAndOrderTotal(order, status);
+            await UpdateStatusAndOrderTotalAsync(order, status);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -411,7 +414,7 @@ namespace SimplCommerce.Module.Orders.Services
                 if (!CanEditOrder(order))
                     continue;
 
-                UpdateStatusAndOrderTotal(order, status);
+                await UpdateStatusAndOrderTotalAsync(order, status);
 
                 await _orderRepository.SaveChangesAsync();
 
@@ -443,7 +446,7 @@ namespace SimplCommerce.Module.Orders.Services
 
             order.TrackingNumber = orderRequest.TrackingNumber;
             order.PaymentProviderId = orderRequest.PaymentProviderId;
-            UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
+            await UpdateStatusAndOrderTotalAsync(order, orderRequest.OrderStatus);
 
             await _orderRepository.SaveChangesAsync();
 
@@ -519,14 +522,14 @@ namespace SimplCommerce.Module.Orders.Services
 
             await UpdateOrderItemsAsync(order, orderRequest.OrderItems);
 
-            UpdateStatusAndOrderTotal(order, orderRequest.OrderStatus);
+            await UpdateStatusAndOrderTotalAsync(order, orderRequest.OrderStatus);
 
             return ActionFeedback.Succeed();
         }
 
         private ActionFeedback UpdateExternalId(Order order, string externalId)
         {
-            var isExisted = externalId.HasValue() 
+            var isExisted = externalId.HasValue()
                 && _orderRepository.QueryAsNoTracking().Any(item => item.ExternalId == externalId && item.Id != order.Id);
 
             if (isExisted)
@@ -539,7 +542,7 @@ namespace SimplCommerce.Module.Orders.Services
 
         private ActionFeedback UpdateTrackingNumber(Order order, string trackingNumber)
         {
-            var isExisted = trackingNumber.HasValue() 
+            var isExisted = trackingNumber.HasValue()
                 && _orderRepository.QueryAsNoTracking().Any(item => item.TrackingNumber == trackingNumber && item.Id != order.Id);
 
             if (isExisted)
@@ -550,7 +553,7 @@ namespace SimplCommerce.Module.Orders.Services
             return ActionFeedback.Succeed();
         }
 
-        private void UpdateStatusAndOrderTotal(Order order, OrderStatus status)
+        private async Task UpdateStatusAndOrderTotalAsync(Order order, OrderStatus status)
         {
             order.OrderStatus = status;
             if (status == OrderStatus.Cancelled)
@@ -561,7 +564,7 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 order.CompletedOn = DateTimeOffset.Now;
             }
-            CalculateOrderTotal(order);
+            await CalculateOrderTotalAsync(order);
         }
 
         private void ResetOrderItemQuantities(Order order)
@@ -574,11 +577,23 @@ namespace SimplCommerce.Module.Orders.Services
             order.Discount = 0;
         }
 
-        private void CalculateOrderTotal(Order order)
+        private async Task CalculateOrderTotalAsync(Order order)
         {
             order.SubTotal = order.OrderItems.Sum(item => item.SubTotal);
             order.OrderTotal = order.SubTotal + order.ShippingAmount - order.Discount;
-            order.OrderTotalCost = order.OrderItems.Sum(item => item.SubTotalCost) + order.ShippingCost;
+            var shopeeCharge = await GetShopeeChargeAsync(order);
+            order.OrderTotalCost = order.OrderItems.Sum(item => item.SubTotalCost) + order.ShippingCost + shopeeCharge;
+        }
+
+        private async Task<decimal> GetShopeeChargeAsync(Order order)
+        {
+            if (order.IsShopeeOrder)
+            {
+                var shopeeFeeSetting = await _appSettingService.GetAsync(AppSettingKey.ShopeeFee);
+                if (int.TryParse(shopeeFeeSetting.Value, out int shopeeFee))
+                    return order.SubTotal * (shopeeFee / 100m);
+            }
+            return 0;
         }
 
         private async Task UpdateOrderItemsAsync(Order order, IEnumerable<OrderItemVm> orderItems)

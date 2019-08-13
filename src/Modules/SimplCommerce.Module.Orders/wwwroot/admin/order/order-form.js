@@ -87,6 +87,10 @@
             vm.updateOrderTotalCost();
         }
 
+        vm.onShopeeOrderUpdate = () => {
+            vm.updateOrderTotalCost();
+        }
+        
         vm.updateSubtotal = (orderItem) => {
             orderItem.subTotal = orderItem.productPrice * orderItem.quantity;
             orderItem.stock = orderItem.productStock - orderItem.quantity + orderItem.oldQuantity;
@@ -116,7 +120,7 @@
         };
 
         vm.updateOrderTotalCost = () => {
-            vm.orderTotalCost = vm.orderSubTotalCost + vm.shippingCost;
+            vm.orderTotalCost = vm.orderSubTotalCost + vm.shippingCost + vm.getShopeeCharge();
         };
 
         vm.save = () => {
@@ -159,6 +163,10 @@
             }
         };
 
+        vm.getShopeeCharge = () => {
+            return vm.isShopeeOrder ? (vm.shopeeFee / 100) * vm.orderSubTotal : 0;
+        }
+
         vm.printInvoice = (eleId) => {
             // TODO: A shit way to print an element now, yet to figure out a better way
             const printWindow = window.open('', '_blank', 'Print Invoice');
@@ -178,15 +186,6 @@
                 printWindow.close();
             }, 1000);
         };
-
-        vm.updateShopeeOrder = () => {
-            if (vm.isShopeeOrder) {
-                vm.shippingCost = vm.shippingCost + (vm.shopeeFee / 100) * vm.orderSubTotalCost;
-            } else {
-                vm.shippingCost = vm.shippingCost - (vm.shopeeFee / 100) * vm.orderSubTotalCost;
-            }
-            vm.onShippingCostUpdate();
-        }
 
         function init() {
             vm.orderId = $stateParams.id || 0;
@@ -210,7 +209,7 @@
                 vm.selectedProduct = null;
                 vm.trackingNumber = null;
                 vm.note = null;
-                vm.isShopeeOrder = false;
+                vm.isShopeeOrder = true;
                 vm.orderItems = [];
                 vm.orderSubTotal = 0;
                 vm.shippingAmount = 0;
@@ -271,7 +270,7 @@
                 vm.validationErrors.push('Could not add product.');
             }
         }
-
+        
         init();
 
     }
