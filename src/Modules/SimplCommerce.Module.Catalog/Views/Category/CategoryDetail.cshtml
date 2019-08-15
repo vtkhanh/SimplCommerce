@@ -8,7 +8,7 @@
 }
 
 @section head {
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/nouislider/nouislider.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/8.5.1/nouislider.min.css" />
 }
 
 <div>
@@ -53,34 +53,35 @@
                     </div>
                 </div>
             </div>
-            @if (Model.FilterOption.Price.MaxPrice != Model.FilterOption.Price.MinPrice) {
-            <div class="panel-group" id="accordion-price">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h2 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion-price" href="#collapse-price">
-                                @Localizer["Price"]
-                                <i class="fa fa-angle-down"></i>
-                            </a>
-                        </h2>
-                    </div>
-                    <div id="collapse-price" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            <div id="priceSlider"></div>
-                            <div>
-                                <input type="hidden" id="originMinPrice" value="@Model.FilterOption.Price.MinPrice.ToString("F0")"/>
-                                <input type="hidden" id="originMaxPrice" value="@Model.FilterOption.Price.MaxPrice.ToString("F0")" />
-                                <span id="minPrice"></span>
-                                <span id="maxPrice"></span>
-                            </div>
-                            <div class="price-actions">
-                                <button id="reset-price" type="button" class="btn btn-default">Reset</button>
-                                <button id="apply-price" type="button" class="btn btn-default">Apply</button>
+            @if (Model.FilterOption.Price.MaxPrice != Model.FilterOption.Price.MinPrice)
+            {
+                <div class="panel-group" id="accordion-price">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h2 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion-price" href="#collapse-price">
+                                    @Localizer["Price"]
+                                    <i class="fa fa-angle-down"></i>
+                                </a>
+                            </h2>
+                        </div>
+                        <div id="collapse-price" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <div id="priceSlider"></div>
+                                <div>
+                                    <input type="hidden" id="originMinPrice" value="@Model.FilterOption.Price.MinPrice.ToString("F0")" />
+                                    <input type="hidden" id="originMaxPrice" value="@Model.FilterOption.Price.MaxPrice.ToString("F0")" />
+                                    <span id="minPrice"></span>
+                                    <span id="maxPrice"></span>
+                                </div>
+                                <div class="price-actions">
+                                    <button id="reset-price" type="button" class="btn btn-default">Reset</button>
+                                    <button id="apply-price" type="button" class="btn btn-default">Apply</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             }
         </form>
     </div>
@@ -103,18 +104,18 @@
                         </div>
                     </li>
                     @*<li class="pagination-option">
-                        <label>Show :</label>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                20 <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">All</a></li>
-                                <li><a href="#">50</a></li>
-                                <li><a href="#">30</a></li>
-                            </ul>
-                        </div>
-                    </li>*@
+                            <label>Show :</label>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    20 <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">All</a></li>
+                                    <li><a href="#">50</a></li>
+                                    <li><a href="#">30</a></li>
+                                </ul>
+                            </div>
+                        </li>*@
                 </ul>
             </div>
         </div>
@@ -140,8 +141,8 @@
 </div>
 
 @section scripts {
-    <script asp-append-version="true" src="~/lib/wnumb/wNumb.js"></script>
-    <script asp-append-version="true" src="~/lib/nouislider/nouislider.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.0.2/wNumb.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/8.5.1/nouislider.min.js"></script>
 
     <script>
         var productFilter = {};

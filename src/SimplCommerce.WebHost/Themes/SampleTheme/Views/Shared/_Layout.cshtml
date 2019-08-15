@@ -7,9 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SimplCommerce</title>
 
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
-    <link asp-append-version="true" rel="stylesheet" href="~/lib/bootstrap-star-rating/css/star-rating.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-star-rating/4.0.6/css/star-rating.min.css" />
+
     <link asp-append-version="true" rel="stylesheet" href="~/modules/core/site.css" />
     <link asp-append-version="true" rel="stylesheet" href="~/themes/SampleTheme/site.css" />
 
@@ -92,14 +93,12 @@
             window.simplGlobalSetting = {};
             window.simplGlobalSetting.lang = '@CultureInfo.CurrentCulture.Name';
     </script>
-    <script asp-append-version="true" src="~/lib/jquery/jquery.js"></script>
-    <script asp-append-version="true" src="~/lib/bootstrap/js/bootstrap.js"></script>
-    <script asp-append-version="true" src="~/lib/matchHeight/jquery.matchHeight.js"></script>
-    <script asp-append-version="true" src="~/lib/bootstrap-star-rating/js/star-rating.js"></script>
-    @if (CultureInfo.CurrentCulture.Name == "vi-VN")
-    {
-        <script asp-append-version="true" src="~/lib/bootstrap-star-rating/js/locales/vi-vn.js"></script>
-    }
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.2/jquery.matchHeight-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-star-rating/4.0.6/js/star-rating.min.js"></script>
+
     <script asp-append-version="true" src="~/modules/core/main.js"></script>
     <script asp-append-version="true" src="~/modules/shopping-cart/add-to-cart.js"></script>
     <script asp-append-version="true" src="~/modules/product-comparison/product-comparison.js"></script>

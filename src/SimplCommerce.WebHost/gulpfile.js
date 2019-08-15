@@ -28,36 +28,7 @@ const mPaths = {
 const modules = loadModules();
 
 const paths = {
-    webroot: "./wwwroot/",
-    bower: "./bower_components/"
-};
-
-const bower = {
-    "font-awesome": "components-font-awesome/**/*.{css,ttf,svg,woff,woff2,eot,otf}",
-    "bootstrap": "bootstrap/dist/**/*.{js,map,css,ttf,svg,woff,woff2,eot}",
-    "bootstrap-ui-datetime-picker": "bootstrap-ui-datetime-picker/dist/*.{js,tpls.js}",
-    "bootstrap-star-rating": "bootstrap-star-rating/**/star-rating.{css,js}",
-    "jquery": "jquery/dist/jquery*.{js,map}",
-    "jquery-validation": "jquery-validation/dist/*.js",
-    "jquery-validation-unobtrusive": "jquery-validation-unobtrusive/*.js",
-    "angular": "angular/*.js",
-    "angular-i18n": "angular-i18n/angular-locale_*.js",
-    "angular-ui-router": "angular-ui-router/release/*.js",
-    "angular-smart-table": "angular-smart-table/dist/*.js",
-    "angular-loading-bar": "angular-loading-bar/build/loading-bar*.{js,css}",
-    "angular-summernote": "angular-summernote/dist/*.js",
-    "angular-bootstrap": "angular-bootstrap/ui-bootstrap*.{js,css}",
-    "angular-ui-tree": "angular-ui-tree/dist/*.{js,css}",
-    "angular-bootstrap-colorpicker": "angular-bootstrap-colorpicker/{js,css,img}/*.*",
-    "angular-xeditable": "angular-xeditable/dist/{js,css}/*.{js,css}",
-    "ng-file-upload": "ng-file-upload/ng-file-upload*.js",
-    "summernote": "summernote/dist/**/*.{js,map,css,ttf,svg,woff,eot}",
-    "matchHeight": "matchHeight/dist/jquery.matchHeight*.js",
-    "toastr": "toastr/toastr*.{js,css}",
-    "bootbox": "bootbox/bootbox*.{js,css}",
-    "nouislider": "nouislider/distribute/*.{js,css}",
-    "wnumb": "wnumb/wNumb.js",
-    "moment": "moment/min/moment.min.js"
+    webroot: "./wwwroot/"
 };
 
 gulp.task('clean-modules', function () {
@@ -112,29 +83,12 @@ paths.concatJsDest = paths.webroot + "js/site.min.js";
 paths.concatCssDest = paths.webroot + "css/site.min.css";
 paths.lib = paths.webroot + "lib/";
 
-
 gulp.task("clean:js", function (cb) {
     rimraf(paths.concatJsDest, cb);
 });
 
 gulp.task("clean:css", function (cb) {
     rimraf(paths.concatCssDest, cb);
-});
-
-gulp.task("clean:lib", function () {
-    for (let desDir in bower) {
-        del.sync(paths.lib + desDir);
-    }
-});
-
-gulp.task("copy-lib", ["clean:lib"], function () {
-    const ignoreComponents = ["**/npm.js"];
-
-    for (let desDir in bower) {
-        gulp.src(paths.bower + bower[desDir])
-            .pipe(ignore.exclude(ignoreComponents))
-            .pipe(gulp.dest(paths.lib + desDir));
-    }
 });
 
 gulp.task("min:js", function () {
@@ -154,10 +108,10 @@ gulp.task("min:css", function () {
 
 gulp.task("min", ["min:js", "min:css"]);
 
-gulp.task("clean", ["clean-modules", "clean:lib"]);
+gulp.task("clean", ["clean-modules"]);
 
 gulp.task('watch', () => {
     gulp.watch([mPaths.devModules + '**/Views/**/*.*', mPaths.devModules + '**/wwwroot/**/*.*'], ['copy-static']);
 });
 
-gulp.task('default', ['copy-lib', 'copy-modules']);
+gulp.task('default', ['copy-modules']);
