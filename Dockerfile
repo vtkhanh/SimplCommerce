@@ -16,11 +16,7 @@ RUN curl -SL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-lin
 COPY src/SimplCommerce.WebHost/package.json  src/SimplCommerce.WebHost/
 RUN cd src/SimplCommerce.WebHost \
 	&& npm install --global gulp-cli \
-	&& npm install bower --save-dev \
 	&& npm install
-COPY src/SimplCommerce.WebHost/bower.json src/SimplCommerce.WebHost/.bowerrc src/SimplCommerce.WebHost/
-RUN cd src/SimplCommerce.WebHost \
-	&& npm run bower install
 
 # Copy solution file
 COPY ./*.sln ./
