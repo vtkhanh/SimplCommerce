@@ -175,7 +175,7 @@
             printWindow.document.write('<html><head><title>Print Invoice</title>');
             // CSS & JS scripts
             printWindow.document.write('<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">');
-            printWindow.document.write('<link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css" />');
+            printWindow.document.write('<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" />');
             printWindow.document.write('<link rel="stylesheet" type="text/css" href="modules/orders/admin/order/print-invoice.css" />');
             printWindow.document.write('</head><body>');
             printWindow.document.write(document.getElementById(eleId).innerHTML);
