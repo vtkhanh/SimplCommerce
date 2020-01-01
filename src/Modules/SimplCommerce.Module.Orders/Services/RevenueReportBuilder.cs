@@ -49,7 +49,9 @@ namespace SimplCommerce.Module.Orders.Services
         public void EvaluateTotals()
         {
             if (!SubTotals.Any()) // SubTotals need to be evaluated beforehand
+            {
                 EvaluateSubTotals();
+            }
 
             Totals.Clear();
 
@@ -68,7 +70,9 @@ namespace SimplCommerce.Module.Orders.Services
         public void EvaluateCostsAndProfits()
         {
             if (!Totals.Any()) // Totals need to be evaluated beforehand
+            {
                 EvaluateTotals();
+            }
 
             Costs.Clear();
             Profits.Clear();

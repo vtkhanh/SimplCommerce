@@ -51,12 +51,19 @@ namespace SimplCommerce.Module.Orders.Services
 
             var orders = await _orderRepo.QueryAsNoTracking()
                 .WhereIf(createdById.HasValue && createdById > 0, order => order.CreatedById == createdById)
-                .Where(order => (order.CompletedOn >= from || order.CompletedOn.Value.Month == from.Month) && (order.CompletedOn <= to || order.CompletedOn.Value.Month == to.Month))
+                .Where(order => IsInPeriod(order.CompletedOn.Value, from, to))
                 .Where(order => order.OrderStatus == OrderStatus.Complete)
                 .ToListAsync();
 
             return new RevenueReportBuilder(orders);
         }
 
+        private static bool IsInPeriod(DateTimeOffset orderCompletedOn, DateTime from, DateTime to)
+        {
+            var monthOfOrder = orderCompletedOn.Month + 12 * orderCompletedOn.Year;
+            var fromMonth = from.Month + 12 * from.Year;
+            var toMonth = to.Month + 12 * to.Year;
+            return monthOfOrder >= fromMonth && monthOfOrder <= toMonth;
+        }
     }
 }
