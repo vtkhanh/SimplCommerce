@@ -17,9 +17,13 @@ namespace SimplCommerce.Module.Orders.Services
         public RevenueReportBuilder(IReadOnlyCollection<Order> orders)
         {
             _orders = orders.OrderBy(item => item.CompletedOn).ToList();
-            _from = _orders.First().CompletedOn.Value;
-            _to = _orders.Last().CompletedOn.Value;
-            _diffMonths = (_to.Month + _to.Year * 12) - (_from.Month + _from.Year * 12);
+
+            if (_orders.Any())
+            {
+                _from = _orders.First().CompletedOn.Value;
+                _to = _orders.Last().CompletedOn.Value;
+                _diffMonths = (_to.Month + _to.Year * 12) - (_from.Month + _from.Year * 12);
+            }
         }
 
         public IList<decimal> SubTotals { get; } = new List<decimal>();
@@ -90,7 +94,7 @@ namespace SimplCommerce.Module.Orders.Services
             }
         }
 
-        private static Func<Order, bool> IsInMonth(int month) => 
+        private static Func<Order, bool> IsInMonth(int month) =>
             order => order.CompletedOn.HasValue && order.CompletedOn.Value.Month == month;
     }
 }
