@@ -20,9 +20,19 @@ namespace SimplCommerce.Test.Shared.MockQueryable
         {
         }
 
+        public ValueTask DisposeAsync()
+        {
+            return new ValueTask();
+        }
+
         public Task<bool> MoveNext(CancellationToken cancellationToken)
         {
             return Task.FromResult(_enumerator.MoveNext());
+        }
+
+        public ValueTask<bool> MoveNextAsync()
+        {
+            return new ValueTask<bool>(_enumerator.MoveNext());
         }
     }
 }

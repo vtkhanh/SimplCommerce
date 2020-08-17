@@ -76,7 +76,7 @@ namespace SimplCommerce.Module.Core.Tests.Components
 
             var mockSet = new Mock<DbSet<UserAddress>>();
             mockSet.As<IAsyncEnumerable<UserAddress>>()
-                .Setup(m => m.GetEnumerator())
+                .Setup(m => m.GetAsyncEnumerator(default))
                 .Returns(new TestAsyncEnumerator<UserAddress>(companyProducts.GetEnumerator()));
 
             mockSet.As<IQueryable<UserAddress>>()

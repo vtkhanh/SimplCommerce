@@ -1,7 +1,5 @@
 ﻿@model RegisterViewModel
 @inject SignInManager<User> SignInManager
-@using Microsoft.AspNetCore.Authentication
-@using Microsoft.AspNetCore.Authentication.OpenIdConnect
 @{
     ViewData["Title"] = Localizer["Register"];
 }
@@ -50,7 +48,7 @@
         </form>
     </div>
 
-    <div class="col-md-4">
+    @*<div class="col-md-4">
         <section>
             <h4>@Localizer["Use another service to log in."]</h4>
             <hr />
@@ -81,7 +79,7 @@
                 }
             }
         </section>
-    </div>
+    </div>*@
 </div>
 
 @section Scripts {

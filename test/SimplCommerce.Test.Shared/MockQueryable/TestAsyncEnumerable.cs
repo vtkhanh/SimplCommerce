@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace SimplCommerce.Test.Shared.MockQueryable
@@ -64,6 +63,13 @@ namespace SimplCommerce.Test.Shared.MockQueryable
             var body = rewriter.Visit(expression);
             var function = Expression.Lambda<Func<TResult>>(body, (IEnumerable<ParameterExpression>)null);
             return function.Compile()();
+        }
+
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) => new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
+
+        TResult IAsyncQueryProvider.ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

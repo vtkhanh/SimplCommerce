@@ -9,7 +9,7 @@ namespace SimplCommerce.Module.Orders
 {
     public class ModuleInitializer : IModuleInitializer
     {
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
         }
 

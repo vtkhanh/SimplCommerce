@@ -9,9 +9,8 @@ namespace SimplCommerce.Module.StorageAmazonS3
 {
     public class ModuleInitializer : IModuleInitializer
     {
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            
         }
 
         public void ConfigureServices(IServiceCollection serviceCollection, IConfiguration configuration)
