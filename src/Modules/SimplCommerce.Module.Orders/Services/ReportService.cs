@@ -48,22 +48,16 @@ namespace SimplCommerce.Module.Orders.Services
 
             var from = time.AddMonths((-1) * monthOffset);
             var to = time.AddMonths(monthOffset);
+            var fromMonth = from.Month + 12 * from.Year;
+            var toMonth = to.Month + 12 * to.Year;
 
             var orders = await _orderRepo.QueryAsNoTracking()
                 .WhereIf(createdById.HasValue && createdById > 0, order => order.CreatedById == createdById)
-                .Where(order => IsInPeriod(order.CompletedOn.Value, from, to))
                 .Where(order => order.OrderStatus == OrderStatus.Complete)
+                .Where(order => fromMonth <= (order.CompletedOn.Value.Month + 12 * order.CompletedOn.Value.Year) && (order.CompletedOn.Value.Month + 12 * order.CompletedOn.Value.Year) <= toMonth)
                 .ToListAsync();
 
             return new RevenueReportBuilder(orders);
-        }
-
-        private static bool IsInPeriod(DateTimeOffset orderCompletedOn, DateTime from, DateTime to)
-        {
-            var monthOfOrder = orderCompletedOn.Month + 12 * orderCompletedOn.Year;
-            var fromMonth = from.Month + 12 * from.Year;
-            var toMonth = to.Month + 12 * to.Year;
-            return monthOfOrder >= fromMonth && monthOfOrder <= toMonth;
         }
     }
 }

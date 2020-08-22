@@ -193,7 +193,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("order-status")]
         public IActionResult GetOrderStatus()
         {
-            var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new { Id = x.Key, Name = x.Value });
+            var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new { Id = Convert.ToInt32(x.Key), Name = x.Value });
             return Json(model);
         }
 
