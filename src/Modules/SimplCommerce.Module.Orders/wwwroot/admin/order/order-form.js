@@ -132,7 +132,7 @@
                 shippingAmount: vm.shippingAmount,
                 shippingCost: vm.shippingCost,
                 discount: vm.discount,
-                orderStatus: vm.orderStatus || OrderPendingStatus,
+                orderStatus: parseInt(vm.orderStatus) || OrderPendingStatus,
                 paymentProviderId: parseInt(vm.paymentProviderId),
                 orderItems: vm.orderItems,
                 note: vm.note,

@@ -1,5 +1,5 @@
 # Build image
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1 AS builder
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS builder
 
 WORKDIR /app
 
@@ -46,7 +46,7 @@ WORKDIR /app/src/SimplCommerce.WebHost
 RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.1
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	
