@@ -13,6 +13,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Web;
+using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Localization;
 using SimplCommerce.WebHost.Extensions;
 
@@ -61,8 +62,6 @@ namespace SimplCommerce.WebHost
             services.AddHttpContextAccessor();
 
             services.AddApplicationInsightsTelemetry();
-
-            //return services.Build();
         }
 
         // ConfigureContainer is where you can register things directly
@@ -109,8 +108,17 @@ namespace SimplCommerce.WebHost
 
             app.UseCustomizedRequestLocalization();
             app.UseCustomizedStaticFiles(env);
-            app.UseCustomizedIdentity();
-            app.UseCustomizedMvc();
+            
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints => 
+            {
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDynamicControllerRoute<UrlSlugRouteTransformer>("{**slug}");
+            });
 
             app.RunModuleConfigures(env);
         }

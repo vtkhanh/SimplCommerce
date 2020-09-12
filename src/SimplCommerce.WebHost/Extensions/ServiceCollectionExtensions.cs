@@ -46,10 +46,12 @@ namespace SimplCommerce.WebHost.Extensions
 
         public static IServiceCollection AddCustomizedMvc(this IServiceCollection services, IList<ModuleInfo> modules)
         {
+            // Class used to map a slug to controller/action
+            services.AddScoped<UrlSlugRouteTransformer>();
+            
             var mvcBuilder = services
                 .AddMvc(options =>
                 {
-                    options.EnableEndpointRouting = false;
                     options.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider());
                 })
                 .AddViewLocalization()
