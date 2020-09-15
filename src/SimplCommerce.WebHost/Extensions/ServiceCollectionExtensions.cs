@@ -1,32 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Threading.Tasks;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Autofac.Features.Variance;
-using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimplCommerce.Infrastructure;
-using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Infrastructure.Web.ModelBinders;
 using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Models;
-using SimplCommerce.Infrastructure.Web.ModelBinders;
-using SimplCommerce.Infrastructure.Web;
-using Microsoft.AspNetCore.Mvc;
 
 namespace SimplCommerce.WebHost.Extensions
 {
@@ -62,21 +46,16 @@ namespace SimplCommerce.WebHost.Extensions
 
         public static IServiceCollection AddCustomizedMvc(this IServiceCollection services, IList<ModuleInfo> modules)
         {
+            // Class used to map a slug to controller/action
+            services.AddScoped<UrlSlugRouteTransformer>();
+            
             var mvcBuilder = services
-                .AddMvc(o =>
+                .AddMvc(options =>
                 {
-                    o.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider());
-                })
-                .AddRazorOptions(o =>
-                {
-                    foreach (var module in modules)
-                    {
-                        o.AdditionalCompilationReferences.Add(MetadataReference.CreateFromFile(module.Assembly.Location));
-                    }
+                    options.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider());
                 })
                 .AddViewLocalization()
-                .AddDataAnnotationsLocalization()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .AddDataAnnotationsLocalization();
 
             foreach (var module in modules)
             {
@@ -103,26 +82,7 @@ namespace SimplCommerce.WebHost.Extensions
                 .AddDefaultTokenProviders();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(o => o.LoginPath = new PathString("/login"))
-                .AddFacebook(x =>
-                {
-                    x.AppId = "1716532045292977";
-                    x.AppSecret = "dfece01ae919b7b8af23f962a1f87f95";
-
-                    x.Events = new OAuthEvents
-                    {
-                        OnRemoteFailure = ctx => HandleRemoteLoginFailure(ctx)
-                    };
-                })
-                .AddGoogle(x =>
-                {
-                    x.ClientId = "583825788849-8g42lum4trd5g3319go0iqt6pn30gqlq.apps.googleusercontent.com";
-                    x.ClientSecret = "X8xIiuNEUjEYfiEfiNrWOfI4";
-                    x.Events = new OAuthEvents
-                    {
-                        OnRemoteFailure = ctx => HandleRemoteLoginFailure(ctx)
-                    };
-                });
+                .AddCookie(o => o.LoginPath = new PathString("/login"));
 
             services.ConfigureApplicationCookie(x => x.LoginPath = new PathString("/login"));
             return services;
@@ -130,49 +90,8 @@ namespace SimplCommerce.WebHost.Extensions
 
         public static IServiceCollection AddCustomizedDataStore(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContextPool<SimplDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("SimplCommerce.WebHost")));
+            services.AddDbContextPool<SimplDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("SimplCommerce.WebHost")));
             return services;
-        }
-
-        public static IServiceProvider Build(this IServiceCollection services,
-            IConfiguration configuration, IHostingEnvironment hostingEnvironment)
-        {
-            var builder = new ContainerBuilder();
-
-            builder.RegisterSource(new ContravariantRegistrationSource());
-
-            foreach (var module in GlobalConfiguration.Modules)
-            {
-                builder.RegisterAssemblyTypes(module.Assembly)
-                    .Where(t => t.Name.EndsWith("Repository"))
-                    .AsImplementedInterfaces()
-                    .InstancePerLifetimeScope();
-                builder.RegisterAssemblyTypes(module.Assembly)
-                    .Where(t => t.Name.EndsWith("Service"))
-                    .AsImplementedInterfaces()
-                    .InstancePerLifetimeScope();
-                builder.RegisterAssemblyTypes(module.Assembly)
-                    .Where(t => t.Name.EndsWith("ServiceProvider"))
-                    .AsImplementedInterfaces()
-                    .InstancePerLifetimeScope();
-                builder.RegisterAssemblyTypes(module.Assembly)
-                    .Where(t => t.Name.EndsWith("Handler"))
-                    .AsImplementedInterfaces()
-                    .InstancePerLifetimeScope();
-            }
-
-            builder.Populate(services);
-            var container = builder.Build();
-            return container.Resolve<IServiceProvider>();
-        }
-
-        private static Task HandleRemoteLoginFailure(RemoteFailureContext ctx)
-        {
-            ctx.Response.Redirect("/Login");
-            ctx.HandleResponse();
-            return Task.CompletedTask;
         }
     }
 }

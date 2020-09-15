@@ -17,14 +17,14 @@ namespace SimplCommerce.Module.SampleData.Data
 
         public void RunCommand(string command)
         {
-            _dbContext.Database.ExecuteSqlCommand(command);
+            _dbContext.Database.ExecuteSqlRaw(command);
         }
 
         public void RunCommands(IEnumerable<string> commands)
         {
             foreach (var command in commands)
             {
-                _dbContext.Database.ExecuteSqlCommand(command);
+                _dbContext.Database.ExecuteSqlRaw(command);
             }
         }
 

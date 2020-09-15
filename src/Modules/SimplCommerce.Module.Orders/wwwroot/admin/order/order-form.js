@@ -132,8 +132,8 @@
                 shippingAmount: vm.shippingAmount,
                 shippingCost: vm.shippingCost,
                 discount: vm.discount,
-                orderStatus: vm.orderStatus || OrderPendingStatus,
-                paymentProviderId: vm.paymentProviderId,
+                orderStatus: parseInt(vm.orderStatus) || OrderPendingStatus,
+                paymentProviderId: parseInt(vm.paymentProviderId),
                 orderItems: vm.orderItems,
                 note: vm.note,
                 isShopeeOrder: vm.isShopeeOrder
@@ -188,7 +188,7 @@
         };
 
         function init() {
-            vm.orderId = $stateParams.id || 0;
+            vm.orderId = parseInt($stateParams.id) || 0;
             vm.hasInvoice = vm.orderId > 0;
 
             orderService.getShopeeFee()

@@ -1,4 +1,6 @@
 ﻿using System;
+using Autofac;
+using Autofac.Features.Variance;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -6,10 +8,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Web;
+using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Localization;
 using SimplCommerce.WebHost.Extensions;
 
@@ -17,19 +21,19 @@ namespace SimplCommerce.WebHost
 {
     public class Startup
     {
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _environment;
         private readonly IConfiguration _configuration;
 
-        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             _configuration = configuration;
-            _hostingEnvironment = hostingEnvironment;
+            _environment = environment;
         }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
-            GlobalConfiguration.WebRootPath = _hostingEnvironment.WebRootPath;
-            GlobalConfiguration.ContentRootPath = _hostingEnvironment.ContentRootPath;
+            GlobalConfiguration.WebRootPath = _environment.WebRootPath;
+            GlobalConfiguration.ContentRootPath = _environment.ContentRootPath;
 
             // Add functionality to inject IOptions<T>
             services.AddOptions();
@@ -57,15 +61,43 @@ namespace SimplCommerce.WebHost
 
             services.AddHttpContextAccessor();
 
-            return services.Build(_configuration, _hostingEnvironment);
+            services.AddApplicationInsightsTelemetry();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        // ConfigureContainer is where you can register things directly
+        // with Autofac. This runs after ConfigureServices so the things
+        // here will override registrations made in ConfigureServices.
+        // Don't build the container; that gets done for you by the factory.
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterSource(new ContravariantRegistrationSource());
+
+            foreach (var module in GlobalConfiguration.Modules)
+            {
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Repository"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Service"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("ServiceProvider"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+                builder.RegisterAssemblyTypes(module.Assembly)
+                    .Where(t => t.Name.EndsWith("Handler"))
+                    .AsImplementedInterfaces()
+                    .InstancePerLifetimeScope();
+            }
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -76,8 +108,17 @@ namespace SimplCommerce.WebHost
 
             app.UseCustomizedRequestLocalization();
             app.UseCustomizedStaticFiles(env);
-            app.UseCustomizedIdentity();
-            app.UseCustomizedMvc();
+            
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints => 
+            {
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDynamicControllerRoute<UrlSlugRouteTransformer>("{**slug}");
+            });
 
             app.RunModuleConfigures(env);
         }

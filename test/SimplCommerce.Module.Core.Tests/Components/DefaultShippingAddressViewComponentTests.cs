@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
-using Microsoft.EntityFrameworkCore;
 using Moq;
+using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Core.Components;
-using SimplCommerce.Module.Core.Data;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Models;
 using SimplCommerce.Module.Core.ViewModels.Manage;
+using SimplCommerce.Test.Shared.MockQueryable;
 using Xunit;
 
 namespace SimplCommerce.Module.Core.Tests.Components
@@ -69,32 +69,14 @@ namespace SimplCommerce.Module.Core.Tests.Components
 
         private DefaultShippingAddressViewComponent MakeMockedDefaultAddressViewComponent(UserAddress address, User user)
         {
-            var companyProducts = new List<UserAddress> { address }.AsQueryable();
+            var mockUserAddresses = new List<UserAddress> { address }.AsQueryable().BuildMock();
+            var mockRepository = new Mock<IRepository<UserAddress>>();
+            mockRepository.Setup(repo => repo.Query()).Returns(mockUserAddresses.Object);
 
             var mockWorkContext = new Mock<IWorkContext>();
             mockWorkContext.Setup(x => x.GetCurrentUser()).Returns(Task.FromResult(user));
 
-            var mockSet = new Mock<DbSet<UserAddress>>();
-            mockSet.As<IAsyncEnumerable<UserAddress>>()
-                .Setup(m => m.GetEnumerator())
-                .Returns(new TestAsyncEnumerator<UserAddress>(companyProducts.GetEnumerator()));
-
-            mockSet.As<IQueryable<UserAddress>>()
-                .Setup(m => m.Provider)
-                .Returns(new TestAsyncQueryProvider<UserAddress>(companyProducts.Provider));
-
-            mockSet.As<IQueryable<UserAddress>>().Setup(m => m.Expression).Returns(companyProducts.Expression);
-            mockSet.As<IQueryable<UserAddress>>().Setup(m => m.ElementType).Returns(companyProducts.ElementType);
-            mockSet.As<IQueryable<UserAddress>>().Setup(m => m.GetEnumerator()).Returns(() => companyProducts.GetEnumerator());
-
-            var contextOptions = new DbContextOptions<SimplDbContext>();
-            var mockContext = new Mock<SimplDbContext>(contextOptions);
-            mockContext.Setup(c => c.Set<UserAddress>()).Returns(mockSet.Object);
-
-            var repository = new Repository<UserAddress>(mockContext.Object);
-            mockWorkContext.Setup(x => x.GetCurrentUser()).Returns(Task.FromResult(user));
-
-            var component = new DefaultShippingAddressViewComponent(repository, mockWorkContext.Object);
+            var component = new DefaultShippingAddressViewComponent(mockRepository.Object, mockWorkContext.Object);
             return component;
         }
 

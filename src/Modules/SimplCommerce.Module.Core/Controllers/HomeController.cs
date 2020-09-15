@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Core.ViewModels;
@@ -11,11 +12,11 @@ namespace SimplCommerce.Module.Core.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
         private readonly ILogger _logger;
         private readonly IWidgetInstanceService _widgetInstanceService;
 
-        public HomeController(IHostingEnvironment env, ILoggerFactory factory, IWidgetInstanceService widgetInstanceService)
+        public HomeController(IWebHostEnvironment env, ILoggerFactory factory, IWidgetInstanceService widgetInstanceService)
         {
             _env = env;
             _logger = factory.CreateLogger("Unhandled Error");

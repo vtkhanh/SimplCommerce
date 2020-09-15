@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
@@ -117,8 +118,8 @@ namespace SimplCommerce.Module.Orders.Controllers
                     OrderStatus = order.OrderStatus.ToString(),
                     order.CreatedOn,
                     order.CompletedOn,
-                    IsRestricted = !CanEditFullOrder(currentUser, order.CreatedById, order.VendorId),
-                    CanEdit = CanEditOrder(order)
+                    IsRestricted = !CanEditFullOrder(User.IsInRole(RoleName.Admin), currentUser, order.CreatedById, order.VendorId),
+                    CanEdit = CanEditOrder(User.IsInRole(RoleName.Admin), order.OrderStatus, order.CompletedOn)
                 });
 
             return Json(orders);
@@ -140,7 +141,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             {
                 csvWriter.WriteRecords(orders);
                 writer.Flush();
-                var fileName = $"Orders-{DateTime.Now.ToString("dd/MM/yyyy")}.csv";
+                var fileName = $"Orders-{DateTime.Now:dd/MM/yyyy}.csv";
                 return File(stream.ToArray(), FileContentType.Binary, fileName);
             }
         }
@@ -165,7 +166,7 @@ namespace SimplCommerce.Module.Orders.Controllers
             var order = getOrderFeedback.Result;
             ActionFeedback feedback = ActionFeedback.Succeed();
 
-            if (!CanEditFullOrder(currentUser, order.CreatedById, order.VendorId))
+            if (!CanEditFullOrder(User.IsInRole(RoleName.Admin), currentUser, order.CreatedById, order.VendorId))
             {
                 if (order.OrderStatus != orderForm.OrderStatus ||
                     order.TrackingNumber != orderForm.TrackingNumber ||
@@ -192,7 +193,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         [HttpGet("order-status")]
         public IActionResult GetOrderStatus()
         {
-            var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new { Id = x.Key, Name = x.Value });
+            var model = EnumHelper.ToDictionary(typeof(OrderStatus)).Select(x => new { Id = Convert.ToInt32(x.Key), Name = x.Value });
             return Json(model);
         }
 
@@ -244,10 +245,10 @@ namespace SimplCommerce.Module.Orders.Controllers
             return result != null ? Ok(result) : (IActionResult)BadRequest(new { Error = error });
         }
 
-        private bool CanEditFullOrder(Core.Models.User currentUser, long createdById, long? vendorId) =>
-            User.IsInRole(RoleName.Admin) || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
+        private static bool CanEditFullOrder(bool isAdmin, Core.Models.User currentUser, long createdById, long? vendorId) =>
+            isAdmin || createdById == currentUser.Id || (vendorId.HasValue && vendorId == currentUser.VendorId);
 
-        private bool CanEditOrder(Order order) =>
-            User.IsInRole(RoleName.Admin) || order.OrderStatus != OrderStatus.Complete || order.CompletedOn > DateTimeOffset.Now.AddDays(-1);
+        private static bool CanEditOrder(bool isAdmin, OrderStatus orderStatus, DateTimeOffset? completedOn) =>
+            isAdmin || orderStatus != OrderStatus.Complete || completedOn > DateTimeOffset.Now.AddDays(-1);
     }
 }

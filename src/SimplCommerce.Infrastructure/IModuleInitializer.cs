@@ -9,6 +9,6 @@ namespace SimplCommerce.Infrastructure
     {
         void ConfigureServices(IServiceCollection serviceCollection, IConfiguration configuration);
 
-        void Configure(IApplicationBuilder app, IHostingEnvironment env);
+        void Configure(IApplicationBuilder app, IWebHostEnvironment env);
     }
 }

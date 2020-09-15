@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using ExcelDataReader;
-using Microsoft.EntityFrameworkCore.Internal;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Orders.Services.Dtos;
@@ -23,8 +23,10 @@ namespace SimplCommerce.Module.Orders.Services
                 {
                     var sheets = reader.AsDataSet();
 
-                    if (!sheets.Tables.Any())
+                    if (!sheets.Tables.Cast<object>().Any())
+                    {
                         return ActionFeedback<IEnumerable<ImportingOrderDto>>.Succeed(result);
+                    }
 
                     sheets.Tables[0].Rows.RemoveAt(0); // Remove header row
                     foreach (DataRow row in sheets.Tables[0].Rows)
@@ -35,7 +37,7 @@ namespace SimplCommerce.Module.Orders.Services
                             var dto = new ImportingOrderDto
                             {
                                 ExternalId = externalId,
-                                OrderedDate = DateTime.Parse(row[ColumnIndex.OrderedDate].ToString()), // DateTime.ParseExact(row[ColumnIndex.OrderedDate].ToString(), FileDateTimeFormat, null),
+                                OrderedDate = DateTime.Parse(row[ColumnIndex.OrderedDate].ToString()),
                                 Status = OrderStatusMapping[row[ColumnIndex.Status].ToString()],
                                 TrackingNumber = row[ColumnIndex.TrackingNumber].ToString(),
                                 Sku = row[ColumnIndex.Sku].ToString(),

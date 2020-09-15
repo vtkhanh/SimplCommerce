@@ -8,12 +8,13 @@ using SimplCommerce.Module.Core.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SimplCommerce.Infrastructure;
+using Microsoft.Extensions.Hosting;
 
 namespace SimplCommerce.WebHost.Extensions
 {
     public static class ApplicationBuilderExtensions
     {
-        public static IApplicationBuilder RunModuleConfigures(this IApplicationBuilder app, IHostingEnvironment env)
+        public static IApplicationBuilder RunModuleConfigures(this IApplicationBuilder app, IWebHostEnvironment env)
         {
             var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
             foreach (var moduleInitializer in moduleInitializers)
@@ -23,26 +24,7 @@ namespace SimplCommerce.WebHost.Extensions
             return app;
         }
 
-        public static IApplicationBuilder UseCustomizedIdentity(this IApplicationBuilder app)
-        {
-            app.UseAuthentication();
-            return app;
-        }
-
-        public static IApplicationBuilder UseCustomizedMvc(this IApplicationBuilder app)
-        {
-            app.UseMvc(routes =>
-            {
-                routes.Routes.Add(new UrlSlugRoute(routes.DefaultHandler));
-
-                routes.MapRoute(
-                    "default",
-                    "{controller=Home}/{action=Index}/{id?}");
-            });
-            return app;
-        }
-
-        public static IApplicationBuilder UseCustomizedStaticFiles(this IApplicationBuilder app, IHostingEnvironment env)
+        public static IApplicationBuilder UseCustomizedStaticFiles(this IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

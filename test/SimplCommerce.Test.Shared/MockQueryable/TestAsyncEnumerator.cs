@@ -1,28 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SimplCommerce.Test.Shared.MockQueryable
+namespace SimplCommerce.Module.Core.Tests
 {
-    public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
+    internal class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
-        private readonly IEnumerator<T> _enumerator;
+        private readonly IEnumerator<T> _inner;
 
-        public TestAsyncEnumerator(IEnumerator<T> enumerator)
+        public TestAsyncEnumerator(IEnumerator<T> inner) => _inner = inner;
+
+        public T Current => _inner.Current;
+
+        public ValueTask<bool> MoveNextAsync()
         {
-            _enumerator = enumerator ?? throw new ArgumentNullException();
+            return new ValueTask<bool>(_inner.MoveNext());
         }
 
-        public T Current => _enumerator.Current;
-
-        public void Dispose()
+        public ValueTask DisposeAsync()
         {
-        }
-
-        public Task<bool> MoveNext(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_enumerator.MoveNext());
+            _inner.Dispose();
+            return new ValueTask();
         }
     }
 }
