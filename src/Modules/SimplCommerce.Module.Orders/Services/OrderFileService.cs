@@ -23,16 +23,7 @@ namespace SimplCommerce.Module.Orders.Services
             var orderFiles = _orderFileRepo
                 .QueryAsNoTracking()
                 .Include(item => item.CreatedBy)
-                .Include(item => item.ImportResults)
-                .Select(file => new
-                {
-                    file.Id,
-                    file.FileName,
-                    file.CreatedOn,
-                    Status = file.Status.ToString(),
-                    CreatedBy = file.CreatedBy.FullName,
-                    ImportResult = file.ImportResults.OrderByDescending(item => item.Id).FirstOrDefault()
-                });
+                .Include(item => item.ImportResults);
 
             var result = orderFiles.ToSmartTableResult(
                 param,
@@ -42,10 +33,10 @@ namespace SimplCommerce.Module.Orders.Services
                     FileName = file.FileName,
                     CreatedOn = file.CreatedOn,
                     Status = file.Status.ToString(),
-                    CreatedBy = file.CreatedBy,
-                    ImportResultId = file.ImportResult is object ? file.ImportResult.Id : 0,
-                    SuccessCount = file.ImportResult is object ? file.ImportResult.SuccessCount : 0,
-                    FailureCount = file.ImportResult is object ? file.ImportResult.FailureCount : 0,
+                    CreatedBy = file.CreatedBy.FullName,
+                    ImportResultId = file.ImportResults.OrderByDescending(item => item.Id).First().Id,
+                    SuccessCount = file.ImportResults.OrderByDescending(item => item.Id).First().SuccessCount,
+                    FailureCount = file.ImportResults.OrderByDescending(item => item.Id).First().FailureCount
                 }
             );
 

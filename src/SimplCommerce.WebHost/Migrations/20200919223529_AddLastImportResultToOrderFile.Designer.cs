@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimplCommerce.Module.Core.Data;
 
 namespace SimplCommerce.WebHost.Migrations
 {
     [DbContext(typeof(SimplDbContext))]
-    partial class SimplDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200919223529_AddLastImportResultToOrderFile")]
+    partial class AddLastImportResultToOrderFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1763,6 +1765,9 @@ namespace SimplCommerce.WebHost.Migrations
                     b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("LastImportResultId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("ReferenceFileName")
                         .HasColumnType("nvarchar(max)");
 
@@ -1772,6 +1777,8 @@ namespace SimplCommerce.WebHost.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("LastImportResultId");
 
                     b.ToTable("Orders_OrderFile");
                 });
@@ -2841,7 +2848,7 @@ namespace SimplCommerce.WebHost.Migrations
             modelBuilder.Entity("SimplCommerce.Module.Orders.Models.ImportResult", b =>
                 {
                     b.HasOne("SimplCommerce.Module.Orders.Models.OrderFile", "OrderFile")
-                        .WithMany("ImportResults")
+                        .WithMany()
                         .HasForeignKey("OrderFileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2912,6 +2919,12 @@ namespace SimplCommerce.WebHost.Migrations
                     b.HasOne("SimplCommerce.Module.Core.Models.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SimplCommerce.Module.Orders.Models.ImportResult", "LastImportResult")
+                        .WithMany()
+                        .HasForeignKey("LastImportResultId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

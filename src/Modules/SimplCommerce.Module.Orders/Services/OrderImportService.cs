@@ -97,7 +97,7 @@ namespace SimplCommerce.Module.Orders.Services
         {
             var importedOrder = await _orderRepo
                 .QueryAsNoTracking()
-                .FirstOrDefaultAsync(order => order.ExternalId.HasValue() && order.ExternalId == externalId);
+                .FirstOrDefaultAsync(order => !string.IsNullOrEmpty(order.ExternalId) && order.ExternalId == externalId);
 
             return importedOrder is object;
         }
