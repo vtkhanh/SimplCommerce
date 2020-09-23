@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" version="3.1.7"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7"/>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" version="3.1.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />
     <PackageReference Include="MediatR" Version="5.0.1" />
     <PackageReference Include="cloudscribe.Web.Pagination" Version="2.1.2" />
     <PackageReference Include="ncrontab" Version="3.3.0" />

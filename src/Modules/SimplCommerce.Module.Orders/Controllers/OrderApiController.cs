@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
@@ -97,7 +96,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<ActionResult> List([FromBody] SmartTableParam param)
         {
             var currentUser = await _workContext.GetCurrentUser();
-            var search = param.Search.PredicateObject?.ToObject<SearchOrderParametersVm>() ?? new SearchOrderParametersVm();
+            var search = param.Search.ToObject<SearchOrderParametersVm>();
             search.CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
             search.UserVendorId = currentUser.VendorId;
 
@@ -129,7 +128,7 @@ namespace SimplCommerce.Module.Orders.Controllers
         public async Task<ActionResult> Export([FromBody] SmartTableParam param)
         {
             var currentUser = await _workContext.GetCurrentUser();
-            var search = param.Search.PredicateObject?.ToObject<SearchOrderParametersVm>() ?? new SearchOrderParametersVm();
+            var search = param.Search.ToObject<SearchOrderParametersVm>();
             search.CanManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
             search.UserVendorId = currentUser.VendorId;
 
