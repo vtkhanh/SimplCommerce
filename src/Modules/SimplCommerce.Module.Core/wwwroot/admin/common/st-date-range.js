@@ -20,12 +20,11 @@
                     scope.changeDate = function() {
                         var query = {};
                         if (scope.before) {
-                            query.before = scope.before;
-                            query.before = new Date(query.before.setDate(query.before.getDate() + 1));
+                            query.Before = scope.before;
                         }
 
                         if (scope.after) {
-                            query.after = scope.after;
+                            query.After = scope.after;
                         }
 
                         ctrl.search(query, predicateName);

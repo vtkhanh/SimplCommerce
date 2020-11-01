@@ -36,7 +36,7 @@
                 <th class="col-xs-1">
                     <div class="input-group centered">
                         <select class="form-control" st-search="HasOptions">
-                            <option value="">{{::vm.translate.get('All')}}</option>
+                            <option value="null">{{::vm.translate.get('All')}}</option>
                             <option value="true">{{::vm.translate.get('Yes')}}</option>
                             <option value="false">{{::vm.translate.get('No')}}</option>
                         </select>
@@ -44,7 +44,7 @@
                 </th>
                 <th class="col-xs-1">
                     <select class="form-control" st-search="InStock">
-                        <option value="">{{::vm.translate.get('All')}}</option>
+                        <option value="null">{{::vm.translate.get('All')}}</option>
                         <option value="true">{{::vm.translate.get('In stock')}}</option>
                         <option value="false">{{::vm.translate.get('Out of stock')}}</option>
                     </select>

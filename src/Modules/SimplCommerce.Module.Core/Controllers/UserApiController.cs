@@ -32,8 +32,7 @@ namespace SimplCommerce.Module.Core.Controllers
             IRepository<User> userRepo,
             UserManager<User> userManager,
             IUserService userService) =>
-            (_mapper, _userRepository, _userManager, _userService) =
-                (mapper, userRepo, userManager, userService);
+            (_mapper, _userRepository, _userManager, _userService) = (mapper, userRepo, userManager, userService);
 
         [HttpPost("list")]
         public IActionResult List([FromBody] SmartTableParam param)
@@ -45,13 +44,13 @@ namespace SimplCommerce.Module.Core.Controllers
 
             if (param.Search.PredicateObject != null)
             {
-                dynamic search = param.Search.PredicateObject;
+                var search = param.Search.ToObject<SearchUserParametersVm>();
                 string phoneNumber = search.PhoneNumber;
                 string fullName = search.FullName;
                 string roleName = search.Role;
                 string customerGroupName = search.CustomerGroup;
-                DateTimeOffset? before = search.CreatedOn?.before;
-                DateTimeOffset? after = search.CreatedOn?.after;
+                DateTimeOffset? before = search.CreatedOn?.Before;
+                DateTimeOffset? after = search.CreatedOn?.After;
                 query = query
                     .WhereIf(phoneNumber.HasValue(), item => item.PhoneNumber.Contains(phoneNumber))
                     .WhereIf(fullName.HasValue(), item => item.FullName.Contains(fullName))
@@ -72,7 +71,7 @@ namespace SimplCommerce.Module.Core.Controllers
                     user.CreatedOn,
                     Roles = string.Join(", ", user.Roles.Select(x => x.Role.Name)),
                     CustomerGroups = string.Join(", ", user.CustomerGroups.Select(x => x.CustomerGroup.Name)),
-                    CanEdit = CanEditUser(user)
+                    CanEdit = CanEditUser(User.IsInRole(RoleName.Admin), user)
                 });
 
             return Json(users);
@@ -164,6 +163,6 @@ namespace SimplCommerce.Module.Core.Controllers
             }
         }
 
-        private bool CanEditUser(User user) => User.IsInRole(RoleName.Admin) || !user.Roles.Any(item => item.Role.Name == RoleName.Admin);
+        private static bool CanEditUser(bool isAdmin, User user) => isAdmin || !user.Roles.Any(item => item.Role.Name == RoleName.Admin);
     }
 }

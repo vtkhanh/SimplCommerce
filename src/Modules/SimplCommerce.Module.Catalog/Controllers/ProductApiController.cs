@@ -2,28 +2,27 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using AutoMapper;
+using CsvHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.Data;
+using SimplCommerce.Infrastructure.Helpers;
 using SimplCommerce.Infrastructure.Web.SmartTable;
 using SimplCommerce.Module.Catalog.Models;
 using SimplCommerce.Module.Catalog.Services;
+using SimplCommerce.Module.Catalog.Services.Dtos;
 using SimplCommerce.Module.Catalog.ViewModels;
-using SimplCommerce.Module.Core.Models;
-using SimplCommerce.Module.Core.Services;
 using SimplCommerce.Module.Core.Extensions;
 using SimplCommerce.Module.Core.Extensions.Constants;
-using AutoMapper;
-using SimplCommerce.Module.Catalog.Services.Dtos;
-using System.Text;
-using CsvHelper;
-using SimplCommerce.Infrastructure.Helpers;
+using SimplCommerce.Module.Core.Models;
+using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.Catalog.Controllers
 {
@@ -86,16 +85,16 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPost("addStock/{barcode}")]
-        public async Task<ActionResult<ObjectResult>> AddStock(string barcode)
+        public async Task<IActionResult> AddStock(string barcode)
         {
             var (ok, error) = await _productService.AddStockAsync(barcode);
 
-            return error.HasValue() ? (ObjectResult)BadRequest(error) : Ok(ok);
+            return error.HasValue() ? (ObjectResult) BadRequest(error) : Ok(ok);
         }
 
         [HttpPost("changeStock")]
         [Authorize(Policy.CanEditProduct)]
-        public async Task<ActionResult<ObjectResult>> ChangeStock([FromBody] ProductStockUpdateVm model)
+        public async Task<IActionResult> ChangeStock([FromBody] ProductStockUpdateVm model)
         {
             var product = _productRepository.Query().FirstOrDefault(x => x.Id == model.Id);
 
@@ -107,7 +106,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             product.Stock = model.Stock;
             await _productRepository.SaveChangesAsync();
 
-            return Accepted(new { product.Id });
+            return Ok(new { product.Id });
         }
 
         [HttpGet("{id}")]
@@ -150,7 +149,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         [HttpPost("list")]
         public async Task<IActionResult> List([FromBody] SmartTableParam param)
         {
-            var search = param.Search.PredicateObject?.ToObject<SearchProductParametersVm>() ?? new SearchProductParametersVm();
+            var search = param.Search.ToObject<SearchProductParametersVm>();
 
             var currentUser = await _workContext.GetCurrentUser();
             var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
@@ -167,7 +166,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         [HttpPost("export")]
         public async Task<IActionResult> Export([FromBody] SmartTableParam param)
         {
-            var search = param.Search.PredicateObject?.ToObject<SearchProductParametersVm>() ?? new SearchProductParametersVm();
+            var search = param.Search.ToObject<SearchProductParametersVm>();
 
             var currentUser = await _workContext.GetCurrentUser();
             var canManageOrder = (await _authorizationService.AuthorizeAsync(User, Policy.CanManageOrder)).Succeeded;
@@ -216,7 +215,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
                 {
                     OptionId = option.Id,
                     DisplayType = option.DisplayType,
-                    Value = JsonConvert.SerializeObject(option.Values),
+                    Value = JsonSerializer.Serialize(option.Values),
                     SortIndex = optionIndex
                 });
 
@@ -434,13 +433,13 @@ namespace SimplCommerce.Module.Catalog.Controllers
                     {
                         OptionId = optionVm.Id,
                         DisplayType = optionVm.DisplayType,
-                        Value = JsonConvert.SerializeObject(optionVm.Values),
+                        Value = JsonSerializer.Serialize(optionVm.Values),
                         SortIndex = optionIndex
                     });
                 }
                 else
                 {
-                    optionValue.Value = JsonConvert.SerializeObject(optionVm.Values);
+                    optionValue.Value = JsonSerializer.Serialize(optionVm.Values);
                     optionValue.DisplayType = optionVm.DisplayType;
                     optionValue.SortIndex = optionIndex;
                 }

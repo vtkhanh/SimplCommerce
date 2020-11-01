@@ -28,7 +28,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
                 var createdBefore = CreatedOn?.Before;
                 if (!createdBefore.HasValue && CreatedAfter.HasValue)
                 {
-                    createdBefore = GetLastDayOfMonth(CreatedAfter.Value);
+                    createdBefore = CreatedAfter.Value.AddDays(30);
                 }
                 return createdBefore;
             }
@@ -43,7 +43,7 @@ namespace SimplCommerce.Module.Orders.ViewModels
                 var completedBefore = CompletedOn?.Before;
                 if (!completedBefore.HasValue && CompletedAfter.HasValue)
                 {
-                    completedBefore = GetLastDayOfMonth(CompletedAfter.Value);
+                    completedBefore = CompletedAfter.Value.AddDays(30);
                 }
                 return completedBefore;
             }
@@ -54,13 +54,5 @@ namespace SimplCommerce.Module.Orders.ViewModels
         public bool CanManageOrder { get; set; }
 
         public long? UserVendorId { get; set; }
-
-        private DateTime GetLastDayOfMonth(DateTimeOffset date)
-        {
-            var year = date.Year;
-            var month = date.Month;
-            var lastDay = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(year, month), 23, 59, 59);
-            return lastDay;
-        }
     }
 }
