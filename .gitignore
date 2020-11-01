@@ -178,4 +178,4 @@ src/**/Logs/
 src/SimplCommerce.WebHost/wwwroot/lib/
 
 # appsettings files
-appsettings*.json
+appsettings.*.json
