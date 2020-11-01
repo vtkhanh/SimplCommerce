@@ -15,6 +15,8 @@
 
         vm.getProducts = (tableState) => {
             setPageIndex(tableState);
+            setStockPredicate(tableState);
+            setHasOptionsPredicate(tableState);
 
             tableStateRef = tableState;
             vm.isLoading = true;
@@ -55,7 +57,7 @@
 
         vm.changeStock = (productId, stock) => {
             productService
-                .changeStock(productId, stock)
+                .changeStock(productId, parseInt(stock))
                 .then(() => toastr.success("Saved successfully."))
                 .catch((response) => toastr.error(JSON.stringify(response.data)));
         };
@@ -67,7 +69,7 @@
                     .then((response) => {
                         const data = response.data;
 
-                        if (data.value === true) {
+                        if (data === true) {
                             toastr.success("Added successfully");
 
                             // Refresh the product list
@@ -96,6 +98,18 @@
                 tableState.pagination.start = (pageIndex - 1) * tableState.pagination.number;
             }
             $location.search({ 'page': pageIndex });
+        }
+
+        function setStockPredicate(tableState) {
+            if (tableState.search.predicateObject && tableState.search.predicateObject.InStock) {
+                tableState.search.predicateObject.InStock = JSON.parse(tableState.search.predicateObject.InStock);
+            }
+        }
+
+        function setHasOptionsPredicate(tableState) {
+            if (tableState.search.predicateObject && tableState.search.predicateObject.HasOptions) {
+                tableState.search.predicateObject.HasOptions = JSON.parse(tableState.search.predicateObject.HasOptions);
+            }
         }
     }
 })();

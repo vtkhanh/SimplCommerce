@@ -85,16 +85,16 @@ namespace SimplCommerce.Module.Catalog.Controllers
         }
 
         [HttpPost("addStock/{barcode}")]
-        public async Task<ActionResult<ObjectResult>> AddStock(string barcode)
+        public async Task<IActionResult> AddStock(string barcode)
         {
             var (ok, error) = await _productService.AddStockAsync(barcode);
 
-            return error.HasValue() ? (ObjectResult)BadRequest(error) : Ok(ok);
+            return error.HasValue() ? (ObjectResult) BadRequest(error) : Ok(ok);
         }
 
         [HttpPost("changeStock")]
         [Authorize(Policy.CanEditProduct)]
-        public async Task<ActionResult<ObjectResult>> ChangeStock([FromBody] ProductStockUpdateVm model)
+        public async Task<IActionResult> ChangeStock([FromBody] ProductStockUpdateVm model)
         {
             var product = _productRepository.Query().FirstOrDefault(x => x.Id == model.Id);
 
@@ -106,7 +106,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             product.Stock = model.Stock;
             await _productRepository.SaveChangesAsync();
 
-            return Accepted(new { product.Id });
+            return Ok(new { product.Id });
         }
 
         [HttpGet("{id}")]
