@@ -67,7 +67,6 @@
 
   <Target Name="GulpCommand" AfterTargets="Build">
     <Message Importance="high" Text="Copying modules' files..." />
-    <Exec WorkingDirectory="$(ProjectDir)" Command="gulp clean" ContinueOnError="false" />
     <Exec WorkingDirectory="$(ProjectDir)" Command="gulp --configurationName $(ConfigurationName) --targetFramework $(TargetFramework)" ContinueOnError="false" />
   </Target>
 </Project>

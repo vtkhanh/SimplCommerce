@@ -13,7 +13,7 @@ const argv = require('yargs').argv;
 
 
 const configurationName = argv.configurationName || 'Debug';
-const targetFramework = argv.targetFramework || 'netcoreapp2.1';
+const targetFramework = argv.targetFramework || 'netcoreapp3.1';
 
 // debugging
 console.log(configurationName);
