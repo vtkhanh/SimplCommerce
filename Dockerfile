@@ -47,8 +47,19 @@ RUN dotnet publish -c Release -o dist --no-restore --no-build
 
 # App image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+
 ENV ASPNETCORE_URLS http://+:5000
 
 WORKDIR /app	
+
+# Enable SSH
+EXPOSE 2222 80
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openssh-server \
+    && mkdir -p /run/sshd \
+    && echo "root:Docker!" | chpasswd
+COPY sshd_config /etc/ssh/sshd_config
+
 COPY --from=builder /app/src/SimplCommerce.WebHost/dist ./
-ENTRYPOINT ["dotnet", "SimplCommerce.WebHost.dll"]
+
+ENTRYPOINT ["/bin/bash", "-c", "/usr/sbin/sshd && dotnet SimplCommerce.WebHost.dll"]

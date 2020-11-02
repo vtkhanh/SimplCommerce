@@ -166,6 +166,7 @@ $RECYCLE.BIN/
 
 # Others
 package-lock.json
+launchSettings.json
 
 # Minified files
 src/Modules/**/*.min.js
