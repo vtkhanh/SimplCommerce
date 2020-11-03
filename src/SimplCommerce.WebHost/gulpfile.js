@@ -6,9 +6,6 @@ const glob = require("glob");
 const rimraf = require("rimraf");
 const concat = require("gulp-concat");
 const cssmin = require("gulp-cssmin");
-const uglify = require("gulp-uglify");
-const ignore = require('gulp-ignore');
-const del = require('del');
 const argv = require('yargs').argv;
 
 
@@ -36,13 +33,6 @@ gulp.task('clean-modules', function () {
         read: false
     })
     .pipe(clean());
-});
-
-gulp.task('copy-compiled', ['clean-modules'], function () {
-    modules.forEach(function (module) {
-        gulp.src(mPaths.devModules + module.fullName + `/bin/${configurationName}/${targetFramework}/**/*.*`)
-        .pipe(gulp.dest(mPaths.hostModules + module.fullName + '/bin'));
-    });
 });
 
 gulp.task('copy-static', ['clean-modules'], function () {
