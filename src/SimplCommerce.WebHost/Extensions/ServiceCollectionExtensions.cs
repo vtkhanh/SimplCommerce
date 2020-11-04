@@ -54,6 +54,7 @@ namespace SimplCommerce.WebHost.Extensions
                 {
                     options.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider());
                 })
+                .AddRazorRuntimeCompilation()
                 .AddViewLocalization()
                 .AddDataAnnotationsLocalization();
 

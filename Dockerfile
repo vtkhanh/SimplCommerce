@@ -43,7 +43,7 @@ RUN ./run-tests.sh
 
 # Publish
 WORKDIR /app/src/SimplCommerce.WebHost
-RUN dotnet publish -c Release -o dist --no-restore --no-build
+RUN dotnet publish -c Release -o dist --no-restore /p:DebugType=None
 
 # App image
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
