@@ -16,13 +16,13 @@ namespace SimplCommerce.Module.StorageAzureBlob
 
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IMediaService, AzureBlobMediaStorage>();
+            services.AddScoped<IMediaService, AzureMediaStorageService>();
             services.AddScoped<IOrderFileStorageService, AzureOrderFileStorageService>();
 
-            services.Configure<AzureStorageConfig>(configuration.GetSection("AzureStorageConfig"));
             services.AddScoped((opt) => opt.GetService<IOptionsSnapshot<AzureStorageConfig>>().Value);
 
             services.Configure<AzureStorageConfig>("AzureOrderFileStorageConfig", configuration.GetSection("AzureOrderFileStorageConfig"));
+            services.Configure<AzureStorageConfig>("AzureMediaStorageConfig", configuration.GetSection("AzureMediaStorageConfig"));
         }
     }
 }

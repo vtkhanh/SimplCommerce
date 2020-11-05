@@ -6,7 +6,7 @@ using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.StorageAzureBlob
 {
-    public class AzureOrderFileStorageService : AzureBlobMediaStorage, IOrderFileStorageService
+    public class AzureOrderFileStorageService : AzureBlobStorage, IOrderFileStorageService
     {
         public AzureOrderFileStorageService(IOptionsSnapshot<AzureStorageConfig> storageConfig)
             : base(storageConfig.Get("AzureOrderFileStorageConfig"))

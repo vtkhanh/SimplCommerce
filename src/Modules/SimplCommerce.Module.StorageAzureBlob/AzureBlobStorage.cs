@@ -6,15 +6,14 @@ using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Module.Core.Models;
-using SimplCommerce.Module.Core.Services;
 
 namespace SimplCommerce.Module.StorageAzureBlob
 {
-    public class AzureBlobMediaStorage : IMediaService
+    public abstract class AzureBlobStorage
     {
         protected readonly CloudBlobContainer _blobContainer;
 
-        public AzureBlobMediaStorage(AzureStorageConfig storageConfig)
+        protected AzureBlobStorage(AzureStorageConfig storageConfig)
         {
             if (storageConfig.AccountKey.IsNullOrEmpty() || storageConfig.AccountName.IsNullOrEmpty())
                 throw new ArgumentException("Sorry, can't retrieve your azure storage credential from setting");
