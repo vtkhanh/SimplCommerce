@@ -10,16 +10,16 @@ namespace SimplCommerce.Module.Orders.Services.Constants
             public const int ExternalId = 0;
             public const int OrderedDate = 1;
             public const int Status = 2;
-            public const int TrackingNumber = 4;
-            public const int Sku = 12;
-            public const int Price = 23;
-            public const int Quantity = 24;
-            public const int ShippingCost = 35;
-            public const int ShippingAmount = 36;
-            public const int OrderTotal = 37;
-            public const int Username = 44;
-            public const int Phone = 46;
-            public const int ShippingAddress = 50;
+            public const int TrackingNumber = 3;
+            public const int Sku = 4;
+            public const int Price = 5;
+            public const int Quantity = 6;
+            public const int ShippingCost = 7;
+            public const int ShippingAmount = 8;
+            public const int OrderTotal = 9;
+            public const int Username = 10;
+            public const int Phone = 11;
+            public const int ShippingAddress = 12;
         }
 
         public static Dictionary<string, OrderStatus> OrderStatusMapping = 
