@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using ExcelDataReader;
+using Microsoft.ApplicationInsights;
 using SimplCommerce.Infrastructure;
 using SimplCommerce.Infrastructure.ResultTypes;
 using SimplCommerce.Module.Orders.Services.Dtos;
@@ -13,6 +14,13 @@ namespace SimplCommerce.Module.Orders.Services
 {
     internal class OrderFileParser : IOrderFileParser
     {
+        private readonly TelemetryClient _telemetry;
+
+        public OrderFileParser(TelemetryClient telemetry)
+        {
+            _telemetry = telemetry;
+        }
+
         public ActionFeedback<IEnumerable<ImportingOrderDto>> Parse(Stream fileStream)
         {
             try
@@ -59,7 +67,7 @@ namespace SimplCommerce.Module.Orders.Services
             }
             catch (Exception exception)
             {
-                // TODO: Log to AppInsights
+                _telemetry.TrackException(exception);
 
                 return ActionFeedback<IEnumerable<ImportingOrderDto>>.Fail(exception.Message);
             }

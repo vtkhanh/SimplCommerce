@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.EntityFrameworkCore;
 using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Catalog.Services;
@@ -19,17 +20,20 @@ namespace SimplCommerce.Module.Orders.Services
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly IRepository<Order> _orderRepo;
+        private readonly TelemetryClient _telemetry;
 
         public OrderImportService(
             ICustomerService customerService, 
             IOrderService orderService, 
             IProductService productService,
-            IRepository<Order> orderRepo)
+            IRepository<Order> orderRepo,
+            TelemetryClient telemetry)
         {
             _customerService = customerService;
             _orderService = orderService;
             _productService = productService;
             _orderRepo = orderRepo;
+            _telemetry = telemetry;
         }
 
         public async Task<ImportResult> ImportAsync(IEnumerable<ImportingOrderDto> orders)
@@ -79,9 +83,9 @@ namespace SimplCommerce.Module.Orders.Services
                 }
                 catch (Exception exception)
                 {
-                    // TODO: log exception to AppInsights
-
                     Report(importResult, orderDto.ExternalId, ImportResultDetailStatus.Others, exception.Message);
+
+                    _telemetry.TrackException(exception);
                 }
             }
 

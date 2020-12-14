@@ -44,14 +44,17 @@ namespace SimplCommerce.Module.Orders.Events
             _referenceFileName = request.ReferenceFileName;
 
             var feedback = await RunImportAsync();
-
             var importResult = feedback.Result;
-            importResult.ImportedById = request.ImportedById;
-            importResult.OrderFileId = request.OrderFileId;
-            _importResultRepo.Add(importResult);
-            await _importResultRepo.SaveChangesAsync();
-            
-            await _orderFileService.UpdateStatusAsync(request.OrderFileId, ImportFileStatus.Completed);
+
+            if (importResult is not null)
+            {
+                importResult.ImportedById = request.ImportedById;
+                importResult.OrderFileId = request.OrderFileId;
+                _importResultRepo.Add(importResult);
+                await _importResultRepo.SaveChangesAsync();
+
+                await _orderFileService.UpdateStatusAsync(request.OrderFileId, ImportFileStatus.Completed);
+            }
 
             return Unit.Value;
         }
