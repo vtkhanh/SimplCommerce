@@ -49,5 +49,21 @@
                     $state.reload();
                 });
         }
+
+        vm.deleteImport = (orderFileId) => {
+            if (confirm("Are you sure?")) {
+                orderImportService
+                    .deleteImport(orderFileId)
+                    .then(result => {
+                        if (result.data === true) {
+                            toastr.success("Deleted successfully...");
+                        }
+                        else {
+                            toastr.error("Deleted unsuccessfully...");
+                        }
+                        $state.reload();
+                    });
+            }
+        }
     }
 })();

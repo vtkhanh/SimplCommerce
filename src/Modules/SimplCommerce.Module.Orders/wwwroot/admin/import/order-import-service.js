@@ -10,7 +10,8 @@
             upload: upload,
             getOrderFilesForGrid: getOrderFilesForGrid,
             getImportResult: getImportResult,
-            runImport: runImport
+            runImport: runImport,
+            deleteImport: deleteImport
         };
         return service;
 
@@ -34,6 +35,10 @@
 
         function runImport(orderFileId) {
             return $http.post('api/order-import/run-import/' + orderFileId);
+        }
+
+        function deleteImport(orderFileId) {
+            return $http.post('api/order-import/delete-import/' + orderFileId);
         }
     }
 })();

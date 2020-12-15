@@ -88,5 +88,12 @@ namespace SimplCommerce.Module.Orders.Controllers
 
             return Accepted();
         }
+
+        [HttpPost("delete-import/{orderFileId}")]
+        public async Task<ActionResult> DeleteImport(long orderFileId)
+        {
+            var result = await _orderFileService.DeleteAsync(orderFileId);
+            return Ok(result);
+        }
     }
 }

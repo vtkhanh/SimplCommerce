@@ -19,6 +19,8 @@ namespace SimplCommerce.Module.Orders.Models
 
         public DateTimeOffset CreatedOn { get; set; }
 
+        public bool IsDeleted { get; set; }
+
         [ForeignKey("CreatedById")]
         public User CreatedBy { get; set; }
 

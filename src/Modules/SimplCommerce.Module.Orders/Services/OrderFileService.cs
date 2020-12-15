@@ -18,10 +18,11 @@ namespace SimplCommerce.Module.Orders.Services
             _orderFileRepo = importFileRepo;
         }
 
-        public SmartTableResult<GetOrderFileDto> Get(SmartTableParam param)
+        public SmartTableResult<GetOrderFileDto> Get(SmartTableParam param, bool includeDeleted = false)
         {
             var orderFiles = _orderFileRepo
                 .QueryAsNoTracking()
+                .Where(item => includeDeleted || !item.IsDeleted)
                 .Include(item => item.CreatedBy)
                 .Include(item => item.ImportResults);
 
@@ -48,7 +49,9 @@ namespace SimplCommerce.Module.Orders.Services
             var file = await _orderFileRepo.QueryAsNoTracking().FirstOrDefaultAsync(item => item.Id == id);
 
             if (file is null)
+            {
                 return null;
+            }
 
             return new GetOrderFileDto
             {
@@ -82,12 +85,29 @@ namespace SimplCommerce.Module.Orders.Services
             var file = await _orderFileRepo.Query().FirstOrDefaultAsync(item => item.Id == id);
 
             if (file is null)
+            {
                 return false;
+            }
 
             file.Status = status;
             await _orderFileRepo.SaveChangesAsync();
 
             return true;
         }
+
+        public async Task<bool> DeleteAsync(long id)
+        {
+            var file = await _orderFileRepo.Query().SingleOrDefaultAsync(item => item.Id == id);
+            if (file is null)
+            {
+                return false;
+            }
+
+            file.IsDeleted = true;
+            await _orderFileRepo.SaveChangesAsync();
+
+            return true;
+        }
+
     }
 }

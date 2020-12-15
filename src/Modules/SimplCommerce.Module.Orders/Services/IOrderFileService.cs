@@ -8,8 +8,9 @@ namespace SimplCommerce.Module.Orders.Services
     public interface IOrderFileService
     {
         Task<GetOrderFileDto> GetByIdAsync(long id);
-        SmartTableResult<GetOrderFileDto> Get(SmartTableParam param);
+        SmartTableResult<GetOrderFileDto> Get(SmartTableParam param, bool includeDeleted = false);
         Task<long> SaveAsync(SaveOrderFileDto request);
         Task<bool> UpdateStatusAsync(long id, ImportFileStatus status);
+        Task<bool> DeleteAsync(long id);
     }
 }
