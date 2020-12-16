@@ -46,7 +46,7 @@ namespace SimplCommerce.Module.Orders.Events
             var feedback = await RunImportAsync();
             var importResult = feedback.Result;
 
-            if (importResult is not null)
+            if (importResult is object)
             {
                 importResult.ImportedById = request.ImportedById;
                 importResult.OrderFileId = request.OrderFileId;
