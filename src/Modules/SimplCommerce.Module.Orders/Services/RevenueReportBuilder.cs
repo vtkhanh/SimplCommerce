@@ -42,9 +42,6 @@ namespace SimplCommerce.Module.Orders.Services
                 var period = _from.AddMonths(index);
                 var ordersInMonth = _orders.Where(IsInMonth(period.Month));
 
-                if (!ordersInMonth.Any())
-                    continue;
-
                 Months.Add(period.ToString(MonthFormat));
                 SubTotals.Add(ordersInMonth.Sum(order => order.SubTotal));
             }
@@ -64,9 +61,6 @@ namespace SimplCommerce.Module.Orders.Services
                 var period = _from.AddMonths(index);
                 var ordersInMonth = _orders.Where(IsInMonth(period.Month));
 
-                if (!ordersInMonth.Any())
-                    continue;
-
                 Totals.Add(ordersInMonth.Sum(order => order.OrderTotal));
             }
         }
@@ -85,9 +79,6 @@ namespace SimplCommerce.Module.Orders.Services
             {
                 var period = _from.AddMonths(index);
                 var ordersInMonth = _orders.Where(IsInMonth(period.Month));
-
-                if (!ordersInMonth.Any())
-                    continue;
 
                 Costs.Add(ordersInMonth.Sum(order => order.OrderTotalCost));
                 Profits.Add(Totals[index] - Costs[index]);
