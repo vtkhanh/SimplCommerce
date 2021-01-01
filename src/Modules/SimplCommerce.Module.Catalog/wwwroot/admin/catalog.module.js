@@ -132,6 +132,22 @@
                     url: '/widget-category/edit/:id',
                     templateUrl: 'modules/catalog/admin/category-widget/category-widget-form.html',
                     controller: 'CategoryWidgetFormCtrl as vm'
-                });
+                })
+                .state('supplier', {
+                    url: '/supplier',
+                    templateUrl: 'template/products/supplier-list',
+                    controller: 'SupplierListCtrl as vm'
+                })
+                .state('supplier-create', {
+                    url: '/supplier/create',
+                    templateUrl: 'template/products/supplier-form',
+                    controller: 'SupplierFormCtrl as vm'
+                })
+                .state('supplier-edit', {
+                    url: '/supplier/edit/:id',
+                    templateUrl: 'template/products/supplier-form',
+                    controller: 'SupplierFormCtrl as vm'
+                })
+                ;
         }]);
 })();

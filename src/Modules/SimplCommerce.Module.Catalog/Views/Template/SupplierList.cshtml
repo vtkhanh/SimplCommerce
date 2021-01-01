@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+}
+
+<div class="page-header">
+    <div class="row">
+        <div class="col-xs-9">
+            <h2>{{::vm.translate.get('Suppliers')}}</h2>
+        </div>
+        <div class="col-xs-3 text-right">
+            <md-button ui-sref="supplier-create" class="md-raised md-primary"><span class="fa fa-plus">&nbsp;</span>{{::vm.translate.get('Create')}}</md-button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{::vm.translate.get('Name')}}</th>
+                <th>{{::vm.translate.get('Phone')}}</th>
+                <th>{{::vm.translate.get('Address')}}</th>
+                <th>{{::vm.translate.get('Actions')}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="supplier in vm.suppliers">
+                <td>{{supplier.name}}</td>
+                <td>{{supplier.phone}}</td>
+                <td>{{supplier.address}}</td>
+                <td>
+                    <a ui-sref="supplier-edit({id: supplier.id})" title="Edit" class="btn btn-primary btn-xs"> <span class="glyphicon glyphicon-pencil"></span></a>
+                    <button ng-click="vm.deleteSupplier(supplier)" class="btn btn-danger btn-xs delete"> <span class="glyphicon glyphicon-remove"></span></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

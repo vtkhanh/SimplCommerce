@@ -11,8 +11,16 @@ namespace SimplCommerce.Module.Catalog.Controllers
     {
         private const string ProductListView = "ProductList";
         private const string ProductListSellerView = "ProductListSeller";
+        private const string SupplierListView = "SupplierList";
+        private const string SupplierFormView = "SupplierForm";
 
         [HttpGet("product-list")]
         public IActionResult GetProductList() => User.IsInRole(RoleName.Admin) ? View(ProductListView) : View(ProductListSellerView);
+
+        [HttpGet("supplier-list")]
+        public IActionResult GetSupplierList() => View(SupplierListView);
+
+        [HttpGet("supplier-form")]
+        public IActionResult GetSupplierForm() => View(SupplierFormView);
     }
 }
