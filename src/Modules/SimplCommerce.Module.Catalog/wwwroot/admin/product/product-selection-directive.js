@@ -32,8 +32,8 @@
             tableStateRef = tableState;
             tableStateRef.search = tableStateRef.search || {};
             tableStateRef.search.predicateObject = tableStateRef.search.predicateObject || {};
-            tableStateRef.search.predicateObject.IsVisibleIndividually = vm.isVisibleIndividually;
-            tableStateRef.search.predicateObject.IsPublished = "true";
+            tableStateRef.search.predicateObject.IsVisibleIndividually = vm.isVisibleIndividually === 'true';
+            tableStateRef.search.predicateObject.IsPublished = true;
             vm.isLoading = true;
             productService.getProducts(tableState).then(function (result) {
                 vm.products = result.data.items;
