@@ -102,7 +102,7 @@
                 })
                 .state('product-create', {
                     url: '/product-create',
-                    templateUrl: 'modules/catalog/admin/product/product-form.html',
+                    templateUrl: 'template/products/product-form',
                     controller: 'ProductFormCtrl as vm',
                     params: {
                         sku: null
@@ -110,7 +110,7 @@
                 })
                 .state('product-edit', {
                     url: '/product/edit/:id',
-                    templateUrl: 'modules/catalog/admin/product/product-form.html',
+                    templateUrl: 'template/products/product-form',
                     controller: 'ProductFormCtrl as vm'
                 })
                 .state('widget-product-create', {

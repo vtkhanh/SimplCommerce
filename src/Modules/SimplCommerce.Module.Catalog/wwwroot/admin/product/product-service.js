@@ -7,22 +7,24 @@
     /* @ngInject */
     function productService($http, Upload) {
         const service = {
-            getProducts: getProducts,
+            addStock: addStock,
+            changeStatus: changeStatus,
+            changeStock: changeStock,
             createProduct: createProduct,
+            deleteProduct: deleteProduct,
+            exportProducts: exportProducts,
             editProduct: editProduct,
+            importStock: importStock,
+            getProducts: getProducts,
             getProductSetting: getProductSetting,
             getProductAttrs: getProductAttrs,
             getProductTemplates: getProductTemplates,
             getProductTemplate: getProductTemplate,
             getProductOptions: getProductOptions,
             getProduct: getProduct,
-            changeStatus: changeStatus,
-            deleteProduct: deleteProduct,
             getTaxClasses: getTaxClasses,
-            searchProducts: searchProducts,
-            addStock: addStock,
-            changeStock: changeStock,
-            exportProducts: exportProducts,
+            getStockImports: getStockImports,
+            searchProducts: searchProducts
         };
         return service;
 
@@ -56,6 +58,10 @@
 
         function getProductOptions() {
             return $http.get('api/product-options');
+        }
+
+        function getStockImports(productId) {
+            return $http.get('api/products/stock-imports/' + productId);
         }
         
         function addStock(barcode) {
@@ -105,6 +111,10 @@
 
         function exportProducts(params) {
             return $http.post('api/products/export', params, { responseType: 'arraybuffer' }).then(downloadFile);
+        }
+
+        function importStock(stockImport) {
+            return $http.post('api/products/import-stock', stockImport);
         }
     }
 })();

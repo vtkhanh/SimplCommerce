@@ -1,4 +1,8 @@
-﻿<div class="panel panel-default">
+﻿@{
+    Layout = null;
+}
+
+<div class="panel panel-default">
     <div class="panel-heading">
         <h2 ng-if="!vm.isEditMode">{{::vm.translate.get('Create Product')}}</h2>
         <h2 ng-if="vm.isEditMode">{{::vm.translate.get('Edit Product')}} {{vm.product.name}}</h2>
@@ -41,8 +45,8 @@
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Stock')}}</label>
                         <div class="col-sm-3">
-                            <input id="productStock" type="number" name="stock" ng-model="vm.product.stock" 
-                                    required class="form-control" ng-change="vm.updateOutOfStock()"/>
+                            <input id="productStock" type="number" name="stock" ng-model="vm.product.stock"
+                                   required class="form-control" ng-change="vm.updateOutOfStock()" />
                         </div>
                         <div class="col-sm-3">
                             <div class="checkbox">
@@ -60,8 +64,8 @@
                             <input id="productWeight" type="number" step="any" name="weight" ng-model="vm.product.weight" class="form-control" />
                         </div>
                     </div>
-                    <product-cost-calc modal-id="cost-calc-modal" title="Calculate cost" 
-                        cost="vm.product.cost" weight="vm.product.weight" on-cost-change="vm.updateExpectedPrice(cost)">
+                    <product-cost-calc modal-id="cost-calc-modal" title="Calculate cost"
+                                       cost="vm.product.cost" weight="vm.product.weight" on-cost-change="vm.updateExpectedPrice(cost)">
                     </product-cost-calc>
                     <div class="form-group required">
                         <label class="col-sm-2 control-label">{{::vm.translate.get('Cost')}}</label>
@@ -280,7 +284,7 @@
                                 </tr>
                                 <tr ng-repeat="attr in vm.product.attributes">
                                     <td>{{attr.name}}</td>
-                                    <td><input type="text" class="form-control" ng-model="attr.value"/></td>
+                                    <td><input type="text" class="form-control" ng-model="attr.value" /></td>
                                     <td>
                                         <button ng-click="vm.deleteAttribute(attr)" type="button" class="btn">
                                             <span class="glyphicon glyphicon-remove"></span>
@@ -303,7 +307,7 @@
                     </md-content>
                 </uib-tab>
                 <uib-tab index="4" heading="{{::vm.translate.get('Related Products')}}">
-                    <product-selection-directive model-id="productRelationSelector" title="Add related products"  is-visible-individually="true" selected-products="vm.product.relatedProducts"></product-selection-directive>
+                    <product-selection-directive model-id="productRelationSelector" title="Add related products" is-visible-individually="true" selected-products="vm.product.relatedProducts"></product-selection-directive>
                     <p><button type="button" class="btn btn-default" data-toggle="modal" data-target="#productRelationSelector">{{::vm.translate.get('Manage Related Products')}}</button></p>
                     <table class="table table-striped">
                         <tr>
@@ -330,6 +334,25 @@
                         </tr>
                     </table>
                 </uib-tab>
+                <uib-tab index="6" heading="{{::vm.translate.get('Inventory')}}">
+                    <p><button type="button" class="btn btn-default" data-toggle="modal" data-target="#stock-import-modal">{{::vm.translate.get('Add Stock')}}</button></p>
+                    <table class="table table-striped">
+                        <tr>
+                            <th>{{::vm.translate.get('Date')}}</th>
+                            <th>{{::vm.translate.get('Supplier')}}</th>
+                            <th>{{::vm.translate.get('Quantity')}}</th>
+                            <th>{{::vm.translate.get('Cost')}}</th>
+                            <th>{{::vm.translate.get('New Price')}}</th>
+                        </tr>
+                        <tr ng-repeat="stockItem in vm.stockImports">
+                            <td>{{stockItem.date | date:'medium'}}</td>
+                            <td>{{stockItem.supplierName}}</td>
+                            <td>{{stockItem.quantity}}</td>
+                            <td>{{stockItem.cost}}</td>
+                            <td>{{stockItem.newPrice}}</td>
+                        </tr>
+                    </table>
+                </uib-tab>
             </uib-tabset>
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-9">
@@ -342,3 +365,5 @@
         </form>
     </div>
 </div>
+
+<partial name="_StockImportModal" />

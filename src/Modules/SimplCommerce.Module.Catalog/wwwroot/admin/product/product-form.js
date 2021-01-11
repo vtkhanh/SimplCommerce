@@ -5,7 +5,7 @@
         .controller('ProductFormCtrl', ProductFormCtrl);
 
     /* @ngInject */
-    function ProductFormCtrl($state, $timeout, $stateParams, $window, categoryService, productService, summerNoteService, brandService, translateService) {
+    function ProductFormCtrl($state, $timeout, $stateParams, $window, categoryService, productService, summerNoteService, brandService, translateService, supplierService) {
         const MIN_PROFIT = 30000; // Min profit on one item
 
         var vm = this;
@@ -41,40 +41,43 @@
         vm.addingVariation = { price: 0 };
         vm.brands = [];
         vm.taxClasses = [];
+        vm.stockImportHistory = [];
+        vm.stockImports = [];
+        vm.stockImport = { productId: parseInt(vm.productId) };
 
         vm.datePickerSpecialPriceStart = {};
         vm.datePickerSpecialPriceEnd = {};
 
-        vm.updateSlug = function () {
+        vm.updateSlug = () => {
             vm.product.slug = slugify(vm.product.name);
         };
 
-        vm.openCalendar = function (e, picker) {
+        vm.openCalendar = (e, picker) => {
             vm[picker].open = true;
         };
 
-        vm.shortDescUpload = function (files) {
+        vm.shortDescUpload = (files) => {
             summerNoteService.upload(files[0])
                 .then(function (response) {
                     $(vm.shortDescEditor).summernote('insertImage', response.data);
                 });
         };
 
-        vm.descUpload = function (files) {
+        vm.descUpload = (files) => {
             summerNoteService.upload(files[0])
                 .then(function (response) {
                     $(vm.descEditor).summernote('insertImage', response.data);
                 });
         };
 
-        vm.specUpload = function (files) {
+        vm.specUpload = (files) => {
             summerNoteService.upload(files[0])
                 .then(function (response) {
                     $(vm.specEditor).summernote('insertImage', response.data);
                 });
         };
 
-        vm.addOption = function addOption() {
+        vm.addOption = () => {
             onModifyOption(function () {
                 vm.addingOption.values = [];
                 vm.addingOption.displayType = "text";
@@ -85,7 +88,28 @@
             });
         };
 
-        vm.deleteOption = function deleteOption(option) {
+        vm.importStock = () => {
+            productService
+                .importStock(vm.stockImport)
+                .then(() => {
+                    toastr.success("Imported successfully!");
+                    getProduct();
+                    getStockImports(vm.productId);
+                })
+                .catch(response => {
+                    vm.validationErrors = [];
+                    if (response.data && angular.isObject(response.data.errors)) {
+                        var errors = response.data.errors;
+                        for (let key in errors) {
+                            vm.validationErrors.push(errors[key][0]);
+                        }
+                    } else {
+                        vm.validationErrors.push('Could not import stock.');
+                    }
+                });
+        }
+
+        vm.deleteOption = (option) => {
             onModifyOption(function () {
                 var index = vm.product.options.indexOf(option);
                 vm.product.options.splice(index, 1);
@@ -93,30 +117,15 @@
             });
         };
 
-        function onModifyOption(callback) {
-            if (vm.product.variations.length === 0) {
-                callback();
-                return;
-            }
-
-            bootbox.confirm('Add or remove option will clear all existing variations. Are you sure you want to do this?', function (result) {
-                if (result) {
-                    $timeout(function () {
-                        vm.product.variations = [];
-                        callback();
-                    }, 1);
-                }
-            });
-        }
-
-        vm.newOptionValue = function (chip) {
+        
+        vm.newOptionValue = (chip) => {
             return {
                 key: chip,
                 value: ''
             };
         };
 
-        vm.generateOptionCombination = function generateOptionCombination() {
+        vm.generateOptionCombination = () => {
             var maxIndexOption = vm.product.options.length - 1;
             vm.product.variations = [];
 
@@ -154,24 +163,24 @@
             helper([], 0);
         };
 
-        vm.deleteVariation = function deleteVariation(variation) {
+        vm.deleteVariation = (variation) => {
             var index = vm.product.variations.indexOf(variation);
             vm.product.variations.splice(index, 1);
         };
 
-        vm.removeImage = function removeImage(media) {
+        vm.removeImage = (media) => {
             var index = vm.product.productImages.indexOf(media);
             vm.product.productImages.splice(index, 1);
             vm.product.deletedMediaIds.push(media.id);
         };
 
-        vm.removeDocument = function removeDocument(media) {
+        vm.removeDocument = (media) => {
             var index = vm.product.productDocuments.indexOf(media);
             vm.product.productDocuments.splice(index, 1);
             vm.product.deletedMediaIds.push(media.id);
         };
 
-        vm.isAddVariationFormValid = function () {
+        vm.isAddVariationFormValid = () => {
             var i;
             if (isNaN(vm.addingVariation.price) || vm.addingVariation.price === '') {
                 return false;
@@ -186,7 +195,7 @@
             return true;
         };
 
-        vm.addVariation = function addVariation() {
+        vm.addVariation = () => {
             var variation,
                 optionCombinations = [];
 
@@ -221,7 +230,7 @@
         };
 
         // TODO: look for a more concise way
-        vm.applyTemplate = function applyTemplate() {
+        vm.applyTemplate = () => {
             var template, i, index, workingAttr,
                 nonTemplateAttrs = [];
 
@@ -255,20 +264,20 @@
             });
         };
 
-        vm.addAttribute = function addAttribute() {
+        vm.addAttribute = () => {
             var index = vm.attributes.indexOf(vm.addingAttribute);
             vm.product.attributes.push(vm.addingAttribute);
             vm.attributes.splice(index, 1);
             vm.addingAttribute = null;
         };
 
-        vm.deleteAttribute = function deleteAttribute(attribute) {
+        vm.deleteAttribute = (attribute) => {
             var index = vm.product.attributes.indexOf(attribute);
             vm.product.attributes.splice(index, 1);
             vm.attributes.push(attribute);
         };
 
-        vm.toggleCategories = function toggleCategories(categoryId) {
+        vm.toggleCategories = (categoryId) => {
             var index = vm.product.categoryIds.indexOf(categoryId);
             if (index > -1) {
                 vm.product.categoryIds.splice(index, 1);
@@ -293,7 +302,7 @@
             }
         };
 
-        vm.filterAddedOptionValue = function filterAddedOptionValue(item) {
+        vm.filterAddedOptionValue = (item) => {
             if (vm.product.options.length > 1) {
                 return true;
             }
@@ -329,7 +338,7 @@
             vm.expectedPrice = Math.max(MIN_PROFIT, 0.1 * cost) + cost;
         }
 
-        vm.save = function save() {
+        vm.save = () => {
             var promise;
 
             // ng-upload will post null as text
@@ -381,6 +390,8 @@
             getCategories();
             getBrands();
             getTaxClasses();
+            getStockImports(vm.productId);
+            getSuppliers();
         }
 
         function getProduct() {
@@ -447,6 +458,13 @@
             });
         }
 
+        function getStockImports(productId) {
+            productService.getStockImports(productId).then(result => vm.stockImports = result.data);
+        }
+
+        function getSuppliers() {
+            supplierService.getSuppliers().then(result => vm.suppliers = result.data);
+        }
 
         function getParentCategoryIds(categoryId) {
             if (!categoryId) {
@@ -474,6 +492,22 @@
             }
 
             return result;
+        }
+
+        function onModifyOption(callback) {
+            if (vm.product.variations.length === 0) {
+                callback();
+                return;
+            }
+
+            bootbox.confirm('Add or remove option will clear all existing variations. Are you sure you want to do this?', function (result) {
+                if (result) {
+                    $timeout(function () {
+                        vm.product.variations = [];
+                        callback();
+                    }, 1);
+                }
+            });
         }
 
         init();

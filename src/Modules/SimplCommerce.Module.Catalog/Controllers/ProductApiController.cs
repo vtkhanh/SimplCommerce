@@ -42,6 +42,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
         private readonly IWorkContext _workContext;
         private readonly IAuthorizationService _authorizationService;
         private readonly ISearchProductService _searchProductService;
+        private readonly IStockImportService _stockImportService;
 
         public ProductApiController(
             IMapper mapper,
@@ -54,7 +55,8 @@ namespace SimplCommerce.Module.Catalog.Controllers
             IRepository<ProductAttributeValue> productAttributeValueRepository,
             IWorkContext workContext,
             IAuthorizationService authorizationService,
-            ISearchProductService searchProductService)
+            ISearchProductService searchProductService,
+            IStockImportService stockImportService)
         {
             _mapper = mapper;
             _productRepository = productRepository;
@@ -67,6 +69,7 @@ namespace SimplCommerce.Module.Catalog.Controllers
             _workContext = workContext;
             _authorizationService = authorizationService;
             _searchProductService = searchProductService;
+            _stockImportService = stockImportService;
         }
 
         [HttpGet("search")]
@@ -329,6 +332,50 @@ namespace SimplCommerce.Module.Catalog.Controllers
             await _productService.DeleteAsync(product);
 
             return NoContent();
+        }
+
+        [HttpGet("stock-imports/{productId}")]
+        [Authorize(Policy.CanEditProduct)]
+        public async Task<IActionResult> GetStockImports(long productId)
+        {
+            var stockImports = await _stockImportService.GetByProductAsync(productId);
+            return Ok(stockImports);
+        }
+
+        [HttpPost("import-stock")]
+        [Authorize(Policy.CanEditProduct)]
+        public async Task<IActionResult> ImportStock(StockImportVm model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var dto = new StockImportDto
+            {
+                ProductId = model.ProductId,
+                Date = DateTimeOffset.UtcNow,
+                SupplierId = model.SupplierId,
+                Quantity = model.Quantity,
+                Cost = model.Cost,
+                NewPrice = model.NewPrice
+            };
+            var stockImportId = await _stockImportService.CreateAsync(dto);
+
+            if (stockImportId > 0)
+            {
+                var product = await _productRepository.Query().SingleAsync(item => item.Id == model.ProductId);
+                product.Stock += dto.Quantity;
+                product.Cost = dto.Cost;
+                if (dto.NewPrice > 0)
+                {
+                    product.OldPrice = product.Price;
+                    product.Price = dto.NewPrice;
+                }
+                _productService.Update(product);
+            }
+
+            return Ok();
         }
 
         private static void MapProductVariationVmToProduct(ProductForm model, Product product)
