@@ -7,7 +7,7 @@
         .config(['$stateProvider', function ($stateProvider) {
             $stateProvider.state('localization', {
                 url: '/localization',
-                templateUrl: "modules/localization/admin/localization/localization-form.html",
+                templateUrl: "template/localization/translation-list",
                 controller: 'LocalizationFormCtrl as vm'
             });
         }]);

@@ -1,16 +1,29 @@
-﻿<div class="panel panel-default">
+﻿@{
+    Layout = null;
+}
+
+<div class="panel panel-default">
     <div class="panel-heading">
         <h2>Manage Translations</h2>
         <p>Note that the updated translations only be affected after the application is restarted</p>
     </div>
     <div class="panel-body">
-        <form name="cultureSelection" class="form-inline">
-            <div class="form-group">
-                <label>Select culture</label>
-                <select class="form-control" ng-model="vm.selectedCultureId" ng-options="culture.id as culture.name for culture in vm.cultures"></select>
+        <div class="row">
+            <div class="col-sm-8">
+                <form name="cultureSelection" class="form-inline">
+                    <div class="form-group">
+                        <label>Select culture</label>
+                        <select class="form-control" ng-model="vm.selectedCultureId" ng-options="culture.id as culture.name for culture in vm.cultures"></select>
+                        <button class="btn btn-default" ng-click="vm.changeCulture()">Switch</button>
+                    </div>
+                </form>
             </div>
-            <button class="btn btn-default" ng-click="vm.changeCulture()">Switch</button>
-        </form>
+            <div class="col-sm-4 text-right">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#add-translation-modal">
+                    <i class="fa fa-plus">&nbsp;</i>{{::vm.translate.get('Add')}}
+                </button>
+            </div>
+        </div>
         <form name="localizationForm" class="form-horizontal">
             <div class="col-sm-offset-4 bg-danger" ng-show="vm.validationErrors">
                 <ul>
@@ -34,3 +47,5 @@
         </form>
     </div>
 </div>
+
+<partial name="_AddTranslationModal" />

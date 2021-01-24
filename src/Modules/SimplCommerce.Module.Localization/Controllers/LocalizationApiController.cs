@@ -8,9 +8,12 @@ using SimplCommerce.Infrastructure.Data;
 using SimplCommerce.Module.Localization.Models;
 using Microsoft.AspNetCore.Authorization;
 using SimplCommerce.Module.Localization.ViewModel;
+using SimplCommerce.Module.Core.Extensions.Constants;
 
 namespace SimplCommerce.Module.Localization.Controllers
 {
+    [Authorize(Policy.CanAccessDashboard)]
+    [ApiController]
     [Route("api/localization")]
     public class LocalizationApiController : Controller
     {
@@ -96,6 +99,26 @@ namespace SimplCommerce.Module.Localization.Controllers
             }
 
             _resourceRepository.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpPost("create-resource")]
+        [Authorize(Roles = RoleName.Admin)]
+        public async Task<IActionResult> CreateResource([FromBody] ResourceItemVm model)
+        {
+            var resource = await _resourceRepository.Query().FirstOrDefaultAsync(item => item.CultureId == model.CultureId && item.Key == model.Key);
+            if (resource is null)
+            {
+                resource = new Resource
+                {
+                    CultureId = model.CultureId,
+                    Key = model.Key
+                };
+                _resourceRepository.Add(resource);
+            }
+            resource.Value = model.Value;
+            await _resourceRepository.SaveChangesAsync();
 
             return Ok();
         }

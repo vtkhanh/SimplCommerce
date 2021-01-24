@@ -9,7 +9,8 @@
         var service = {
             getCultures: getCultures,
             getResources: getResources,
-            updateResources: updateResources
+            updateResources: updateResources,
+            createResource: createResource
         };
         return service;
 
@@ -23,6 +24,10 @@
 
         function updateResources(cultureId, resources) {
             return $http.post('api/localization/update-resources?cultureId=' + cultureId, resources);
+        }
+
+        function createResource(resource) {
+            return $http.post('api/localization/create-resource', resource);
         }
     }
 })();
